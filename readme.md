@@ -20,6 +20,9 @@
 
 簡化版中含有102線作例子
 
+![簡化版設定](/image/simplify_setup.gif)
+![喂 Siri 執行簡化版](/image/simplify_demo_hey_siri.gif)
+
 ## 更新日誌
 
 ### 2.0
