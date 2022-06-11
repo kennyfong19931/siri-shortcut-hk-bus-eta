@@ -1,0 +1,30 @@
+
+POST http://localhost:8788/api/eta
+Content-Type: application/json
+
+[
+    {
+        "company": "KMB",
+        "routeType": "1",
+        "route": "1",
+        "stop": "C88E34E485B43EFB",
+        "dir": "O"
+    },
+    {
+        "company": "CTB",
+        "route": "1",
+        "stop": "002403",
+        "dir": "I"
+    },
+    {
+        "company": "NLB",
+        "route": "1",
+        "stop": "1"
+    },
+    {
+        "company": "GMB",
+        "route": "2002337",
+        "routeType": "1",
+        "stop": "1"
+    }
+]

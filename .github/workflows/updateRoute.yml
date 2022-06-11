@@ -1,0 +1,31 @@
+name: Update Data
+on:
+  push:
+    tags:
+      - '*'
+  schedule:
+    - cron: '0 16 * * *'
+jobs:
+  Update-Route-Data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+          npm install
+
+      - name: Update Route Data
+        run: |
+          npm run update
+
+      - name: Commit and Push data
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_options: '--no-verify'
+          commit_message: Update Route data
+          branch: main
+          file_pattern: api/route/*.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}

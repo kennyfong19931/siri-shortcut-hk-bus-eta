@@ -1,3 +1,5 @@
+[![Github Action](https://github.com/kennyfong19931/siri-shortcut-hk-bus-eta/workflows/Update%20Data/badge.svg)](https://github.com/kennyfong19931/siri-shortcut-hk-bus-eta/actions)
+
 # 巴士到站時間預報
 
 使用[資料一線通](https://data.gov.hk/)提供的API, 透過 Siri shortcut 查詢到站時間預報
@@ -23,22 +25,9 @@
 ![簡化版設定](/image/simplify_setup.gif)
 ![喂 Siri 執行簡化版](/image/simplify_demo_hey_siri.gif)
 
-## 更新日誌
+# Development
+## Install depedency
+`npm install`
 
-### 2.0
-[下載](https://www.icloud.com/shortcuts/957690afee3143b29f55ca745cea45ba)
-- 加入群組查詢功能，可以一次查詢多條路線
-- 新增簡化版，方便 Apple Watch / 喂 Siri 使用
-  - 簡化版下載位置: 設定➡️下載簡化版
-
-### 1.2
-[下載](https://www.icloud.com/shortcuts/bb320a7672b64f19aa59259864c1c67a)
-- 加入專線小巴到站時間
-
-### 1.1
-[下載](https://www.icloud.com/shortcuts/816f5ff261be463caf90af1143883033)
-- 使用iCloud儲存最近搜尋記錄
-- 快取車站名稱
-
-### 1.0
-[下載](https://www.icloud.com/shortcuts/9ee60d3f5fdb45b482e5d52aeee758c0)
+## Start Dev server for Cloudflare function
+`npm run dev`
