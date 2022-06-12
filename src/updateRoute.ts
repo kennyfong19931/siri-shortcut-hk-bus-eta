@@ -102,11 +102,23 @@ const getRoute = async (companyCode: string) => {
                     let routeListWithBound = [];
                     for (const [key, value] of Object.entries({ inbound: "I", outbound: "O" })) {
                         routeList.data.forEach((route) => {
-                            routeListWithBound.push({
-                                dirParam: key,
-                                dir: value,
-                                ...route
-                            });
+                            if (value == "I") {
+                                routeListWithBound.push({
+                                    dirParam: key,
+                                    dir: value,
+                                    route: route.route,
+                                    orig: route.dest_tc,
+                                    dest: route.orig_tc,
+                                });
+                            } else {
+                                routeListWithBound.push({
+                                    dirParam: key,
+                                    dir: value,
+                                    route: route.route,
+                                    orig: route.orig_tc,
+                                    dest: route.dest_tc,
+                                });
+                            }
                         })
                     }
 
@@ -122,7 +134,7 @@ const getRoute = async (companyCode: string) => {
 
                         let stopList = await Promise.all(stopPromiseList)
                             .then((stopList) => stopList.filter(s => s !== undefined))
-                        result.push(new Route(company.CODE, route.route, null, route.dir, route.orig_tc, route.dest_tc, stopList));
+                        result.push(new Route(company.CODE, route.route, null, route.dir, route.orig, route.dest, stopList));
                     }
                     return result;
                 }
