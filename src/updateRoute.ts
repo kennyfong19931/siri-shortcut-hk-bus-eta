@@ -40,7 +40,7 @@ const doRequest = async (method: string, url: string, body?: {}) => {
         if (result !== null && result !== undefined)
             return result;
 
-        await new Promise(r => setTimeout(r, 1000));
+        await new Promise(r => setTimeout(r, 60000));
     }
 }
 
