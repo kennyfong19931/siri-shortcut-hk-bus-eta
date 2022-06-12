@@ -7,6 +7,7 @@ import { Route } from "./class/Route";
 import { Stop } from "./class/Stop";
 import logger from "./utils/logger";
 
+const outputFolder = path.join("api", "route");
 
 const doRequest = async (method: string, url: string, body?: {}) => {
     let result;
@@ -209,8 +210,11 @@ const addToMap = (map: Map<string, Array<Route>>, routeList: Array<Route>) => {
         addToMap(routeMap, gmb);
 
         logger.info(`Step 3: Save result to JSON file`);
+        if (!fs.existsSync(outputFolder)) {
+            fs.mkdirSync(outputFolder);
+        }
         routeMap.forEach((value, key) => {
-            let filename = path.join("api", "route", key + ".json");
+            let filename = path.join(outputFolder, key + ".json");
             let data = JSON.stringify(value);
             fs.writeFile(filename, data, (err) => {
                 if (err)
