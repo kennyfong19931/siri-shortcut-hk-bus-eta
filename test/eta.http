@@ -26,5 +26,10 @@ Content-Type: application/json
         "route": "2002337",
         "routeType": "1",
         "stop": "1"
+    },
+    {
+        "company": "MTR",
+        "route": "506",
+        "stop": "506-U020"
     }
 ]

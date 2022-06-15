@@ -3,6 +3,7 @@ import { jsonResponse } from "../../src/utils/jsonResponse";
 import { COMPANY, PLACEHOLDER } from "../../src/constant";
 import ValidationUtil from "../../src/utils/validateUtil";
 
+const noETA = [{ eta: null, remark: "未有資料" }];
 
 export async function onRequestPost({ request }) {
     const requestBody = JSON.parse(await request.text());
@@ -45,6 +46,7 @@ export async function onRequestPost({ request }) {
 
     // ETA
     for (const requestItem of requestBody) {
+        let etaResponse;
         const company = Object.values(COMPANY).find(c => c.CODE == requestItem.company);
         switch (company.CODE) {
             case COMPANY.KMB.CODE:
@@ -69,16 +71,24 @@ export async function onRequestPost({ request }) {
                     .replace(PLACEHOLDER.STOP, requestItem.stop)
                     .replace(PLACEHOLDER.ROUTE, requestItem.route);
 
-                response.push(await fetch(api)
+                etaResponse = await fetch(api)
                     .then(response => response.json())
                     .then(json => json.data.filter(data => data.dir == requestItem.dir)
                         .map(data => {
-                            return {
-                                eta: dayjs(data.eta, "YYYY-MM-DDTHH:mm:ssZ").diff(dayjs(), "minute"),
-                                remark: data.rmk_tc,
-                            }
-                        }))
-                );
+                            if (data == null)
+                                return noETA;
+                            else
+                                return {
+                                    eta: dayjs(data.eta, "YYYY-MM-DDTHH:mm:ssZ").diff(dayjs(), "minute"),
+                                    remark: data.rmk_tc,
+                                }
+                        }));
+
+                if (etaResponse.length == 0) {
+                    response.push(noETA);
+                } else {
+                    response.push(etaResponse);
+                }
                 break;
             case COMPANY.NLB.CODE:
                 response.push(await fetch(company.ETA_API, {
@@ -94,15 +104,20 @@ export async function onRequestPost({ request }) {
                 })
                     .then(response => response.json())
                     .then(json => {
-                        let message = json.message;
-                        return json.estimatedArrivals.map(data => {
-                            return {
-                                eta: dayjs(data.estimatedArrivalTime, "YYYY-MM-DD HH:mm:ss").diff(dayjs(), "minute"),
-                                remark: data.remarks_tc,
-                                routeVariantName: data.routeVariantName,
-                                wheelChair: data.wheelChair
-                            }
-                        });
+                        if (json.estimatedArrivals.length == 0)
+                            return [{
+                                eta: null,
+                                remark: json.message
+                            }];
+                        else
+                            return json.estimatedArrivals.map(data => {
+                                return {
+                                    eta: dayjs(data.estimatedArrivalTime, "YYYY-MM-DD HH:mm:ss").diff(dayjs(), "minute"),
+                                    remark: data.remarks_tc,
+                                    routeVariantName: data.routeVariantName,
+                                    wheelChair: data.wheelChair
+                                }
+                            });
                     })
                 );
                 break;
@@ -111,15 +126,49 @@ export async function onRequestPost({ request }) {
                     .replace(PLACEHOLDER.ROUTE, requestItem.route)
                     .replace(PLACEHOLDER.ROUTE_TYPE, requestItem.routeType);
 
-                response.push(await fetch(api)
+                etaResponse = await fetch(api)
                     .then(response => response.json())
                     .then(json => json.data.eta.map(data => {
                         return {
                             eta: data.diff,
                             remark: data.remarks_tc,
                         }
-                    }))
-                );
+                    }));
+
+                if (etaResponse.length == 0) {
+                    response.push(noETA);
+                } else {
+                    response.push(etaResponse);
+                }
+                break;
+            case COMPANY.MTR.CODE:
+                etaResponse = await fetch(company.ETA_API, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        routeName: requestItem.route,
+                        language: "zh"
+                    })
+                })
+                    .then(response => response.json())
+                    .then(json => {
+                        return json.busStop.filter((busStop) => busStop.busStopId == requestItem.stop)
+                            .map(data => data.bus.map((bus) => {
+                                return {
+                                    eta: Math.floor(bus.departureTimeInSecond / 60),
+                                    remark: bus.remarks_tc ? "預定班次" : null,
+                                }
+                            }))
+                            .flat(1);
+                    });
+
+                if (etaResponse.length == 0) {
+                    response.push(noETA);
+                } else {
+                    response.push(etaResponse.slice(0, Math.min(3, etaResponse.length)));
+                }
                 break;
         }
     }

@@ -1,6 +1,7 @@
 import fetch from "node-fetch";
 import fs from "fs";
 import path from "path";
+import csv from 'csvtojson';
 
 import { COMPANY, PLACEHOLDER } from "./constant";
 import { Route } from "./class/Route";
@@ -9,7 +10,7 @@ import logger from "./utils/logger";
 
 const outputFolder = path.join("api", "route");
 
-const doRequest = async (method: string, url: string, body?: {}) => {
+const doRequest = async (method: string, url: string, body?: {}, toString = false) => {
     let result;
     while (true) {
         let request;
@@ -30,7 +31,7 @@ const doRequest = async (method: string, url: string, body?: {}) => {
                 if (!response.ok) {
                     throw new Error("HTTP status code: " + response.status);
                 } else {
-                    result = response.json();
+                    result = toString ? response.text() : response.json();
                 }
             })
             .catch((err) => {
@@ -190,6 +191,32 @@ const getRoute = async (companyCode: string) => {
                     return await Promise.all(result)
                         .then((result) => result.flat(1));
                 }
+            case COMPANY.MTR.CODE:
+                {
+                    const [routeList, stopList] = await Promise.all([
+                        doRequest("GET", company.ROUTE_API, null, true),
+                        doRequest("GET", company.ROUTE_STOP_API, null, true)
+                    ]).then(async ([routeList, stopList]) => await Promise.all([
+                        csv().fromString(routeList),
+                        csv().fromString(stopList)
+                    ]));
+
+                    return routeList.filter((route) => route.ROUTE_ID != "")
+                        .map((route) => {
+                            let routeStop = stopList.filter((stop) => stop.ROUTE_ID == route.ROUTE_ID);
+                            return ["O", "I"].map((dir) => {
+                                let stopList = routeStop.filter((stop) => stop.DIRECTION == dir)
+                                    .map((stop) => new Stop(stop.STATION_ID, stop.STATION_NAME_CHI, stop.STATION_LATITUDE, stop.STATION_LONGITUDE));
+                                if (stopList.length == 0)
+                                    return null;
+                                else
+                                    return new Route(company.CODE, route.ROUTE_ID, null, dir, stopList.at(0).getName(), stopList.at(-1).getName(), stopList);
+                            })
+                                .filter((result) => result != null);
+                        })
+                        .flat(1);
+
+                }
         }
     } catch (err) {
         logger.error(`[getRoute]`, err);
@@ -211,8 +238,9 @@ const addToMap = (map: Map<string, Array<Route>>, routeList: Array<Route>) => {
         getRoute(COMPANY.CTB.CODE),
         getRoute(COMPANY.NWFB.CODE),
         getRoute(COMPANY.NLB.CODE),
-        getRoute(COMPANY.GMB.CODE)
-    ]).then(([kmb, ctb, nwfb, nlb, gmb]) => {
+        getRoute(COMPANY.GMB.CODE),
+        getRoute(COMPANY.MTR.CODE),
+    ]).then(([kmb, ctb, nwfb, nlb, gmb, mtr]) => {
         logger.info(`Step 2: Merge by route`);
         const routeMap = new Map();
         addToMap(routeMap, kmb);
@@ -220,10 +248,22 @@ const addToMap = (map: Map<string, Array<Route>>, routeList: Array<Route>) => {
         addToMap(routeMap, nwfb);
         addToMap(routeMap, nlb);
         addToMap(routeMap, gmb);
+        addToMap(routeMap, mtr);
+        logger.info(`route count: ${routeMap.size}`);
 
         logger.info(`Step 3: Save result to JSON file`);
         if (!fs.existsSync(outputFolder)) {
             fs.mkdirSync(outputFolder);
+        } else {
+            fs.readdir(outputFolder, (err, files) => {
+                if (err) throw err;
+
+                for (const file of files) {
+                    fs.unlink(path.join(outputFolder, file), err => {
+                        if (err) throw err;
+                    });
+                }
+            });
         }
         routeMap.forEach((value, key) => {
             let filename = path.join(outputFolder, key + ".json");
@@ -232,7 +272,7 @@ const addToMap = (map: Map<string, Array<Route>>, routeList: Array<Route>) => {
                 if (err)
                     logger.error(`error when save file ${filename}`, err);
             });
-        })
+        });
     });
     logger.info("End");
 })();

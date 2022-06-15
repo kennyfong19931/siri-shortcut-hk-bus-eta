@@ -43,4 +43,11 @@ export const COMPANY = {
         STOP_API: `https://data.etagmb.gov.hk/stop/${PLACEHOLDER.STOP}`,
         ROUTE_STOP_API: `https://data.etagmb.gov.hk/route-stop/${PLACEHOLDER.ROUTE}/${PLACEHOLDER.ROUTE_TYPE}`,
     },
+    MTR:  {
+        CODE: "MTR",
+        ETA_API: `https://rt.data.gov.hk/v1/transport/mtr/bus/getSchedule`,
+        ROUTE_API: `https://opendata.mtr.com.hk/data/mtr_bus_routes.csv`,
+        STOP_API: null,
+        ROUTE_STOP_API: `https://opendata.mtr.com.hk/data/mtr_bus_stops.csv`,
+    },
 };
