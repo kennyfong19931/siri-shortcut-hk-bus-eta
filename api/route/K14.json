@@ -1,1 +1,1 @@
-[{"company":"KMB","route":"K14","routeType":"1","dir":"O","orig":"大埔太和路","dest":"大埔墟站","stopList":[{"id":"D758BEFF6536BFE9","name":"大埔超級城","lat":"22.451253","long":"114.169856"},{"id":"DD78D147EB6130E3","name":"大埔墟站巴士總站","lat":"22.443456","long":"114.169911"}],"routeId":"K14"}]
+[{"company":"kmb","route":"K14","routeType":"1","dir":"O","orig":"大埔太和路","dest":"大埔墟站","stopList":[{"id":"D758BEFF6536BFE9","name":"大埔超級城","lat":"22.451253","long":"114.169856"},{"id":"DD78D147EB6130E3","name":"大埔墟站巴士總站","lat":"22.443456","long":"114.169911"}],"routeId":"K14"}]
