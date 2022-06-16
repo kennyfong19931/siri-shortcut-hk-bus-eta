@@ -6,30 +6,30 @@ Content-Type: application/json
     {
         "company": "kmb",
         "routeType": "1",
-        "route": "1",
+        "routeId": "1",
         "stop": "C88E34E485B43EFB",
         "dir": "O"
     },
     {
         "company": "ctb",
-        "route": "1",
+        "routeId": "1",
         "stop": "002403",
         "dir": "I"
     },
     {
         "company": "nlb",
-        "route": "1",
+        "routeId": "1",
         "stop": "1"
     },
     {
         "company": "gmb",
-        "route": "2002337",
+        "routeId": "2002337",
         "routeType": "1",
         "stop": "1"
     },
     {
         "company": "mtr",
-        "route": "506",
+        "routeId": "506",
         "stop": "506-U020"
     }
 ]

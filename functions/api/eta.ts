@@ -15,7 +15,7 @@ export async function onRequestPost({ request }) {
         return jsonResponse({ error: "Invalid parameter" }, { status: 400, statusText: "Invalid parameter" });
     }
     for (const requestItem of requestBody) {
-        if (!ValidationUtil.containsAllKey(requestItem, ["company", "route", "stop"])) {
+        if (!ValidationUtil.containsAllKey(requestItem, ["company", "routeId", "stop"])) {
             return jsonResponse({ error: "Invalid parameter" }, { status: 400, statusText: "Invalid parameter" });
         }
 
@@ -51,7 +51,7 @@ export async function onRequestPost({ request }) {
         switch (company.CODE) {
             case COMPANY.KMB.CODE:
                 api = company.ETA_API.replace(PLACEHOLDER.STOP, requestItem.stop)
-                    .replace(PLACEHOLDER.ROUTE, requestItem.route)
+                    .replace(PLACEHOLDER.ROUTE, requestItem.routeId)
                     .replace(PLACEHOLDER.ROUTE_TYPE, requestItem.routeType);
 
                 response.push(await fetch(api)
@@ -69,7 +69,7 @@ export async function onRequestPost({ request }) {
             case COMPANY.NWFB.CODE:
                 api = company.ETA_API.replace(PLACEHOLDER.COMPANY, company.CODE)
                     .replace(PLACEHOLDER.STOP, requestItem.stop)
-                    .replace(PLACEHOLDER.ROUTE, requestItem.route);
+                    .replace(PLACEHOLDER.ROUTE, requestItem.routeId);
 
                 etaResponse = await fetch(api)
                     .then(response => response.json())
@@ -97,7 +97,7 @@ export async function onRequestPost({ request }) {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        routeId: requestItem.route,
+                        routeId: requestItem.routeId,
                         stopId: requestItem.stop,
                         language: "zh"
                     })
@@ -123,7 +123,7 @@ export async function onRequestPost({ request }) {
                 break;
             case COMPANY.GMB.CODE:
                 api = company.ETA_API.replace(PLACEHOLDER.STOP, requestItem.stop)
-                    .replace(PLACEHOLDER.ROUTE, requestItem.route)
+                    .replace(PLACEHOLDER.ROUTE, requestItem.routeId)
                     .replace(PLACEHOLDER.ROUTE_TYPE, requestItem.routeType);
 
                 etaResponse = await fetch(api)
@@ -148,7 +148,7 @@ export async function onRequestPost({ request }) {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        routeName: requestItem.route,
+                        routeName: requestItem.routeId,
                         language: "zh"
                     })
                 })
