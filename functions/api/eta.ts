@@ -60,7 +60,7 @@ export async function onRequestPost({ request }) {
                         .map(data => {
                             return {
                                 eta: dayjs(data.eta, "YYYY-MM-DDTHH:mm:ssZ").diff(dayjs(), "minute"),
-                                remark: data.rmk_tc,
+                                remark: data.rmk_tc == "" ? undefined : data.rmk_tc,
                             }
                         }))
                 );
@@ -80,7 +80,7 @@ export async function onRequestPost({ request }) {
                             else
                                 return {
                                     eta: dayjs(data.eta, "YYYY-MM-DDTHH:mm:ssZ").diff(dayjs(), "minute"),
-                                    remark: data.rmk_tc,
+                                    remark: data.rmk_tc == "" ? undefined : data.rmk_tc,
                                 }
                         }));
 
@@ -112,8 +112,8 @@ export async function onRequestPost({ request }) {
                         else
                             return json.estimatedArrivals.map(data => {
                                 return {
-                                    eta: dayjs(data.estimatedArrivalTime, "YYYY-MM-DD HH:mm:ss").diff(dayjs(), "minute"),
-                                    remark: data.remarks_tc,
+                                    eta: dayjs(data.estimatedArrivalTime, "YYYY-MM-DD HH:mm:ss").subtract(8, 'hour').diff(dayjs(), "minute"),
+                                    remark: data.remarks_tc == "" ? undefined : data.remarks_tc,
                                     routeVariantName: data.routeVariantName,
                                     wheelChair: data.wheelChair
                                 }
@@ -158,7 +158,7 @@ export async function onRequestPost({ request }) {
                             .map(data => data.bus.map((bus) => {
                                 return {
                                     eta: Math.floor(bus.departureTimeInSecond / 60),
-                                    remark: bus.remarks_tc ? "預定班次" : null,
+                                    remark: bus.remarks_tc ? "預定班次" : undefined,
                                 }
                             }))
                             .flat(1);

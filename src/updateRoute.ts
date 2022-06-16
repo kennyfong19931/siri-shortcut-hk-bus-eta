@@ -88,7 +88,9 @@ const getRoute = async (companyCode: string) => {
                                         return new Stop(stop.stop, stop.name_tc, stop.lat, stop.long);
                                     }
                                 })
-                                .filter(s => s !== undefined)
+                                .filter(s => s !== undefined),
+                            undefined,
+                            route.service_type == 0 ? "正常班次" : "特別班次"
                         );
                     })
                 }
@@ -173,21 +175,27 @@ const getRoute = async (companyCode: string) => {
                         })
                     }
                     let result = await Promise.all(routeList)
-                        .then(([routeResponse]) => routeResponse.data.map(async (routeObj) =>
-                            await Promise.all(routeObj.directions.map(async (dir) => {
-                                const routeStopApi = company.ROUTE_STOP_API.replace(PLACEHOLDER.ROUTE, routeObj.route_id)
-                                    .replace(PLACEHOLDER.ROUTE_TYPE, dir.route_seq);
-                                const stopList = await Promise.all(await doRequest("GET", routeStopApi)
-                                    .then((response) => response.data.route_stops.map(async (stop) => {
-                                        const stopApi = company.STOP_API.replace(PLACEHOLDER.STOP, stop.stop_id);
-                                        const stopDetail = await doRequest("GET", stopApi)
-                                            .then((response) => response.data);
+                        .then((routeResponse) =>
+                            routeResponse.map((route) =>
+                                route.data.map(async (routeObj) =>
+                                    await Promise.all(routeObj.directions.map(async (dir) => {
+                                        console.log(`routeObj.route_id: ${routeObj.route_id} `);
+                                        const routeStopApi = company.ROUTE_STOP_API.replace(PLACEHOLDER.ROUTE, routeObj.route_id)
+                                            .replace(PLACEHOLDER.ROUTE_TYPE, dir.route_seq);
+                                        const stopList = await Promise.all(await doRequest("GET", routeStopApi)
+                                            .then((response) => response.data.route_stops.map(async (stop) => {
+                                                const stopApi = company.STOP_API.replace(PLACEHOLDER.STOP, stop.stop_id);
+                                                const stopDetail = await doRequest("GET", stopApi)
+                                                    .then((response) => response.data);
 
-                                        return new Stop(stop.stop_seq, stop.name_tc, stopDetail.coordinates.wgs84.latitude, stopDetail.coordinates.wgs84.latitude);
-                                    })));
-                                return new Route(company.CODE, routeObj.route_code, undefined, dir.route_seq, dir.orig_tc, dir.dest_tc, stopList, routeObj.route_id, routeObj.description_tc);
-                            }))
-                        ));
+                                                return new Stop(stop.stop_seq, stop.name_tc, stopDetail.coordinates.wgs84.latitude, stopDetail.coordinates.wgs84.latitude);
+                                            })));
+                                        return new Route(company.CODE, routeObj.route_code, dir.route_seq, undefined, dir.orig_tc, dir.dest_tc, stopList, routeObj.route_id, routeObj.description_tc);
+                                    }))
+                                )
+                            )
+                                .flat(1)
+                        );
                     return await Promise.all(result)
                         .then((result) => result.flat(1));
                 }

@@ -4,31 +4,31 @@ Content-Type: application/json
 
 [
     {
-        "company": "KMB",
+        "company": "kmb",
         "routeType": "1",
         "route": "1",
         "stop": "C88E34E485B43EFB",
         "dir": "O"
     },
     {
-        "company": "CTB",
+        "company": "ctb",
         "route": "1",
         "stop": "002403",
         "dir": "I"
     },
     {
-        "company": "NLB",
+        "company": "nlb",
         "route": "1",
         "stop": "1"
     },
     {
-        "company": "GMB",
+        "company": "gmb",
         "route": "2002337",
         "routeType": "1",
         "stop": "1"
     },
     {
-        "company": "MTR",
+        "company": "mtr",
         "route": "506",
         "stop": "506-U020"
     }
