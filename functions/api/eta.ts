@@ -175,5 +175,10 @@ export async function onRequestPost({ request }) {
         }
     }
 
-    return jsonResponse(response);
+    let returnValue = {};
+    for (let [index, value] of response.entries()) {
+        returnValue[index] = value;
+    }
+
+    return jsonResponse(returnValue);
 };
