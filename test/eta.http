@@ -25,7 +25,7 @@ Content-Type: application/json
         "company": "gmb",
         "routeId": "2002337",
         "routeType": "1",
-        "stop": "1"
+        "stop": "20001113"
     },
     {
         "company": "mtr",

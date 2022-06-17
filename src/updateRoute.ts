@@ -179,7 +179,6 @@ const getRoute = async (companyCode: string) => {
                             routeResponse.map((route) =>
                                 route.data.map(async (routeObj) =>
                                     await Promise.all(routeObj.directions.map(async (dir) => {
-                                        console.log(`routeObj.route_id: ${routeObj.route_id} `);
                                         const routeStopApi = company.ROUTE_STOP_API.replace(PLACEHOLDER.ROUTE, routeObj.route_id)
                                             .replace(PLACEHOLDER.ROUTE_TYPE, dir.route_seq);
                                         const stopList = await Promise.all(await doRequest("GET", routeStopApi)
@@ -260,26 +259,15 @@ const addToMap = (map: Map<string, Array<Route>>, routeList: Array<Route>) => {
         logger.info(`route count: ${routeMap.size}`);
 
         logger.info(`Step 3: Save result to JSON file`);
-        if (!fs.existsSync(outputFolder)) {
-            fs.mkdirSync(outputFolder);
-        } else {
-            fs.readdir(outputFolder, (err, files) => {
-                if (err) throw err;
-
-                for (const file of files) {
-                    fs.unlink(path.join(outputFolder, file), err => {
-                        if (err) throw err;
-                    });
-                }
-            });
+        if (fs.existsSync(outputFolder)) {
+            fs.rmdirSync(outputFolder, { recursive: true });
         }
+        fs.mkdirSync(outputFolder);
+
         routeMap.forEach((value, key) => {
             let filename = path.join(outputFolder, key + ".json");
             let data = JSON.stringify(value);
-            fs.writeFile(filename, data, (err) => {
-                if (err)
-                    logger.error(`error when save file ${filename}`, err);
-            });
+            fs.writeFileSync(filename, data);
         });
     });
     logger.info("End");

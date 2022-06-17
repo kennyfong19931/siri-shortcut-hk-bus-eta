@@ -24,7 +24,7 @@ export class Route {
         } else {
             this.routeId = routeId;
         }
-        if (routeId === undefined) {
+        if (description === undefined) {
             this.description = "正常班次";
         } else {
             this.description = description;

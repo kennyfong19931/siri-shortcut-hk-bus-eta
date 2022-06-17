@@ -123,17 +123,19 @@ export async function onRequestPost({ request }) {
                 break;
             case COMPANY.GMB.CODE:
                 api = company.ETA_API.replace(PLACEHOLDER.STOP, requestItem.stop)
-                    .replace(PLACEHOLDER.ROUTE, requestItem.routeId)
-                    .replace(PLACEHOLDER.ROUTE_TYPE, requestItem.routeType);
+                    .replace(PLACEHOLDER.ROUTE, requestItem.routeId);
 
                 etaResponse = await fetch(api)
                     .then(response => response.json())
-                    .then(json => json.data.eta.map(data => {
-                        return {
-                            eta: data.diff,
-                            remark: data.remarks_tc,
-                        }
-                    }));
+                    .then(json => json.data.filter(data => data.route_seq == requestItem.routeType)
+                        .map(data => data.eta.map(data => {
+                            return {
+                                eta: data.diff,
+                                remark: data.remarks_tc,
+                            }
+                        }))
+                        .flat(1)
+                    );
 
                 if (etaResponse.length == 0) {
                     response.push(noETA);

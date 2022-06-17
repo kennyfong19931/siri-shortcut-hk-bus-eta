@@ -37,7 +37,7 @@ export const COMPANY = {
     },
     GMB:  {
         CODE: "gmb",
-        ETA_API: `https://data.etagmb.gov.hk/eta/route-stop/${PLACEHOLDER.ROUTE}/${PLACEHOLDER.ROUTE_TYPE}/${PLACEHOLDER.STOP}`,
+        ETA_API: `https://data.etagmb.gov.hk/eta/route-stop/${PLACEHOLDER.ROUTE}/${PLACEHOLDER.STOP}`,
         ALL_ROUTE_API: `https://data.etagmb.gov.hk/route`,
         ROUTE_API: `https://data.etagmb.gov.hk/route/${PLACEHOLDER.REGION}/${PLACEHOLDER.ROUTE}`,
         STOP_API: `https://data.etagmb.gov.hk/stop/${PLACEHOLDER.STOP}`,
