@@ -10,6 +10,7 @@
 - [新巴](https://data.gov.hk/tc-data/dataset/nwfb-eta-transport-realtime-eta)
 - [嶼巴](https://data.gov.hk/tc-data/dataset/nlb-bus-nlb-bus-service)
 - [專線小巴](https://data.gov.hk/tc-data/dataset/hk-td-sm_7-real-time-arrival-data-of-gmb)
+- [港鐵巴士](https://data.gov.hk/tc-data/dataset/mtr-mtr_bus-mtr-bus-eta-data)
 
 ![群組查詢功能](/image/group_query.gif)
 

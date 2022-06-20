@@ -1,5 +1,10 @@
 ## 更新日誌
 
+### 3.0
+[下載](https://www.icloud.com/shortcuts/b00772ab70d44f919c60aa289acf408a)
+- 加入港鐵巴士到站時間
+- 移除快取車站名稱
+
 ### 2.0
 [下載](https://www.icloud.com/shortcuts/957690afee3143b29f55ca745cea45ba)
 - 加入群組查詢功能，可以一次查詢多條路線
