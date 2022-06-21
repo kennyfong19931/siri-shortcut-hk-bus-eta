@@ -90,7 +90,7 @@ const getRoute = async (companyCode: string) => {
                                 })
                                 .filter(s => s !== undefined),
                             undefined,
-                            route.service_type == 0 ? "正常班次" : "特別班次"
+                            route.service_type == 1 ? "正常班次" : "特別班次"
                         );
                     })
                 }
