@@ -132,12 +132,14 @@ const getRoute = async (companyCode: string) => {
                             .replace(PLACEHOLDER.DIRECTION, route.dirParam);
                         let response = await doRequest("GET", routeStopApi);
 
-                        let stopPromiseList = response.data
-                            .map((routeStop) => getCtbNwfbStop(routeStop.stop));
+                        if (response.data.length > 0) {
+                            let stopPromiseList = response.data
+                                .map((routeStop) => getCtbNwfbStop(routeStop.stop));
 
-                        let stopList = await Promise.all(stopPromiseList)
-                            .then((stopList) => stopList.filter(s => s !== undefined))
-                        result.push(new Route(company.CODE, route.route, null, route.dir, route.orig, route.dest, stopList));
+                            let stopList = await Promise.all(stopPromiseList)
+                                .then((stopList) => stopList.filter(s => s !== undefined))
+                            result.push(new Route(company.CODE, route.route, null, route.dir, route.orig, route.dest, stopList));
+                        }
                     }
                     return result;
                 }
