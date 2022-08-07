@@ -146,13 +146,14 @@ const getRoute = async (companyCode: string) => {
             case COMPANY.NLB.CODE:
                 {
                     const [routeList] = await Promise.all([
-                        doRequest("POST", company.ROUTE_API)
+                        doRequest("GET", company.ROUTE_API)
                     ]);
 
                     let result = routeList.routes.map(async (route) => {
                         const routeDest = route.routeName_c.split(">");
 
-                        const stopList = await doRequest("POST", company.ROUTE_STOP_API, { routeId: route.routeId })
+                        let routeStopApi = company.ROUTE_STOP_API.replace(PLACEHOLDER.ROUTE, route.routeId);
+                        const stopList = await doRequest("GET", routeStopApi)
                             .then((response) => response.stops.map((stop) => new Stop(stop.stopId, stop.stopName_c, stop.latitude, stop.longitude, stop.stopLocation_c, stop.fare, stop.fareHoliday)));
 
                         return new Route(company.CODE, route.routeNo, null, null, routeDest[0].trim(), routeDest[1].trim(), stopList, route.routeId);

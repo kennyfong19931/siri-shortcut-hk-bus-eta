@@ -30,10 +30,10 @@ export const COMPANY = {
     },
     NLB:  {
         CODE: "nlb",
-        ETA_API: `https://rt.data.gov.hk/v1/transport/nlb/stop.php?action=estimatedArrivals`,
-        ROUTE_API: `https://rt.data.gov.hk/v1/transport/nlb/route.php?action=list`,
+        ETA_API: `https://rt.data.gov.hk/v2/transport/nlb/stop.php?action=estimatedArrivals&routeId=${PLACEHOLDER.ROUTE}&stopId=${PLACEHOLDER.STOP}&language=zh`,
+        ROUTE_API: `https://rt.data.gov.hk/v2/transport/nlb/route.php?action=list`,
         STOP_API: null,
-        ROUTE_STOP_API: `https://rt.data.gov.hk/v1/transport/nlb/stop.php?action=list`,
+        ROUTE_STOP_API: `https://rt.data.gov.hk/v2/transport/nlb/stop.php?action=list&routeId=${PLACEHOLDER.ROUTE}`,
     },
     GMB:  {
         CODE: "gmb",
