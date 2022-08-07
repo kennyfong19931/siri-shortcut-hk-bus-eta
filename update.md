@@ -1,5 +1,9 @@
 ## 更新日誌
 
+### 3.1
+[下載](https://www.icloud.com/shortcuts/43e8828a50ad4408b97f95139b37f99e)
+- 修復當路線有相同站名時，不能顯示正確時間的問題
+
 ### 3.0
 [下載](https://www.icloud.com/shortcuts/b00772ab70d44f919c60aa289acf408a)
 - 加入港鐵巴士到站時間

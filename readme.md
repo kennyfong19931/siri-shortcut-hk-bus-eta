@@ -4,6 +4,9 @@
 
 使用[資料一線通](https://data.gov.hk/)提供的API, 透過 Siri shortcut 查詢到站時間預報
 
+### 下載 Shortcut
+查看[此頁](/update.md)取得下載連結
+
 ### 支援的巴士公司
 - [九巴/龍運](https://data.gov.hk/tc-data/dataset/hk-td-tis_21-etakmb)
 - [城巴](https://data.gov.hk/tc-data/dataset/ctb-eta-transport-realtime-eta)
