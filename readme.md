@@ -1,4 +1,5 @@
 [![Github Action](https://github.com/kennyfong19931/siri-shortcut-hk-bus-eta/workflows/Update%20Data/badge.svg)](https://github.com/kennyfong19931/siri-shortcut-hk-bus-eta/actions)
+[![Postman](https://img.shields.io/badge/Postman-API%20doc-FF6C37?logo=postman&logoColor=white)](https://www.postman.com/crimson-spaceship-895558/workspace/siri-shortcut-hk-bus-eta/documentation/20883356-482dee34-62b2-48c3-b84d-31039fc26c44)
 
 # 巴士到站時間預報
 
