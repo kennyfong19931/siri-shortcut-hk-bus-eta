@@ -17,7 +17,7 @@ jobs:
         id: cache-stop-data
         uses: actions/cache@v3
         with:
-          path: ~/cache
+          path: cache
           key: stop-data
 
       - name: Install dependencies
