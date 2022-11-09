@@ -5,12 +5,12 @@
   },
   "dependencies": {
     "@types/csvtojson": "^2.0.0",
-    "@types/node": "^17.0.45",
+    "@types/node": "^18.11.9",
     "@types/node-fetch": "^2.6.2",
     "csv2json": "^2.0.2",
-    "dayjs": "^1.11.4",
+    "dayjs": "^1.11.6",
     "node-fetch": "^2.6.7",
     "ts-node": "^10.9.1",
-    "wrangler": "^2.0.24"
+    "wrangler": "^2.1.15"
   }
 }
