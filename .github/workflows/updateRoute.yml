@@ -6,11 +6,19 @@ on:
   schedule:
     - cron: '0 16 * * *'
 jobs:
-  Update-Route-Data:
+  update:
+    name: Update Route Data
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+
+      - name: Cache Stop data
+        id: cache-stop-data
+        uses: actions/cache@v3
+        with:
+          path: ~/cache
+          key: stop-data
 
       - name: Install dependencies
         run: |

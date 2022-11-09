@@ -9,6 +9,7 @@ import { Stop } from "./class/Stop";
 import logger from "./utils/logger";
 
 const outputFolder = path.join("api", "route");
+const cacheFolder = path.join("cache");
 
 const doRequest = async (method: string, url: string, body?: {}, toString = false) => {
     let result;
@@ -167,6 +168,7 @@ const getRoute = async (companyCode: string) => {
                     const [allRouteList] = await Promise.all([
                         doRequest("GET", COMPANY.GMB.ALL_ROUTE_API)
                     ]);
+                    const stopLastUpdateDate = await doRequest("GET", COMPANY.GMB.STOP_LAST_UPDATE_API).then((response) => response.data);
 
                     let routeList = [];
                     for (const [regionCode, regionRouteList] of Object.entries(allRouteList.data.routes)) {
@@ -187,8 +189,9 @@ const getRoute = async (companyCode: string) => {
                                         const stopList = await Promise.all(await doRequest("GET", routeStopApi)
                                             .then((response) => response.data.route_stops.map(async (stop) => {
                                                 const stopApi = company.STOP_API.replace(PLACEHOLDER.STOP, stop.stop_id);
-                                                const stopDetail = await doRequest("GET", stopApi)
-                                                    .then((response) => response.data);
+                                                let lastUpdate = stopLastUpdateDate.find(i => i.stop_id == stop.stop_id);
+                                                lastUpdate = lastUpdate ? new Date(lastUpdate.last_update_date) : new Date("2000-01-01T00:00:00.000+00:00");
+                                                const stopDetail = await tryGetCache('GMB_STOP', `gmb_stop_${stop.stop_id}`, "GET", stopApi, lastUpdate);
 
                                                 return new Stop(stop.stop_id, stop.name_tc, stopDetail.coordinates.wgs84.latitude, stopDetail.coordinates.wgs84.longitude);
                                             })));
@@ -241,6 +244,34 @@ const addToMap = (map: Map<string, Array<Route>>, routeList: Array<Route>) => {
     })
 }
 
+const tryGetCache = async (type: string, key: string, httpMethod: string, url: string, updateDate: Date) => {
+    if (!fs.existsSync(cacheFolder)) {
+        fs.mkdirSync(cacheFolder);
+    }
+
+    let file = path.join(cacheFolder, key + ".json");
+    let json = null;
+    if (fs.existsSync(file)) {
+        let rawdata = fs.readFileSync(file, 'utf8');
+        json = JSON.parse(rawdata);
+
+        if (type == 'GMB_STOP') {
+            if (updateDate > new Date(json.data_timestamp)) {
+                json = null;
+            }
+        }
+    }
+
+    if (json === null) {
+        json = await doRequest(httpMethod, url).then((response) => response.data);
+    }
+
+    let data = JSON.stringify(json);
+    fs.writeFileSync(file, data);
+
+    return json;
+}
+
 (async function () {
     logger.info("Start");
     await Promise.all([
@@ -263,7 +294,7 @@ const addToMap = (map: Map<string, Array<Route>>, routeList: Array<Route>) => {
 
         logger.info(`Step 3: Save result to JSON file`);
         if (fs.existsSync(outputFolder)) {
-            fs.rmdirSync(outputFolder, { recursive: true });
+            fs.rmSync(outputFolder, { recursive: true });
         }
         fs.mkdirSync(outputFolder);
 
