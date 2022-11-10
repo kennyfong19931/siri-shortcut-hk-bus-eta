@@ -161,7 +161,8 @@ const getRoute = async (companyCode: string) => {
                     });
 
 
-                    return await Promise.all(result);
+                    return await Promise.all(result)
+                        .then((route) => route.sort((a, b) => a.routeId - b.routeId));   // sort by routeId asc
                 }
             case COMPANY.GMB.CODE:
                 {
