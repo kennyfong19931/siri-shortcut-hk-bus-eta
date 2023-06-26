@@ -11,7 +11,7 @@
 ### 支援的巴士公司
 - [九巴/龍運](https://data.gov.hk/tc-data/dataset/hk-td-tis_21-etakmb)
 - [城巴](https://data.gov.hk/tc-data/dataset/ctb-eta-transport-realtime-eta)
-- [新巴](https://data.gov.hk/tc-data/dataset/nwfb-eta-transport-realtime-eta)
+~~- [新巴](https://data.gov.hk/tc-data/dataset/nwfb-eta-transport-realtime-eta)~~ 已於2023年7月1日與城巴合併
 - [嶼巴](https://data.gov.hk/tc-data/dataset/nlb-bus-nlb-bus-service-v2)
 - [專線小巴](https://data.gov.hk/tc-data/dataset/hk-td-sm_7-real-time-arrival-data-of-gmb)
 - [港鐵巴士](https://data.gov.hk/tc-data/dataset/mtr-mtr_bus-mtr-bus-eta-data)

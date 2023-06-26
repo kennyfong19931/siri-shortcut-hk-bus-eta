@@ -278,16 +278,16 @@ const tryGetCache = async (type: string, key: string, httpMethod: string, url: s
     await Promise.all([
         getRoute(COMPANY.KMB.CODE),
         getRoute(COMPANY.CTB.CODE),
-        getRoute(COMPANY.NWFB.CODE),
+        // getRoute(COMPANY.NWFB.CODE),
         getRoute(COMPANY.NLB.CODE),
         getRoute(COMPANY.GMB.CODE),
         getRoute(COMPANY.MTR.CODE),
-    ]).then(([kmb, ctb, nwfb, nlb, gmb, mtr]) => {
+    ]).then(([kmb, ctb, /*nwfb,*/ nlb, gmb, mtr]) => {
         logger.info(`Step 2: Merge by route`);
         const routeMap = new Map();
         addToMap(routeMap, kmb);
         addToMap(routeMap, ctb);
-        addToMap(routeMap, nwfb);
+        // addToMap(routeMap, nwfb);
         addToMap(routeMap, nlb);
         addToMap(routeMap, gmb);
         addToMap(routeMap, mtr);
