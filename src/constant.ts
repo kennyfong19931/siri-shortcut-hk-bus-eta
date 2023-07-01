@@ -22,11 +22,11 @@ export const COMPANY = {
         ROUTE_STOP_API: `https://rt.data.gov.hk/v2/transport/citybus/route-stop/${PLACEHOLDER.COMPANY}/${PLACEHOLDER.ROUTE}/${PLACEHOLDER.DIRECTION}`,
     },
     NWFB:  {
-        CODE: "ctb",
-        ETA_API: `https://rt.data.gov.hk/v2/transport/citybus/eta/${PLACEHOLDER.COMPANY}/${PLACEHOLDER.STOP}/${PLACEHOLDER.ROUTE}`,
-        ROUTE_API: `https://rt.data.gov.hk/v2/transport/citybus/route/${PLACEHOLDER.COMPANY}`,
+        CODE: "nwfb",
+        ETA_API: `https://rt.data.gov.hk/v2/transport/citybus/eta/ctb/${PLACEHOLDER.STOP}/${PLACEHOLDER.ROUTE}`,
+        ROUTE_API: `https://rt.data.gov.hk/v2/transport/citybus/route/ctb}`,
         STOP_API: `https://rt.data.gov.hk/v2/transport/citybus/stop/${PLACEHOLDER.STOP}`,
-        ROUTE_STOP_API: `https://rt.data.gov.hk/v2/transport/citybus/route-stop/${PLACEHOLDER.COMPANY}/${PLACEHOLDER.ROUTE}/${PLACEHOLDER.DIRECTION}`,
+        ROUTE_STOP_API: `https://rt.data.gov.hk/v2/transport/citybus/route-stop/ctb/${PLACEHOLDER.ROUTE}/${PLACEHOLDER.DIRECTION}`,
     },
     NLB:  {
         CODE: "nlb",
