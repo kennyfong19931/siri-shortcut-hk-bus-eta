@@ -1,6 +1,6 @@
 import "../scss/styles.scss";
 import Offcanvas from 'bootstrap/js/src/offcanvas';
-import {utf8_to_b64, b64_to_utf8, getCompanyImage} from './util.js';
+import { utf8_to_b64, b64_to_utf8, getCompanyImage } from './util.js';
 
 const ROUTE_API = `/api/route/{route}.json`;
 const SPATIAL_API = `/api/spatial/{path}.json`;
@@ -87,7 +87,7 @@ const renderRoute = (id, encodedJson) => {
             fare: stop.fare,
             fareHoliday: stop.fareHoliday,
         };
-        var marker = L.marker([ stop.lat, stop.long ], option).addTo(map);
+        var marker = L.marker([stop.lat, stop.long], option).addTo(map);
         marker.bindPopup(`${stop.name}`);
         markersLayer.addLayer(marker);
     })
@@ -130,14 +130,14 @@ const renderRoute = (id, encodedJson) => {
     fetch(SPATIAL_API.replace("{path}", `${path}`))
         .then(response => response.json())
         .then((data) => {
-            let polyline = L.polyline.antPath(data, {color: lineColor, pluseColor: lineColorPluse, ...antPathOption});
+            let polyline = L.polyline.antPath(data, { color: lineColor, pluseColor: lineColorPluse, ...antPathOption });
             markersLayer.addLayer(polyline);
         })
         .catch(function (error) {
             // no geometry data, show default line by join all stops
-            let data = json.stopList.map((stop) => [ stop.lat, stop.long ]);
-            data = [ data ];
-            let polyline = L.polyline.antPath(data, {color: lineColor, pluseColor: lineColorPluse, ...antPathOption});
+            let data = json.stopList.map((stop) => [stop.lat, stop.long]);
+            data = [data];
+            let polyline = L.polyline.antPath(data, { color: lineColor, pluseColor: lineColorPluse, ...antPathOption });
             markersLayer.addLayer(polyline);
         });
 
@@ -185,25 +185,25 @@ const renderBookmarkStop = (event) => {
         searchDrawer.hide();
     }
 }
-const getEta = (stop) => {
-    return fetch(ETA_API, {
+const getEta = async (stop) => {
+    return await fetch(ETA_API, {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify([ stop ])
+        body: JSON.stringify([stop])
     })
         .then(response => response.json())
         .then(json => json[0])
         .catch(function (error) {
             console.error(error);
-            return [ {eta: null, remark: "未有資料"} ];
+            return [{ eta: null, remark: "未有資料" }];
         });
 }
-const openPopup = (e) => {
+const openPopup = async (e) => {
     var marker = e.popup._source;
-    const eta = getEta(marker.options)
+    const eta = await getEta(marker.options)
         .map((eta) => {
             let line = '<li>';
             if (eta.eta) {
@@ -240,6 +240,9 @@ const openPopup = (e) => {
             fare: marker.options.fare,
             fareHoliday: marker.options.fareHoliday,
         };
+        if (marker.options.routeDesc = undefined) {
+            marker.options.routeDesc = json.routeDesc;
+        }
         bookmarkBtn = `<button class="btn btn-sm btn-outline-warning m-2" onclick="addBookmark('${groupName}', '${utf8_to_b64(JSON.stringify(json))}', true)"><i id="bookmarkPopupIcon" class="bi bi-bookmark-plus" aria-label="收藏路線"></i></button>`;
     }
     const popupContent = `<b><img class="logo" src="${getCompanyImage(marker.options.company)}" alt="${marker.options.company}"/> ${marker.options.route} - ${marker.options.name}</b>${bookmarkBtn}<br/><small>${marker.options.routeDesc}</small><br/><ul>${eta}</ul>`;
@@ -277,11 +280,11 @@ const overlays = {
     "地名標籤": label
 };
 const map = L.map('map', {
-    center: [ 22.322005998683245, 114.17846497109828 ],
+    center: [22.322005998683245, 114.17846497109828],
     zoom: 13,
-    layers: [ topographicMapTiles, label ]
+    layers: [topographicMapTiles, label]
 });
-const layerControl = L.control.layers(baseMaps, overlays, {hideSingleBase: true}).addTo(map);
+const layerControl = L.control.layers(baseMaps, overlays, { hideSingleBase: true }).addTo(map);
 map.on('popupopen', openPopup);
 
 // page init

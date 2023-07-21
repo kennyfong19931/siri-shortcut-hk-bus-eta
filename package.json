@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "dev": "npx wrangler pages dev ./public",
+    "dev": "npx wrangler pages dev ./public --binding ENVIRONMENT=DEV",
     "update-route": "ts-node src/updateRoute.ts",
     "update-spatial": "ts-node src/updateSpatial.ts",
     "web-start": "vite dev",
@@ -24,6 +24,6 @@
     "ts-node": "^10.9.1",
     "vite": "^4.4.2",
     "vite-plugin-html-purgecss": "^0.1.1",
-    "wrangler": "^3.1.2"
+    "wrangler": "^3.3.0"
   }
 }
