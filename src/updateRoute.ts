@@ -8,7 +8,7 @@ import { Route } from "./class/Route";
 import { Stop } from "./class/Stop";
 import logger from "./utils/logger";
 
-const outputFolder = path.join("api", "route");
+const outputFolder = path.join("public", "api", "route");
 const cacheFolder = path.join("cache");
 
 const doRequest = async (method: string, url: string, body?: {}, toString = false) => {

@@ -1,11 +1,16 @@
-name: Update Route Data
+name: Build Web
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 16 * * *'
+  push:
+    paths:
+      - 'src/index.html'
+      - 'src/js/*.js'
+      - 'src/scss/*.scss'
+      - 'update.json'
+      - 'vite.config.js'
 jobs:
   update:
-    name: Update Route Data
+    name: Build Web
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -16,27 +21,22 @@ jobs:
         with:
           node-version: lts
 
-      - name: Cache Stop data
-        id: cache-stop-data
-        uses: actions/cache@v3
-        with:
-          path: cache
-          key: stop-data
-
       - name: Install dependencies
         run: |
           npm install
 
-      - name: Update Route Data
+      - name: Generate website
         run: |
-          npm run update-route
+          cp ./update.json ./public/update.json
+          rm -rf ./public/assets
+          npm run web-build
 
       - name: Commit and Push data
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_options: '--no-verify'
-          commit_message: Update Route data
+          commit_message: Update Web
           branch: main
-          file_pattern: 'public/api/route/**'
+          file_pattern: 'public/**'
         env:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}

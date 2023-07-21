@@ -9,6 +9,10 @@ export default class logger {
         console.info(`[${getTime()}][INFO] ${message}`);
     }
 
+    static warn(message: string) {
+        console.info(`[${getTime()}][WARN] ${message}`);
+    }
+
     static error(message: string, error: Error) {
         console.error(`[${getTime()}][ERROR] ${message}`, error);
     }
