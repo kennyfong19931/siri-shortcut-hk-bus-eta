@@ -29,7 +29,6 @@ jobs:
         with:
           commit_options: '--no-verify'
           commit_message: Update Spatial data
-          branch: main
           file_pattern: 'public/api/spatial/**'
         env:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}

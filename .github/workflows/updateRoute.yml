@@ -36,7 +36,6 @@ jobs:
         with:
           commit_options: '--no-verify'
           commit_message: Update Route data
-          branch: main
           file_pattern: 'public/api/route/**'
         env:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
