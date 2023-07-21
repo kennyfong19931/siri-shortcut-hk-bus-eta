@@ -195,7 +195,7 @@ const getEta = (stop) => {
         body: JSON.stringify([ stop ])
     })
         .then(response => response.json())
-        .then(json => json.get("0"))
+        .then(json => json[0])
         .catch(function (error) {
             console.error(error);
             return [ {eta: null, remark: "未有資料"} ];
