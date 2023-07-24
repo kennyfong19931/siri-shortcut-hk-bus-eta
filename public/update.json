@@ -1,0 +1,5 @@
+{
+	"version": "3.1",
+	"message": "加入港鐵巴士到站時間，移除快取車站名稱。修復當路線有相同站名時，不能顯示正確時間的問題",
+	"url": "https://www.icloud.com/shortcuts/43e8828a50ad4408b97f95139b37f99e"
+}
