@@ -141,7 +141,7 @@ document.getElementById('btnBookmarkSave').onclick = saveBookmark;
 document.getElementById('btnBookmarkReset').onclick = resetBookmark;
 document.getElementById('btnBookmarkGroupAddSubmit').onclick = addGroup;
 document.getElementById('btnBookmarkDownload').onclick = downloadBookmark;
-document.getElementById('btnBookmarkUpload').addEventListener('change', uploadBookmark, false);
+document.getElementById('fileUploadInput').addEventListener('change', uploadBookmark, false);
 
 // init show stored bookmark
 resetBookmark();

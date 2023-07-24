@@ -19,6 +19,6 @@ export default {
     emptyOutDir: false
   },
   plugins: [
-    htmlPurge(['logo', 'list-group-item', 'btnBookmarkReorder', /data-bs-theme/, 'small']),
+    htmlPurge(['logo', 'list-group-item', 'btnBookmarkReorder', /data-bs-theme/, 'small', 'loader']),
   ]
 }

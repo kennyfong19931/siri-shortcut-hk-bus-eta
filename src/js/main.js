@@ -88,7 +88,7 @@ const renderRoute = (id, encodedJson) => {
             fareHoliday: stop.fareHoliday,
         };
         var marker = L.marker([stop.lat, stop.long], option).addTo(map);
-        marker.bindPopup(`${stop.name}`);
+        marker.bindPopup('<span class="loader"></span>');
         markersLayer.addLayer(marker);
     })
 
@@ -172,7 +172,7 @@ const renderBookmarkStop = (event) => {
         fareHoliday: json.fareHoliday,
     };
     var marker = L.marker(point, option).addTo(map);
-    marker.bindPopup(`${json.name}`);
+    marker.bindPopup('<span class="loader"></span>');
     markersLayer.addLayer(marker);
 
     // add layer to map
@@ -186,7 +186,7 @@ const renderBookmarkStop = (event) => {
     }
 }
 const getEta = async (stop) => {
-    return await fetch(ETA_API, {
+    return fetch(ETA_API, {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
@@ -196,17 +196,14 @@ const getEta = async (stop) => {
     })
         .then(response => response.json())
         .then(json => json[0])
-        .catch(function (error) {
-            console.error(error);
-            return [{ eta: null, remark: "未有資料" }];
-        });
+        .catch((error) => console.error(error));
 }
 const openPopup = async (e) => {
     var marker = e.popup._source;
     const eta = await getEta(marker.options)
-        .map((eta) => {
+        .then((etaArray) => etaArray.map((eta) => {
             let line = '<li>';
-            if (eta.eta) {
+            if (!isNaN(eta.eta) && eta.eta > -1) {
                 line += eta.eta + '分鐘';
             }
             if (eta.remark) {
@@ -215,7 +212,9 @@ const openPopup = async (e) => {
             line += '</li>';
             return line;
         })
-        .join('');
+            .join('')
+        )
+        .catch(() => '<li>未有資料</li>');
     let bookmarkBtn = '<button class="btn btn-sm btn-outline-warning m-2"><i class="bi bi-bookmark-fill" aria-label="已收藏路線"></i></button>';
     if (!marker.options.bookmarked) {
         let groupName;
