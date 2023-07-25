@@ -78,6 +78,7 @@ const renderRoute = (id, encodedJson) => {
             routeType: json.routeType,
             routeOrig: json.orig,
             routeDest: json.dest,
+            routeDesc: `${json.orig}➡️${json.dest}`,
             dir: json.dir,
             stop: stop.id,
             name: stop.name,
@@ -161,7 +162,7 @@ const renderBookmarkStop = (event) => {
         company: json.company,
         route: json.route,
         routeId: json.routeId,
-        routeType: json.serviceType,
+        routeType: json.routeType,
         dir: json.dir,
         routeDesc: json.routeDesc,
         stop: json.stopId,
@@ -231,7 +232,7 @@ const openPopup = async (e) => {
             routeId: marker.options.routeId,
             routeType: marker.options.routeType,
             dir: marker.options.dir,
-            routeDesc: `${marker.options.routeOrig}➡️${marker.options.routeDest}`,
+            routeDesc: marker.options.routeDesc,
             stop: marker.options.stop,
             name: marker.options.name,
             address: `${marker.options.lat},${marker.options.long}`,
@@ -239,9 +240,6 @@ const openPopup = async (e) => {
             fare: marker.options.fare,
             fareHoliday: marker.options.fareHoliday,
         };
-        if (marker.options.routeDesc = undefined) {
-            marker.options.routeDesc = json.routeDesc;
-        }
         bookmarkBtn = `<button class="btn btn-sm btn-outline-warning m-2" onclick="addBookmark('${groupName}', '${utf8_to_b64(JSON.stringify(json))}', true)"><i id="bookmarkPopupIcon" class="bi bi-bookmark-plus" aria-label="收藏路線"></i></button>`;
     }
     const popupContent = `<b><img class="logo" src="${getCompanyImage(marker.options.company)}" alt="${marker.options.company}"/> ${marker.options.route} - ${marker.options.name}</b>${bookmarkBtn}<br/><small>${marker.options.routeDesc}</small><br/><ul>${eta}</ul>`;
