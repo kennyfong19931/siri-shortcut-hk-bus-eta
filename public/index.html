@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>香港交通到站時間</title>
 
-    <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "a78bcdcf594943d5ba1844cbb8e12155"}'></script><!-- End Cloudflare Web Analytics -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <!-- Cloudflare Web Analytics -->
+    <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "a78bcdcf594943d5ba1844cbb8e12155"}'></script><!-- End Cloudflare Web Analytics -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script type="text/javascript" src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script type="text/javascript" src="https://unpkg.com/leaflet-ant-path@1.3.0"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
@@ -16,75 +17,137 @@
     
     
     
-  <script type="module" crossorigin src="./assets/index-56fe6374.js"></script>
-  <link rel="stylesheet" href="./assets/index-cda393b7.css">
+  <script type="module" crossorigin src="./assets/index-bdd8ba62.js"></script>
+  <link rel="stylesheet" href="./assets/index-6e4e8e95.css">
 </head>
 
 <body>
-<div class="container-fluid">
-    <div id="searchDrawer" class="offcanvas offcanvas-start show card m-md-2" tabindex="-1" data-bs-scroll="true" data-bs-backdrop="false">
-        <div class="offcanvas-header card-header">
-            <h5 class="offcanvas-title">香港交通到站時間</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-        <div class="offcanvas-body card-body">
-            <div id="searchAlert"></div>
-            <div class="input-group">
-                <div class="form-floating">
-                    <input type="search" class="form-control" id="routeInput">
-                    <label for="routeInput">輸入路線號碼</label>
-                </div>
-                <button id="btnSearch" class="btn btn-primary" type="button">
-                    <i class="bi-search text-white" role="img" aria-label="Search"></i>
-                </button>
+    <div class="container-fluid">
+        <div id="searchDrawer" class="offcanvas offcanvas-start show card m-md-2" tabindex="-1" data-bs-scroll="true" data-bs-backdrop="false">
+            <div class="offcanvas-header card-header">
+                <h5 class="offcanvas-title">香港交通到站時間</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
-            <div class="list-group my-2" id="searchResult"></div>
-            <div class="d-flex">
-                <h3 class="flex-grow-1"><i class="bi bi-bookmarks text-warning"></i> 已收藏路線</h3>
-                <div class="flex-shrink-0">
-                    <button id="btnBookmarkDownload" class="btn btn-sm btn-outline-secondary" type="button"><i class="bi bi-download" role="img" aria-label="下載已收藏路線"></i></button>
-                    <label id="btnBookmarkUpload" for="fileUploadInput" class="btn btn-sm btn-outline-secondary"><i class="bi bi-upload" role="img" aria-label="上載已收藏路線"></i></label><div class="d-none"><input type="file" id="fileUploadInput"></div>
-                    <button id="btnBookmarkEdit" class="btn btn-sm btn-outline-secondary" type="button"><i class="bi bi-pencil" role="img" aria-label="編輯已收藏路線"></i></button>
-                    <button id="btnBookmarkGroupAdd" class="btn btn-sm btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#addGroupModal">新增群組</button>
-                    <button id="btnBookmarkSave" class="btn btn-sm btn-success" type="button"><i class="bi bi-check" role="img" aria-label="完成"></i></button>
-                    <button id="btnBookmarkReset" class="btn btn-sm btn-danger" type="button"><i class="bi bi-x" role="img" aria-label="取消"></i></button>
+            <div class="offcanvas-body card-body">
+                <div id="searchAlert"></div>
+                <div class="input-group">
+                    <div class="form-floating">
+                        <input type="search" class="form-control" id="routeInput">
+                        <label for="routeInput">輸入路線號碼</label>
+                    </div>
+                    <button id="btnSearch" class="btn btn-primary" type="button">
+                        <i class="bi-search text-white" role="img" aria-label="Search"></i>
+                    </button>
                 </div>
+                <div class="list-group my-2" id="searchResult"></div>
+                <div class="d-flex">
+                    <h3 class="flex-grow-1"><i class="bi bi-bookmarks text-warning"></i> 已收藏路線</h3>
+                    <div class="flex-shrink-0">
+                        <button id="btnBookmarkDownload" class="btn btn-sm btn-outline-secondary" type="button"><i class="bi bi-download" role="img" aria-label="下載已收藏路線"></i></button>
+                        <label id="btnBookmarkUpload" for="fileUploadInput" class="btn btn-sm btn-outline-secondary"><i class="bi bi-upload" role="img" aria-label="上載已收藏路線"></i></label>
+                        <div class="d-none"><input type="file" id="fileUploadInput"></div>
+                        <button id="btnBookmarkEdit" class="btn btn-sm btn-outline-secondary" type="button"><i class="bi bi-pencil" role="img" aria-label="編輯已收藏路線"></i></button>
+                        <button id="btnBookmarkGroupAdd" class="btn btn-sm btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#addGroupModal">新增群組</button>
+                        <button id="btnBookmarkSave" class="btn btn-sm btn-success" type="button"><i class="bi bi-check" role="img" aria-label="完成"></i></button>
+                        <button id="btnBookmarkReset" class="btn btn-sm btn-danger" type="button"><i class="bi bi-x" role="img" aria-label="取消"></i></button>
+                    </div>
+                </div>
+                <div class="list-group my-2" id="bookmarkList"></div>
             </div>
-            <div class="list-group my-2" id="bookmarkList"></div>
+            <div class="card-footer">
+                <div><a href="./github" target="_blank" class="text-decoration-none"><i class="bi bi-github"></i> View on Github</a></div>
+                <div><a id="getSiriShortcut" target="_blank" class="text-decoration-none"><i class="bi bi-cloud-download"></i> 下載 Siri Shortcut <span id="siriShortcutVersion"></span></a></div>
+            </div>
         </div>
-        <div class="card-footer">
-            <div><a href="./github" target="_blank" class="text-decoration-none"><i class="bi bi-github"></i> View on Github</a></div>
-            <div><a id="getSiriShortcut" target="_blank" class="text-decoration-none"><i class="bi bi-cloud-download"></i> 下載 Siri Shortcut <span id="siriShortcutVersion"></span></a></div>
+        <button id="btnToggleSearch" class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#searchDrawer" aria-controls="offcanvas">
+            <i class="bi-search text-white" role="img" aria-label="搜尋路線"></i>
+        </button>
+        <div class="row">
+            <div id="map"></div>
         </div>
     </div>
-    <button id="btnToggleSearch" class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#searchDrawer" aria-controls="offcanvas">
-        <i class="bi-search text-white" role="img" aria-label="搜尋路線"></i>
-    </button>
-    <div class="row">
-        <div id="map"></div>
-    </div>
-</div>
 
-<div class="modal fade" id="addGroupModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5">新增群組</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="取消"></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-floating">
-                    <input type="search" class="form-control" id="groupNameInput" required>
-                    <label for="groupNameInput">群組名稱</label>
+    <div class="modal fade" id="addGroupModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5">新增群組</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="取消"></button>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                <button id="btnBookmarkGroupAddSubmit" type="button" class="btn btn-success">新增</button>
+                <div class="modal-body">
+                    <div class="form-floating">
+                        <input type="search" class="form-control" id="groupNameInput" required>
+                        <label for="groupNameInput">群組名稱</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button id="btnBookmarkGroupAddSubmit" type="button" class="btn btn-success">新增</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
+
+    <div class="d-none" aria-hidden="true">
+        <span class="loader"></span>
+
+        <template id="bookmarkGroup">
+            <div class="list-group-item group" data-group-name="{{name}}">
+                <div class="d-flex flex-row align-items-center mb-2">
+                    <div class="flex-shrink-0">
+                        <i class="d-none bi bi-list btnBookmarkReorder" role="img" aria-hidden="true"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-2">
+                        <b class="groupName">{{name}}</b>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <button id="btnBookmarkEdit" class="d-none btn btn-sm btn-outline-secondary" type="button">
+                            <i class="bi bi-pencil" role="img" aria-label="編輯群組名稱"></i>
+                        </button>
+                        <button class="d-none btn btn-sm btn-danger btnBookmarkRemove" type="button" onclick="removeGroup(event)">
+                            <i class="bi bi-bookmark-dash" role="img" aria-label="移除群組"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <template id="bookmarkRoute">
+            <div class="list-group route"></div>
+        </template>
+
+        <template id="bookmarkRow">
+            <div class="list-group-item d-flex flex-row align-items-center" data-route-json="{{dataRouteJson}}" onclick="renderBookmarkStop(event)">
+                <div class="flex-shrink-0">
+                    <i class="d-none bi bi-list btnBookmarkReorder" role="img" aria-hidden="true"></i> <img class="logo" src="{{companyLogo}}" />
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <span class="badge text-bg-secondary">{{route}}</span> {{name}}<br /><small class="text-secondary">{{routeDesc}}</small>
+                </div>
+                <div class="flex-shrink-0">
+                    <button class="d-none btn btn-sm btn-danger btnBookmarkRemove" type="button" onclick="removeBookmark(event)">
+                        <i class="bi bi-bookmark-dash" role="img" aria-label="移除已收藏路線"></i>
+                    </button>
+                </div>
+            </div>
+        </template>
+
+        <template id="etaPopup">
+            <div>
+                <div class="header d-flex px-3 py-2 align-items-center text-white mb-3" {{titlecss}}>
+                    <img class="logo" src="{{companyLogo}}" />
+                    <h4 class="routeNo px-2">{{routeNo}}</h4>
+                    <div>
+                        <h5 class="m-0">{{title}}</h5>
+                        <span>{{subtitle}}</span>
+                    </div>
+                </div>
+                <div class="body">
+                    {{body}}
+                </div>
+            </div>
+        </template>
+    </div>
 </body>
 
 </html>
