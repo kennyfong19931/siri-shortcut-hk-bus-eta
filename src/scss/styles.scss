@@ -143,7 +143,25 @@ $border-radius: .4rem;
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
-} 
+}
+
+.etaPopup .leaflet-popup-content {
+  margin: 0;
+}
+
+.etaPopup .header {
+  border-radius: 12px 12px 0 0;
+  background-color: #002969;
+  color: #fff;
+}
+
+.leaflet-container a.leaflet-popup-close-button {
+  top: -5px;
+  right: -5px;
+  background: #FFF;
+  border-radius: 2rem;
+}

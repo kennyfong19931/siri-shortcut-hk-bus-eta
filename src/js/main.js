@@ -1,6 +1,6 @@
 import "../scss/styles.scss";
 import Offcanvas from 'bootstrap/js/src/offcanvas';
-import { utf8_to_b64, b64_to_utf8, getCompanyImage } from './util.js';
+import { utf8_to_b64, b64_to_utf8, getCompanyImage, getCompanyColor, getHtmlTemplate } from './util.js';
 
 const ROUTE_API = `/api/route/{route}.json`;
 const SPATIAL_API = `/api/spatial/{path}.json`;
@@ -26,6 +26,8 @@ const antPathOption = {
     "reverse": false,
     "hardwareAccelerated": true
 };
+const defaultPopupContent = '<span class="loader"></span>';
+const defaultPopupOption = { className: 'etaPopup' };
 
 // functions
 const alert = (message, type) => {
@@ -89,43 +91,29 @@ const renderRoute = (id, encodedJson) => {
             fareHoliday: stop.fareHoliday,
         };
         var marker = L.marker([stop.lat, stop.long], option).addTo(map);
-        marker.bindPopup('<span class="loader"></span>');
+        marker.bindPopup(defaultPopupContent, defaultPopupOption);
         markersLayer.addLayer(marker);
     })
 
     // add geometry data to layer
     let path;
-    let lineColor = "#FF0000";
-    let lineColorPluse = "#FFFFFF";
+    const lineColor = getCompanyColor(json.company, false);
+    const lineColorPluse = getCompanyColor(json.company, true);
     switch (json.company) {
         case 'kmb':
             path = `kmb/${json.route}/${json.dir}_${json.routeType}`;
-            lineColor = "#FF0000";
-            lineColorPluse = "#FFFFFF";
             break;
         case 'ctb':
             path = `ctb/${json.route}/${json.dir}`;
-            lineColor = "#F1CC02";
-            lineColorPluse = "#0080FF";
             break;
         case 'nwfb':
             path = `nwfb/${json.route}/${json.dir}`;
-            lineColor = "#EF7925";
-            lineColorPluse = "#7000CC";
             break;
         case 'nlb':
             path = `nlb/${json.route}/${json.routeId}`;
-            lineColor = "#2A897B";
-            lineColorPluse = "#3DC9B4";
-            break;
-        case 'gmb':
-            lineColor = "#337149";
-            lineColorPluse = "#53B776";
             break;
         case 'mtr':
             path = `mtr/${json.route}/${json.dir}`;
-            lineColor = "#1A81FF";
-            lineColorPluse = "#53B776";
             break;
     }
     fetch(SPATIAL_API.replace("{path}", `${path}`))
@@ -173,7 +161,7 @@ const renderBookmarkStop = (event) => {
         fareHoliday: json.fareHoliday,
     };
     var marker = L.marker(point, option).addTo(map);
-    marker.bindPopup('<span class="loader"></span>');
+    marker.bindPopup(defaultPopupContent, defaultPopupOption);
     markersLayer.addLayer(marker);
 
     // add layer to map
@@ -242,7 +230,14 @@ const openPopup = async (e) => {
         };
         bookmarkBtn = `<button class="btn btn-sm btn-outline-warning m-2" onclick="addBookmark('${groupName}', '${utf8_to_b64(JSON.stringify(json))}', true)"><i id="bookmarkPopupIcon" class="bi bi-bookmark-plus" aria-label="收藏路線"></i></button>`;
     }
-    const popupContent = `<b><img class="logo" src="${getCompanyImage(marker.options.company)}" alt="${marker.options.company}"/> ${marker.options.route} - ${marker.options.name}</b>${bookmarkBtn}<br/><small>${marker.options.routeDesc}</small><br/><ul>${eta}</ul>`;
+    const popupContent = getHtmlTemplate('etaPopup', {
+        '{{companyLogo}}': getCompanyImage(marker.options.company),
+        '{{routeNo}}': marker.options.route,
+        '{{title}}': marker.options.name,
+        '{{subtitle}}': marker.options.routeDesc,
+        '{{titlecss}}': `style="background-color: ${getCompanyColor(marker.options.company)}"`,
+        '{{body}}': `<ul>${eta}</ul>`,
+    });
     marker._popup.setContent(popupContent);
 }
 
