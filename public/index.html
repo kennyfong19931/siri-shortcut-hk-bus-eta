@@ -17,7 +17,7 @@
     
     
     
-  <script type="module" crossorigin src="./assets/index-bdd8ba62.js"></script>
+  <script type="module" crossorigin src="./assets/index-4fd0878e.js"></script>
   <link rel="stylesheet" href="./assets/index-6e4e8e95.css">
 </head>
 
@@ -89,7 +89,7 @@
     </div>
 
     <div class="d-none" aria-hidden="true">
-        <span class="loader"></span>
+        <span class="loader m-3"></span>
 
         <template id="bookmarkGroup">
             <div class="list-group-item group" data-group-name="{{name}}">
@@ -135,8 +135,10 @@
         <template id="etaPopup">
             <div>
                 <div class="header d-flex px-3 py-2 align-items-center text-white mb-3" {{titlecss}}>
-                    <img class="logo" src="{{companyLogo}}" />
-                    <h4 class="routeNo px-2">{{routeNo}}</h4>
+                    <span clas="badge" class="badge bg-white">
+                        <img class="logo" src="{{companyLogo}}" />
+                    </span>
+                    <h4 class="m-0 px-2">{{routeNo}}</h4>
                     <div>
                         <h5 class="m-0">{{title}}</h5>
                         <span>{{subtitle}}</span>
