@@ -37,3 +37,13 @@ export function getCompanyColor(company, isPluse = false) {
     }
     return "#000";
 }
+
+export function getPageWidth() {
+    return Math.max(
+        document.body.scrollWidth,
+        document.documentElement.scrollWidth,
+        document.body.offsetWidth,
+        document.documentElement.offsetWidth,
+        document.documentElement.clientWidth
+    );
+}

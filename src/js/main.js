@@ -1,6 +1,6 @@
 import "../scss/styles.scss";
 import Offcanvas from 'bootstrap/js/src/offcanvas';
-import { utf8_to_b64, b64_to_utf8, getCompanyImage, getCompanyColor, getHtmlTemplate } from './util.js';
+import { utf8_to_b64, b64_to_utf8, getCompanyImage, getCompanyColor, getHtmlTemplate, getPageWidth } from './util.js';
 
 const ROUTE_API = `/api/route/{route}.json`;
 const SPATIAL_API = `/api/spatial/{path}.json`;
@@ -26,8 +26,8 @@ const antPathOption = {
     "reverse": false,
     "hardwareAccelerated": true
 };
-const defaultPopupContent = '<span class="loader"></span>';
-const defaultPopupOption = { className: 'etaPopup' };
+const defaultPopupContent = '<span class="loader m-3"></span>';
+const defaultPopupOption = { className: 'etaPopup', maxWidth: getPageWidth() };
 
 // functions
 const alert = (message, type) => {
@@ -78,14 +78,11 @@ const renderRoute = (id, encodedJson) => {
             route: json.route,
             routeId: json.routeId,
             routeType: json.routeType,
-            routeOrig: json.orig,
-            routeDest: json.dest,
             routeDesc: `${json.orig}➡️${json.dest}`,
             dir: json.dir,
             stop: stop.id,
             name: stop.name,
-            lat: stop.lat,
-            long: stop.long,
+            address: `${stop.lat},${stop.long}`,
             street: stop.street,
             fare: stop.fare,
             fareHoliday: stop.fareHoliday,
@@ -151,9 +148,9 @@ const renderBookmarkStop = (event) => {
         route: json.route,
         routeId: json.routeId,
         routeType: json.routeType,
-        dir: json.dir,
         routeDesc: json.routeDesc,
-        stop: json.stopId,
+        dir: json.dir,
+        stop: json.stop,
         name: json.name,
         address: json.address,
         street: json.street,
@@ -192,7 +189,7 @@ const openPopup = async (e) => {
     const eta = await getEta(marker.options)
         .then((etaArray) => etaArray.map((eta) => {
             let line = '<li>';
-            if (!isNaN(eta.eta) && eta.eta > -1) {
+            if (eta.eta != null && eta.eta > -1) {
                 line += eta.eta + '分鐘';
             }
             if (eta.remark) {
@@ -219,11 +216,11 @@ const openPopup = async (e) => {
             route: marker.options.route,
             routeId: marker.options.routeId,
             routeType: marker.options.routeType,
-            dir: marker.options.dir,
             routeDesc: marker.options.routeDesc,
+            dir: marker.options.dir,
             stop: marker.options.stop,
             name: marker.options.name,
-            address: `${marker.options.lat},${marker.options.long}`,
+            address: marker.options.address,
             street: marker.options.street,
             fare: marker.options.fare,
             fareHoliday: marker.options.fareHoliday,
