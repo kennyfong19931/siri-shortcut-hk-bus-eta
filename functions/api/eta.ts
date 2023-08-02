@@ -16,28 +16,28 @@ export async function onRequestPost({ request }) {
     }
     for (const requestItem of requestBody) {
         if (!ValidationUtil.containsAllKey(requestItem, ["company", "routeId", "stop"])) {
-            return jsonResponse({ error: "Invalid parameter" }, { status: 400, statusText: "Invalid parameter" });
+            return jsonResponse({ error: "Missing parameter: company/routeId/stop" }, { status: 400, statusText: "Invalid parameter" });
         }
 
         const company = Object.values(COMPANY).find(c => c.CODE == requestItem.company);
         if (company == undefined) {
-            return jsonResponse({ error: "Invalid parameter" }, { status: 400, statusText: "Invalid parameter" });
+            return jsonResponse({ error: "Invalid parameter. company not found" }, { status: 400, statusText: "Invalid parameter" });
         } else {
             switch (company.CODE) {
                 case COMPANY.KMB.CODE:
                     if (!ValidationUtil.containsAllKey(requestItem, ["routeType", "dir"])) {
-                        return jsonResponse({ error: "Invalid parameter" }, { status: 400, statusText: "Invalid parameter" });
+                        return jsonResponse({ error: "Missing parameter: routeType/dir" }, { status: 400, statusText: "Invalid parameter" });
                     }
                     break;
                 case COMPANY.CTB.CODE:
                 case COMPANY.NWFB.CODE:
                     if (!ValidationUtil.containsAllKey(requestItem, ["dir"])) {
-                        return jsonResponse({ error: "Invalid parameter" }, { status: 400, statusText: "Invalid parameter" });
+                        return jsonResponse({ error: "Missing parameter: dir" }, { status: 400, statusText: "Invalid parameter" });
                     }
                     break;
                 case COMPANY.GMB.CODE:
                     if (!ValidationUtil.containsAllKey(requestItem, ["routeType"])) {
-                        return jsonResponse({ error: "Invalid parameter" }, { status: 400, statusText: "Invalid parameter" });
+                        return jsonResponse({ error: "Missing parameter: routeType" }, { status: 400, statusText: "Invalid parameter" });
                     }
                     break;
             }
