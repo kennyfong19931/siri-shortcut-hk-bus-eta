@@ -103,6 +103,10 @@ $border-radius: .4rem;
 //
 // Custom styles
 //
+html, body {
+  height: 100dvh;
+}
+
 #btnToggleSearch {
   position: fixed;
   top: 5rem;
@@ -111,7 +115,7 @@ $border-radius: .4rem;
 }
 
 #map {
-  height: 100vh;
+  height: 100dvh;
   width: 100vw;
 }
 
