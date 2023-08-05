@@ -233,6 +233,7 @@ const openPopup = async (e) => {
         '{{title}}': marker.options.name,
         '{{subtitle}}': marker.options.routeDesc,
         '{{titlecss}}': `style="background-color: ${getCompanyColor(marker.options.company)}"`,
+        '{{bookmarkBtn}}': bookmarkBtn,
         '{{body}}': `<ul>${eta}</ul>`,
     });
     marker._popup.setContent(popupContent);
