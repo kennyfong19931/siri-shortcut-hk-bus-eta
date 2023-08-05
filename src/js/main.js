@@ -1,6 +1,6 @@
 import "../scss/styles.scss";
 import Offcanvas from 'bootstrap/js/src/offcanvas';
-import {utf8_to_b64, b64_to_utf8, getCompanyImage} from './util.js';
+import { utf8_to_b64, b64_to_utf8, getCompanyImage, getCompanyColor, getHtmlTemplate, getPageWidth } from './util.js';
 
 const ROUTE_API = `/api/route/{route}.json`;
 const SPATIAL_API = `/api/spatial/{path}.json`;
@@ -26,6 +26,8 @@ const antPathOption = {
     "reverse": false,
     "hardwareAccelerated": true
 };
+const defaultPopupContent = '<span class="loader m-3"></span>';
+const defaultPopupOption = { className: 'etaPopup', maxWidth: getPageWidth() };
 
 // functions
 const alert = (message, type) => {
@@ -76,68 +78,52 @@ const renderRoute = (id, encodedJson) => {
             route: json.route,
             routeId: json.routeId,
             routeType: json.routeType,
-            routeOrig: json.orig,
-            routeDest: json.dest,
+            routeDesc: `${json.orig}➡️${json.dest}`,
             dir: json.dir,
             stop: stop.id,
             name: stop.name,
-            lat: stop.lat,
-            long: stop.long,
+            address: `${stop.lat},${stop.long}`,
             street: stop.street,
             fare: stop.fare,
             fareHoliday: stop.fareHoliday,
         };
-        var marker = L.marker([ stop.lat, stop.long ], option).addTo(map);
-        marker.bindPopup(`${stop.name}`);
+        var marker = L.marker([stop.lat, stop.long], option).addTo(map);
+        marker.bindPopup(defaultPopupContent, defaultPopupOption);
         markersLayer.addLayer(marker);
     })
 
     // add geometry data to layer
     let path;
-    let lineColor = "#FF0000";
-    let lineColorPluse = "#FFFFFF";
+    const lineColor = getCompanyColor(json.company, false);
+    const lineColorPluse = getCompanyColor(json.company, true);
     switch (json.company) {
         case 'kmb':
             path = `kmb/${json.route}/${json.dir}_${json.routeType}`;
-            lineColor = "#FF0000";
-            lineColorPluse = "#FFFFFF";
             break;
         case 'ctb':
             path = `ctb/${json.route}/${json.dir}`;
-            lineColor = "#F1CC02";
-            lineColorPluse = "#0080FF";
             break;
         case 'nwfb':
             path = `nwfb/${json.route}/${json.dir}`;
-            lineColor = "#EF7925";
-            lineColorPluse = "#7000CC";
             break;
         case 'nlb':
             path = `nlb/${json.route}/${json.routeId}`;
-            lineColor = "#2A897B";
-            lineColorPluse = "#3DC9B4";
-            break;
-        case 'gmb':
-            lineColor = "#337149";
-            lineColorPluse = "#53B776";
             break;
         case 'mtr':
             path = `mtr/${json.route}/${json.dir}`;
-            lineColor = "#1A81FF";
-            lineColorPluse = "#53B776";
             break;
     }
     fetch(SPATIAL_API.replace("{path}", `${path}`))
         .then(response => response.json())
         .then((data) => {
-            let polyline = L.polyline.antPath(data, {color: lineColor, pluseColor: lineColorPluse, ...antPathOption});
+            let polyline = L.polyline.antPath(data, { color: lineColor, pluseColor: lineColorPluse, ...antPathOption });
             markersLayer.addLayer(polyline);
         })
         .catch(function (error) {
             // no geometry data, show default line by join all stops
-            let data = json.stopList.map((stop) => [ stop.lat, stop.long ]);
-            data = [ data ];
-            let polyline = L.polyline.antPath(data, {color: lineColor, pluseColor: lineColorPluse, ...antPathOption});
+            let data = json.stopList.map((stop) => [stop.lat, stop.long]);
+            data = [data];
+            let polyline = L.polyline.antPath(data, { color: lineColor, pluseColor: lineColorPluse, ...antPathOption });
             markersLayer.addLayer(polyline);
         });
 
@@ -161,10 +147,10 @@ const renderBookmarkStop = (event) => {
         company: json.company,
         route: json.route,
         routeId: json.routeId,
-        routeType: json.serviceType,
-        dir: json.dir,
+        routeType: json.routeType,
         routeDesc: json.routeDesc,
-        stop: json.stopId,
+        dir: json.dir,
+        stop: json.stop,
         name: json.name,
         address: json.address,
         street: json.street,
@@ -172,7 +158,7 @@ const renderBookmarkStop = (event) => {
         fareHoliday: json.fareHoliday,
     };
     var marker = L.marker(point, option).addTo(map);
-    marker.bindPopup(`${json.name}`);
+    marker.bindPopup(defaultPopupContent, defaultPopupOption);
     markersLayer.addLayer(marker);
 
     // add layer to map
@@ -185,28 +171,25 @@ const renderBookmarkStop = (event) => {
         searchDrawer.hide();
     }
 }
-const getEta = (stop) => {
+const getEta = async (stop) => {
     return fetch(ETA_API, {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify([ stop ])
+        body: JSON.stringify([stop])
     })
         .then(response => response.json())
         .then(json => json[0])
-        .catch(function (error) {
-            console.error(error);
-            return [ {eta: null, remark: "未有資料"} ];
-        });
+        .catch((error) => console.error(error));
 }
-const openPopup = (e) => {
+const openPopup = async (e) => {
     var marker = e.popup._source;
-    const eta = getEta(marker.options)
-        .map((eta) => {
+    const eta = await getEta(marker.options)
+        .then((etaArray) => etaArray.map((eta) => {
             let line = '<li>';
-            if (eta.eta) {
+            if (eta.eta != null && eta.eta > -1) {
                 line += eta.eta + '分鐘';
             }
             if (eta.remark) {
@@ -215,7 +198,9 @@ const openPopup = (e) => {
             line += '</li>';
             return line;
         })
-        .join('');
+            .join('')
+        )
+        .catch(() => '<li>未有資料</li>');
     let bookmarkBtn = '<button class="btn btn-sm btn-outline-warning m-2"><i class="bi bi-bookmark-fill" aria-label="已收藏路線"></i></button>';
     if (!marker.options.bookmarked) {
         let groupName;
@@ -231,18 +216,26 @@ const openPopup = (e) => {
             route: marker.options.route,
             routeId: marker.options.routeId,
             routeType: marker.options.routeType,
+            routeDesc: marker.options.routeDesc,
             dir: marker.options.dir,
-            routeDesc: `${marker.options.routeOrig}➡️${marker.options.routeDest}`,
             stop: marker.options.stop,
             name: marker.options.name,
-            address: `${marker.options.lat},${marker.options.long}`,
+            address: marker.options.address,
             street: marker.options.street,
             fare: marker.options.fare,
             fareHoliday: marker.options.fareHoliday,
         };
         bookmarkBtn = `<button class="btn btn-sm btn-outline-warning m-2" onclick="addBookmark('${groupName}', '${utf8_to_b64(JSON.stringify(json))}', true)"><i id="bookmarkPopupIcon" class="bi bi-bookmark-plus" aria-label="收藏路線"></i></button>`;
     }
-    const popupContent = `<b><img class="logo" src="${getCompanyImage(marker.options.company)}" alt="${marker.options.company}"/> ${marker.options.route} - ${marker.options.name}</b>${bookmarkBtn}<br/><small>${marker.options.routeDesc}</small><br/><ul>${eta}</ul>`;
+    const popupContent = getHtmlTemplate('etaPopup', {
+        '{{companyLogo}}': getCompanyImage(marker.options.company),
+        '{{routeNo}}': marker.options.route,
+        '{{title}}': marker.options.name,
+        '{{subtitle}}': marker.options.routeDesc,
+        '{{titlecss}}': `style="background-color: ${getCompanyColor(marker.options.company)}"`,
+        '{{bookmarkBtn}}': bookmarkBtn,
+        '{{body}}': `<ul>${eta}</ul>`,
+    });
     marker._popup.setContent(popupContent);
 }
 
@@ -277,11 +270,11 @@ const overlays = {
     "地名標籤": label
 };
 const map = L.map('map', {
-    center: [ 22.322005998683245, 114.17846497109828 ],
+    center: [22.322005998683245, 114.17846497109828],
     zoom: 13,
-    layers: [ topographicMapTiles, label ]
+    layers: [topographicMapTiles, label]
 });
-const layerControl = L.control.layers(baseMaps, overlays, {hideSingleBase: true}).addTo(map);
+const layerControl = L.control.layers(baseMaps, overlays, { hideSingleBase: true }).addTo(map);
 map.on('popupopen', openPopup);
 
 // page init

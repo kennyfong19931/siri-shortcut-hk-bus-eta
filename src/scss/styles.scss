@@ -103,6 +103,10 @@ $border-radius: .4rem;
 //
 // Custom styles
 //
+html, body {
+  height: 100dvh;
+}
+
 #btnToggleSearch {
   position: fixed;
   top: 5rem;
@@ -111,7 +115,7 @@ $border-radius: .4rem;
 }
 
 #map {
-  height: 100vh;
+  height: 100dvh;
   width: 100vw;
 }
 
@@ -126,4 +130,42 @@ $border-radius: .4rem;
 
 .btnBookmarkReorder {
   cursor: grab;
+}
+
+.loader {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: inline-block;
+  border-top: 3px solid #FF3D00;
+  border-right: 3px solid transparent;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.etaPopup .leaflet-popup-content {
+  margin: 0;
+}
+
+.etaPopup .header {
+  border-radius: 12px 12px 0 0;
+  background-color: #002969;
+  color: #fff;
+}
+
+.leaflet-container a.leaflet-popup-close-button {
+  top: -5px;
+  right: -5px;
+  background: #FFF;
+  border-radius: 2rem;
 }
