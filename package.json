@@ -2,6 +2,7 @@
   "scripts": {
     "dev": "npx wrangler pages dev ./public --binding ENVIRONMENT=DEV",
     "update-route": "ts-node src/updateRoute.ts",
+    "update-stop-name": "ts-node src/updateStopName.ts",
     "update-spatial": "ts-node src/updateSpatial.ts",
     "web-start": "vite dev",
     "web-build": "vite build"

@@ -7,9 +7,9 @@ import { COMPANY, PLACEHOLDER } from "./constant";
 import { Route } from "./class/Route";
 import { Stop } from "./class/Stop";
 import logger from "./utils/logger";
+import CacheUtil from "./utils/cacheUtil";
 
 const outputFolder = path.join("public", "api", "route");
-const cacheFolder = path.join("cache");
 
 const doRequest = async (method: string, url: string, body?: {}, toString = false) => {
     let result;
@@ -42,28 +42,9 @@ const doRequest = async (method: string, url: string, body?: {}, toString = fals
         if (result !== null && result !== undefined)
             return result;
 
-        await new Promise(r => setTimeout(r, 300000));
+        await new Promise(r => setTimeout(r, 60000));
     }
 }
-
-let ctbNwfbStopMap = new Map();
-const getCtbNwfbStop = async (stop: string) => {
-    if (ctbNwfbStopMap.has(stop)) {
-        return ctbNwfbStopMap.get(stop);
-    } else {
-        let stopApi = COMPANY.CTB.STOP_API.replace(PLACEHOLDER.STOP, stop);
-        return await doRequest("GET", stopApi)
-            .then(stop => {
-                if (stop == undefined) {
-                    return undefined;
-                } else {
-                    let stopObj = new Stop(stop.data.stop, stop.data.name_tc, stop.data.lat, stop.data.long)
-                    ctbNwfbStopMap.set(stop, stopObj);
-                    return stopObj;
-                }
-            })
-    }
-};
 
 const getRoute = async (companyCode: string) => {
     logger.info(`Step 1: Get route data, company: ${companyCode}`);
@@ -134,11 +115,10 @@ const getRoute = async (companyCode: string) => {
                         let response = await doRequest("GET", routeStopApi);
 
                         if (response.data.length > 0) {
-                            let stopPromiseList = response.data
-                                .map((routeStop) => getCtbNwfbStop(routeStop.stop));
-
-                            let stopList = await Promise.all(stopPromiseList)
-                                .then((stopList) => stopList.filter(s => s !== undefined))
+                            let stopList = response.data
+                                .map((routeStop) => CacheUtil.getCache(`${company.CODE}_stop_${routeStop.stop}`))
+                                .map((json) => new Stop(json.stop, json.name_tc, json.lat, json.long))
+                                .filter(s => s !== undefined);
                             result.push(new Route(company.CODE, route.route, null, route.dir, route.orig, route.dest, stopList));
                         }
                     }
@@ -169,7 +149,6 @@ const getRoute = async (companyCode: string) => {
                     const [allRouteList] = await Promise.all([
                         doRequest("GET", COMPANY.GMB.ALL_ROUTE_API)
                     ]);
-                    const stopLastUpdateDate = await doRequest("GET", COMPANY.GMB.STOP_LAST_UPDATE_API).then((response) => response.data);
 
                     let routeList = [];
                     for (const [regionCode, regionRouteList] of Object.entries(allRouteList.data.routes)) {
@@ -188,12 +167,8 @@ const getRoute = async (companyCode: string) => {
                                         const routeStopApi = company.ROUTE_STOP_API.replace(PLACEHOLDER.ROUTE, routeObj.route_id)
                                             .replace(PLACEHOLDER.ROUTE_TYPE, dir.route_seq);
                                         const stopList = await Promise.all(await doRequest("GET", routeStopApi)
-                                            .then((response) => response.data.route_stops.map(async (stop) => {
-                                                const stopApi = company.STOP_API.replace(PLACEHOLDER.STOP, stop.stop_id);
-                                                let lastUpdate = stopLastUpdateDate.find(i => i.stop_id == stop.stop_id);
-                                                lastUpdate = lastUpdate ? new Date(lastUpdate.last_update_date) : new Date("2000-01-01T00:00:00.000+00:00");
-                                                const stopDetail = await tryGetCache('GMB_STOP', `gmb_stop_${stop.stop_id}`, "GET", stopApi, lastUpdate);
-
+                                            .then((response) => response.data.route_stops.map((stop) => {
+                                                const stopDetail = CacheUtil.getCache(`${company.CODE}_stop_${stop.stop_id}`);
                                                 return new Stop(stop.stop_id, stop.name_tc, stopDetail.coordinates.wgs84.latitude, stopDetail.coordinates.wgs84.longitude);
                                             })));
                                         return new Route(company.CODE, routeObj.route_code, dir.route_seq, undefined, dir.orig_tc, dir.dest_tc, stopList, routeObj.route_id, routeObj.description_tc);
@@ -243,34 +218,6 @@ const addToMap = (map: Map<string, Array<Route>>, routeList: Array<Route>) => {
         value.push(route);
         map.set(route.getRoute(), value);
     })
-}
-
-const tryGetCache = async (type: string, key: string, httpMethod: string, url: string, updateDate: Date) => {
-    if (!fs.existsSync(cacheFolder)) {
-        fs.mkdirSync(cacheFolder);
-    }
-
-    let file = path.join(cacheFolder, key + ".json");
-    let json = null;
-    if (fs.existsSync(file)) {
-        let rawdata = fs.readFileSync(file, 'utf8');
-        json = JSON.parse(rawdata);
-
-        if (type == 'GMB_STOP') {
-            if (updateDate > new Date(json.data_timestamp)) {
-                json = null;
-            }
-        }
-    }
-
-    if (json === null) {
-        json = await doRequest(httpMethod, url).then((response) => response.data);
-    }
-
-    let data = JSON.stringify(json);
-    fs.writeFileSync(file, data);
-
-    return json;
 }
 
 (async function () {
