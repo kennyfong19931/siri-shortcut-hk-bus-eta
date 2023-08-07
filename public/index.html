@@ -17,7 +17,7 @@
     
     
     
-  <script type="module" crossorigin src="./assets/index-c46c7936.js"></script>
+  <script type="module" crossorigin src="./assets/index-b0ad4528.js"></script>
   <link rel="stylesheet" href="./assets/index-afdee768.css">
 </head>
 
@@ -132,6 +132,10 @@
             </div>
         </template>
 
+        <template id="bookmarkBtn">
+            <button class="btn btn-sm btn-outline-warning"><i class="bi bi-bookmark-fill" aria-label="已收藏路線"></i></button>
+        </template>
+
         <template id="etaPopup">
             <div>
                 <div class="header d-flex px-3 py-2 align-items-center text-white" {{titlecss}}>
@@ -146,7 +150,7 @@
                 </div>
                 <div class="d-flex align-items-baseline justify-content-between">
                     <div>{{body}}</div>
-                    <div>{{bookmarkBtn}}</div>
+                    <div class="px-2">{{bookmarkBtn}}</div>
                 </div>
             </div>
         </template>
