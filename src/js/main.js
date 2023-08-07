@@ -201,7 +201,7 @@ const openPopup = async (e) => {
             .join('')
         )
         .catch(() => '<li>未有資料</li>');
-    let bookmarkBtn = '<button class="btn btn-sm btn-outline-warning m-2"><i class="bi bi-bookmark-fill" aria-label="已收藏路線"></i></button>';
+    let bookmarkBtn = getHtmlTemplate('bookmarkBtn');
     if (!marker.options.bookmarked) {
         let groupName;
         let bookmarkGroupList = document.querySelectorAll(`div.list-group-item.group`);
@@ -225,7 +225,7 @@ const openPopup = async (e) => {
             fare: marker.options.fare,
             fareHoliday: marker.options.fareHoliday,
         };
-        bookmarkBtn = `<button class="btn btn-sm btn-outline-warning m-2" onclick="addBookmark('${groupName}', '${utf8_to_b64(JSON.stringify(json))}', true)"><i id="bookmarkPopupIcon" class="bi bi-bookmark-plus" aria-label="收藏路線"></i></button>`;
+        bookmarkBtn = `<button class="btn btn-sm btn-outline-warning" onclick="addBookmark('${groupName}', '${utf8_to_b64(JSON.stringify(json))}', true)"><i id="bookmarkPopupIcon" class="bi bi-bookmark-plus" aria-label="收藏路線"></i></button>`;
     }
     const popupContent = getHtmlTemplate('etaPopup', {
         '{{companyLogo}}': getCompanyImage(marker.options.company),
