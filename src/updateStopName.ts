@@ -87,7 +87,6 @@ const updateStopNameCache = async (companyCode: string) => {
                                 let stopApi = COMPANY.CTB.STOP_API.replace(PLACEHOLDER.STOP, routeStop.stop);
                                 await doRequest("GET", stopApi)
                                     .then(stop => {
-                                        console.log(stop);
                                         if (stop != undefined) {
                                             CacheUtil.setCache(`${company.CODE}_stop_${routeStop.stop}`, stop.data);
                                         }
