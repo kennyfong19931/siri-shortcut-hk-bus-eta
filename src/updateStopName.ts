@@ -98,7 +98,8 @@ const updateStopNameCache = async (companyCode: string) => {
             case COMPANY.GMB.CODE:
                 {
                     const stopLastUpdateDate = await doRequest("GET", COMPANY.GMB.STOP_LAST_UPDATE_API).then((response) => response.data);
-                    stopLastUpdateDate.filter((i) => new Date(i.last_update_date) > new Date())
+                    stopLastUpdateDate
+                        // .filter((i) => new Date(i.last_update_date) > new Date())
                         .forEach(async (i) => {
                             const stopApi = company.STOP_API.replace(PLACEHOLDER.STOP, i.stop_id);
                             let json = await doRequest("GET", stopApi).then((response) => response.data);
