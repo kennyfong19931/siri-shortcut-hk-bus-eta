@@ -3,23 +3,42 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import StreamZip from 'node-stream-zip';
-
 import parser from 'stream-json';
 import Pick from 'stream-json/filters/Pick';
 import StreamArray from 'stream-json/streamers/StreamArray';
 import Chain from 'stream-chain';
 import proj4 from 'proj4';
+import xml2js from 'xml2js';
 
 import logger from "./utils/logger";
 import { COMPANY } from "./constant";
 
-const geojsonUrl = 'https://static.csdi.gov.hk/csdi-webpage/download/common/28d13ddabbf1a3ff5793b9e1f81e24a43d441cd5a2577e183c1062b840e7ab5a';
+const metadataUrl = 'https://portal.csdi.gov.hk/csdi-webpage/metadata/td_rcd_1638844988873_41214';
 const routeFolder = path.join("public", "api", "route");
 const outputFolder = path.join("public", "api", "spatial");
 proj4.defs("EPSG:2326", "+proj=tmerc +lat_0=22.31213333333334 +lon_0=114.1785555555556 +k=1 +x_0=836694.05 +y_0=819069.8 +ellps=intl +towgs84=-162.619,-276.959,-161.764,0.067753,-2.24365,-1.15883,-1.09425 +units=m +no_defs");
 
 const praseData = async () => {
     logger.info(`Step 1: Download Data`);
+
+    logger.info(`Step 1.1: Find GeoJSON URL`);
+    let geojsonUrl;
+    let xmlData = '';
+    await new Promise((resolve, reject) => {
+        https.get(metadataUrl, function(res) {
+            res.on('data', function(data_) { xmlData += data_.toString(); });
+            res.on('end', function () {
+                xml2js.Parser().parseString(xmlData, function (err, result) {
+                    const formatList = result['gmd:MD_Metadata']['gmd:distributionInfo'][0]['gmd:MD_Distribution'][0]['gmd:transferOptions'];
+                    const formatGeoJson = formatList.filter(obj => obj['gmd:MD_DigitalTransferOptions'][0]['gmd:onLine'][0]['gmd:CI_OnlineResource'][0]['gmd:applicationProfile'][0]['gco:CharacterString'][0] === 'GEOJSON');
+                    geojsonUrl = formatGeoJson[0]['gmd:MD_DigitalTransferOptions'][0]['gmd:onLine'][0]['gmd:CI_OnlineResource'][0]['gmd:linkage'][0]['gmd:URL'][0];
+                    resolve('finish');
+                });
+            });
+        });
+    });
+    logger.info(`geojsonUrl = ${geojsonUrl}`);
+
     const zipPath = path.join(os.tmpdir(), 'BusRoute_GEOJSON.zip');
     logger.info(`zipPath = ${zipPath}`);
     await new Promise((resolve, reject) => {
@@ -42,7 +61,7 @@ const praseData = async () => {
         request.end();
     });
 
-    logger.info(`Step 1.1: Unzip`);
+    logger.info(`Step 1.2: Unzip`);
     const zip = new StreamZip.async({ file: zipPath });
     await zip.extract(null, os.tmpdir());
     await zip.close();
