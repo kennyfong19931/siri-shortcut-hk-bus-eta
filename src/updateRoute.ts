@@ -11,7 +11,7 @@ import CacheUtil from "./utils/cacheUtil";
 
 const outputFolder = path.join("public", "api", "route");
 
-const doRequest = async (method: string, url: string, body?: {}, toString = false) => {
+const doRequest = async (method: string, url: string, headers?: {}, body?: {}, toString = false) => {
     let result;
     while (true) {
         let request;
@@ -19,12 +19,13 @@ const doRequest = async (method: string, url: string, body?: {}, toString = fals
             request = fetch(url, {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    ...headers,
                 },
                 body: JSON.stringify(body)
             });
         } else {
-            request = fetch(url, { method: method });
+            request = fetch(url, { method: method, headers: headers });
         }
 
         await Promise.all([request])
@@ -183,8 +184,8 @@ const getRoute = async (companyCode: string) => {
             case COMPANY.MTR.CODE:
                 {
                     const [routeList, stopList] = await Promise.all([
-                        doRequest("GET", company.ROUTE_API, null, true),
-                        doRequest("GET", company.ROUTE_STOP_API, null, true)
+                        doRequest("GET", company.ROUTE_API, null, null, true),
+                        doRequest("GET", company.ROUTE_STOP_API, null, null, true)
                     ]).then(async ([routeList, stopList]) => await Promise.all([
                         csv().fromString(routeList),
                         csv().fromString(stopList)
@@ -206,6 +207,49 @@ const getRoute = async (companyCode: string) => {
                         .flat(1);
 
                 }
+            case COMPANY.MTR_HR.CODE:
+                {
+                    const [routeList] = await Promise.all([
+                        doRequest("GET", company.ROUTE_API, null, null, true)
+                    ]).then(async ([routeList]) => await Promise.all([
+                        csv().fromString(routeList)
+                    ]));
+
+                    const routeWhitelist = ["AEL", "TCL", "TML", "TKL", "EAL", "SIL", "TWL", "ISL"];
+
+                    let routeListByLine = routeList.filter((route) => routeWhitelist.includes(route["Line Code"]))
+                        .map((route) => {
+                            // Chagnge Direction to UT/DT, move the prefix to Line Code. e.g. TKL + TKS-UT to TKL-TKS + UT
+                            const key = `${route["Line Code"]}-${route["Direction"]}`;
+                            const lastIndex = key.lastIndexOf("-");
+                            route["Line Code"] = key.substring(0, lastIndex);
+                            route["Direction"] = key.substring(lastIndex + 1);
+                            return route;
+                        })
+                        .reduce((result, item) => {
+                            const key = `${item["Line Code"]}-${item["Direction"]}`;
+                            if (!result[key]) {
+                                result[key] = [];
+                            }
+                            result[key].push({ code: item["Station Code"], name: item["Chinese Name"] });
+                            return result;
+                        }, {});
+                    return await Promise.all(Object.entries(routeListByLine).map(async ([key, station]) => {
+                        const lastIndex = key.lastIndexOf("-");
+                        const lineCode = key.substring(0, lastIndex);
+                        const direction = key.substring(lastIndex + 1);
+
+                        const stopList = await Promise.all(Array.from(station as Array<any>)
+                            .map(async (station) => {
+                                const address = await doRequest("GET", `https://www.als.ogcio.gov.hk/lookup?n=1&q=港鐵${station.name}站`, {"Accept": "application/json"}, null, false)
+                                .then((response) => response.SuggestedAddress[0].Address.PremisesAddress.GeospatialInformation);
+                                
+                                return new Stop(station.code, station.name, address['Latitude'], address['Longitude']);
+                            }));
+                        return new Route(company.CODE, lineCode, null, direction, stopList.at(0).getName(), stopList.at(-1).getName(), stopList);
+                    })
+                        .flat(1));
+                }
         }
     } catch (err) {
         logger.error(`[getRoute]`, err);
@@ -225,19 +269,19 @@ const addToMap = (map: Map<string, Array<Route>>, routeList: Array<Route>) => {
     await Promise.all([
         getRoute(COMPANY.KMB.CODE),
         getRoute(COMPANY.CTB.CODE),
-        // getRoute(COMPANY.NWFB.CODE),
         getRoute(COMPANY.NLB.CODE),
         getRoute(COMPANY.GMB.CODE),
         getRoute(COMPANY.MTR.CODE),
-    ]).then(([kmb, ctb, /*nwfb,*/ nlb, gmb, mtr]) => {
+        getRoute(COMPANY.MTR_HR.CODE),
+    ]).then(([kmb, ctb, nlb, gmb, mtr, mtrHr]) => {
         logger.info(`Step 2: Merge by route`);
         const routeMap = new Map();
         addToMap(routeMap, kmb);
         addToMap(routeMap, ctb);
-        // addToMap(routeMap, nwfb);
         addToMap(routeMap, nlb);
         addToMap(routeMap, gmb);
         addToMap(routeMap, mtr);
+        addToMap(routeMap, mtrHr);
         logger.info(`route count: ${routeMap.size}`);
 
         logger.info(`Step 3: Save result to JSON file`);

@@ -51,4 +51,11 @@ export const COMPANY = {
         STOP_API: null,
         ROUTE_STOP_API: `https://opendata.mtr.com.hk/data/mtr_bus_stops.csv`,
     },
+    MTR_HR:  {
+        CODE: "mtr_hr",
+        ETA_API: `https://rt.data.gov.hk/v1/transport/mtr/getSchedule.php?line=${PLACEHOLDER.ROUTE}&sta=${PLACEHOLDER.STOP}`,
+        ROUTE_API: `https://opendata.mtr.com.hk/data/mtr_lines_and_stations.csv`,
+        STOP_API: null,
+        ROUTE_STOP_API: null,
+    },
 };
