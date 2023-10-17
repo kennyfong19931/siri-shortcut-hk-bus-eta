@@ -53,7 +53,7 @@ export const COMPANY = {
     },
     MTR_HR:  {
         CODE: "mtr_hr",
-        ETA_API: `https://rt.data.gov.hk/v1/transport/mtr/getSchedule.php?line=${PLACEHOLDER.ROUTE}&sta=${PLACEHOLDER.STOP}`,
+        ETA_API: `https://rt.data.gov.hk/v1/transport/mtr/getSchedule.php?line=${PLACEHOLDER.ROUTE}&sta=${PLACEHOLDER.STOP}&lang=tc`,
         ROUTE_API: `https://opendata.mtr.com.hk/data/mtr_lines_and_stations.csv`,
         STOP_API: null,
         ROUTE_STOP_API: null,

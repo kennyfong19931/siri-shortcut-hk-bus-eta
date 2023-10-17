@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "dev": "npx wrangler pages dev ./public --binding ENVIRONMENT=DEV",
+    "dev": "npx wrangler pages dev ./public --binding ENVIRONMENT=DEV host=http://localhost:8788",
     "update-route": "ts-node src/updateRoute.ts",
     "update-stop-name": "ts-node src/updateStopName.ts",
     "update-spatial": "ts-node src/updateSpatial.ts",

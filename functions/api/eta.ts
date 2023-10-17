@@ -4,8 +4,19 @@ import { COMPANY, PLACEHOLDER } from "../../src/constant";
 import ValidationUtil from "../../src/utils/validateUtil";
 
 const noETA = [{ eta: null, remark: "未有資料" }];
+let mtr_hr_data;
 
-export async function onRequestPost({ request }) {
+async function getMtrHrData(host) {
+    if (mtr_hr_data !== undefined) {
+        return mtr_hr_data;
+    } else {
+        mtr_hr_data = await fetch(`${host}/api/route/mtr_hr.json`)
+            .then(response => response.json());
+        return mtr_hr_data;
+    }
+}
+
+export async function onRequestPost({ request, env }) {
     const requestBody = JSON.parse(await request.text());
     let response = [];
     let api;
@@ -31,6 +42,7 @@ export async function onRequestPost({ request }) {
                     break;
                 case COMPANY.CTB.CODE:
                 case COMPANY.NWFB.CODE:
+                case COMPANY.MTR_HR.CODE:
                     if (!ValidationUtil.containsAllKey(requestItem, ["dir"])) {
                         return jsonResponse({ error: "Missing parameter: dir" }, { status: 400, statusText: "Invalid parameter" });
                     }
@@ -162,6 +174,48 @@ export async function onRequestPost({ request }) {
                                     }
                                 }))
                                 .flat(1);
+                        });
+
+                    if (etaResponse.length == 0) {
+                        response.push(noETA);
+                    } else {
+                        response.push(etaResponse.slice(0, Math.min(3, etaResponse.length)));
+                    }
+                    break;
+                case COMPANY.MTR_HR.CODE:
+                    api = company.ETA_API.replace(PLACEHOLDER.STOP, requestItem.stop)
+                        .replace(PLACEHOLDER.ROUTE, requestItem.routeId);
+                        
+                    const mtrHrData = await getMtrHrData(env.host);
+
+                    etaResponse = await fetch(api)
+                        .then(response => response.json())
+                        .then(json => {
+                            if (json.status === 0) {
+                                return [{ eta: null, remark: json.message, url: json.url }];
+                            }
+                            let directionKey = "UT" === requestItem.dir ? "UP" : "DOWN";
+                            return json.data[`${requestItem.routeId}-${requestItem.stop}`][directionKey].map(data => {
+                                let dest;
+                                if (mtrHrData === null) {
+                                    dest = data.dest;
+                                } else {
+                                    dest = mtrHrData.map((route) => route.stopList)
+                                        .flat(1)
+                                        .filter((stop) => stop.id === data.dest)[0].name;
+                                }
+
+                                let remark = undefined;
+                                if (requestItem.routeId === 'EAL' && data.route === 'RAC') {
+                                    remark = '經馬場'
+                                }
+                                return {
+                                    eta: dayjs(data.time, "YYYY-MM-DD HH:mm:ss").diff(dayjs(), "minute"),
+                                    platform: data.plat,
+                                    dest: dest,
+                                    remark: remark,
+                                }
+                            });
                         });
 
                     if (etaResponse.length == 0) {

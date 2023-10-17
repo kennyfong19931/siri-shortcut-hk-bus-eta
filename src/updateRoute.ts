@@ -215,17 +215,9 @@ const getRoute = async (companyCode: string) => {
                         csv().fromString(routeList)
                     ]));
 
-                    const routeWhitelist = ["AEL", "TCL", "TML", "TKL", "EAL", "SIL", "TWL", "ISL"];
+                    const routeWhitelist = ["AEL", "TCL", "TML", "TKL", "EAL", "SIL", "TWL", "ISL", "KTL"];
 
-                    let routeListByLine = routeList.filter((route) => routeWhitelist.includes(route["Line Code"]))
-                        .map((route) => {
-                            // Chagnge Direction to UT/DT, move the prefix to Line Code. e.g. TKL + TKS-UT to TKL-TKS + UT
-                            const key = `${route["Line Code"]}-${route["Direction"]}`;
-                            const lastIndex = key.lastIndexOf("-");
-                            route["Line Code"] = key.substring(0, lastIndex);
-                            route["Direction"] = key.substring(lastIndex + 1);
-                            return route;
-                        })
+                    let routeListByLine = routeList.filter((route) => routeWhitelist.includes(route["Line Code"] && route["Direction"].endsWith("UT")))
                         .reduce((result, item) => {
                             const key = `${item["Line Code"]}-${item["Direction"]}`;
                             if (!result[key]) {
@@ -235,20 +227,26 @@ const getRoute = async (companyCode: string) => {
                             return result;
                         }, {});
                     return await Promise.all(Object.entries(routeListByLine).map(async ([key, station]) => {
-                        const lastIndex = key.lastIndexOf("-");
-                        const lineCode = key.substring(0, lastIndex);
-                        const direction = key.substring(lastIndex + 1);
+                        const keyArray = key.split('-');
+                        const lineCode = keyArray[0];
+                        let routeType = undefined;
+                        let direction;
+                        if (keyArray.length === 3) {
+                            routeType = keyArray[1];
+                            direction = keyArray[2];
+                        } else {
+                            direction = keyArray[1];
+                        }
 
                         const stopList = await Promise.all(Array.from(station as Array<any>)
                             .map(async (station) => {
-                                const address = await doRequest("GET", `https://www.als.ogcio.gov.hk/lookup?n=1&q=港鐵${station.name}站`, {"Accept": "application/json"}, null, false)
-                                .then((response) => response.SuggestedAddress[0].Address.PremisesAddress.GeospatialInformation);
-                                
+                                const address = await doRequest("GET", `https://www.als.ogcio.gov.hk/lookup?n=1&q=港鐵${station.name}站`, { "Accept": "application/json" }, null, false)
+                                    .then((response) => response.SuggestedAddress[0].Address.PremisesAddress.GeospatialInformation);
+
                                 return new Stop(station.code, station.name, address['Latitude'], address['Longitude']);
                             }));
-                        return new Route(company.CODE, lineCode, null, direction, stopList.at(0).getName(), stopList.at(-1).getName(), stopList);
-                    })
-                        .flat(1));
+                        return new Route(company.CODE, lineCode, routeType, direction, stopList.at(0).getName(), stopList.at(-1).getName(), stopList);
+                    }));
                 }
         }
     } catch (err) {
@@ -281,7 +279,6 @@ const addToMap = (map: Map<string, Array<Route>>, routeList: Array<Route>) => {
         addToMap(routeMap, nlb);
         addToMap(routeMap, gmb);
         addToMap(routeMap, mtr);
-        addToMap(routeMap, mtrHr);
         logger.info(`route count: ${routeMap.size}`);
 
         logger.info(`Step 3: Save result to JSON file`);
@@ -295,6 +292,13 @@ const addToMap = (map: Map<string, Array<Route>>, routeList: Array<Route>) => {
             let data = JSON.stringify(value);
             fs.writeFileSync(filename, data);
         });
+
+        logger.info('Step 4: Create JSON file for MTR_HR');
+        if (mtrHr) {
+            let filename = path.join(outputFolder, "mtr_hr.json");
+            let data = JSON.stringify(mtrHr);
+            fs.writeFileSync(filename, data);
+        }
     });
     logger.info("End");
 })();
