@@ -29,13 +29,26 @@
             <div class="offcanvas-body card-body">
                 <div id="searchAlert"></div>
                 <div class="input-group">
-                    <div class="form-floating">
-                        <input type="search" class="form-control" id="routeInput">
+                    <div class="btn-group col-6" role="group" id="routeTypeDropdown">
+                        <button type="button" class="btn btn-secondary dropdown-toggle rounded-0 rounded-start d-flex justify-content-around align-items-center" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div><b>路線種類</b><br/><span id="routeTypeSelected">巴士/小巴/輕鐵</span></div>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="routeTypeClick(this, 'bus')">巴士/小巴/輕鐵</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="routeTypeClick(this, 'mtr')">地鐵</a></li>
+                        </ul>
+                    </div>
+                    <div class="form-floating" data-route-type="bus">
+                        <input type="search" class="form-control h-100" id="routeInput">
                         <label for="routeInput">輸入路線號碼</label>
                     </div>
-                    <button id="btnSearch" class="btn btn-primary" type="button">
+                    <button id="btnSearch" class="btn btn-primary rounded-end" type="button" data-route-type="bus">
                         <i class="bi-search text-white" role="img" aria-label="Search"></i>
                     </button>
+                    <div class="btn-group col-6 d-none" role="group" id="mtrDropdown" data-route-type="mtr">
+                        <button type="button" class="btn btn-secondary dropdown-toggle rounded-0 rounded-end" data-bs-toggle="dropdown" aria-expanded="false">選擇路線</button>
+                        <ul class="dropdown-menu" id="routeInputMtrList"></ul>
+                    </div>
                 </div>
                 <div class="list-group my-2" id="searchResult"></div>
                 <div class="d-flex">
@@ -57,7 +70,7 @@
                     <div class="btn-group">
                         <a href="./readme" target="_blank" class="btn btn-sm btn-primary"><i class="bi bi-book"></i> 使用說明</a>
                         <a id="getSiriShortcut" target="_blank" class="btn btn-sm btn-success"><i class="bi bi-cloud-download"></i> 下載 Siri Shortcut <span id="siriShortcutVersion"></span></a>
-                        <a href="https://t.me/siriShortcutHkBusEta" target="_blank" class="btn btn-sm btn-secondary bg-white" style="color:#0088CC;"><i class="bi bi-telegram"></i></a>
+                        <a href="https://t.me/siriShortcutHkBusEta" target="_blank" class="btn btn-sm btn-light" style="color:#0088CC;"><i class="bi bi-telegram"></i></a>
                         <a href="./github" target="_blank" class="btn btn-sm btn-secondary"><i class="bi bi-github"></i></a>
                     </div>
                 </div>
@@ -71,7 +84,7 @@
         </div>
     </div>
 
-    <div class="modal fade" id="addGroupModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="addGroupModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -142,8 +155,8 @@
 
         <template id="etaPopup">
             <div>
-                <div class="header d-flex px-3 py-2 align-items-center text-white" {{titlecss}}>
-                    <span clas="badge" class="badge bg-white">
+                <div class="header d-flex px-3 py-2 align-items-center text-white" style="{{titlecss}}">
+                    <span clas="badge" class="badge bg-white {{companyLogoClass}}">
                         <img class="logo" src="{{companyLogo}}" />
                     </span>
                     <h4 class="m-0 px-2">{{routeNo}}</h4>
@@ -152,11 +165,17 @@
                         <span>{{subtitle}}</span>
                     </div>
                 </div>
-                <div class="d-flex align-items-baseline justify-content-between">
-                    <div>{{body}}</div>
-                    <div class="px-2">{{bookmarkBtn}}</div>
+                <div class="d-flex align-items-baseline justify-content-between p-2">
+                    <div class="w-100">{{body}}</div>
+                    <div>{{bookmarkBtn}}</div>
                 </div>
             </div>
+        </template>
+
+        <template id="mtrRouteRow">
+            <li>
+                <a class="dropdown-item" id="mtrRoute{{routeId}}" href="#" onclick="renderRoute('mtrRoute{{routeId}}', '{{json}}')"><span class="mtrIcon" style="--background-color: {{backgroundColor}};"></span> {{route}}</a>
+            </li>
         </template>
     </div>
 </body>

@@ -132,6 +132,37 @@ const uploadBookmark = (event) => {
     reader.onerror = error => console.error(error)
     reader.readAsText(event.target.files[0]);
 }
+const isBoomarked = (stop) => {
+    if (localStorage.hasOwnProperty('bookmarkList')) {
+        return localStorage.getItem('bookmarkList').split(groupSeparator).some((row) => {
+            const rowJson = JSON.parse(row);
+            return Object.entries(rowJson).some(entry => {
+                return entry[1].split(routeSeparator).some(bookmarkRow => {
+                    const bookmarkRowJson = JSON.parse(bookmarkRow);
+                    let exist = bookmarkRowJson.company === stop.company
+                        && bookmarkRowJson.routeId === stop.routeId
+                        && bookmarkRowJson.stop === stop.stop;
+                    switch (stop.company) {
+                        case 'kmb':
+                            exist = exist && bookmarkRowJson.routeType === stop.routeType
+                                && bookmarkRowJson.dir === stop.dir;
+                            break;
+                        case 'ctb':
+                        case 'nwfb':
+                        case 'mtr_hr':
+                            exist = exist && bookmarkRowJson.dir === stop.dir;
+                            break;
+                        case 'gmb':
+                            exist = exist && bookmarkRowJson.routeType === stop.routeType;
+                            break;
+                    }
+                    return exist;
+                });
+            });
+        });
+    }
+    return false;
+}
 
 // events
 document.getElementById('btnBookmarkEdit').onclick = editBookmark;
@@ -155,3 +186,4 @@ window.addGroup = addGroup;
 window.removeGroup = removeGroup;
 window.addBookmark = addBookmark;
 window.removeBookmark = removeBookmark;
+window.isBoomarked = isBoomarked;

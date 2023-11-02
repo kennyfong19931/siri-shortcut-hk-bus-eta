@@ -37,6 +37,33 @@ export function getCompanyColor(company, isPluse = false) {
     }
     return "#000";
 }
+export function getMtrHrColor(route) {
+    switch (route) {
+        case 'TWL':
+            return "#ff0000";
+        case 'KTL':
+            return "#1a9431";
+        case 'ISL':
+            return "#0860a8";
+        case 'SIL':
+            return "#b5bd00";
+        case 'TKL':
+            return "#6b208b";
+        case 'AEL':
+            return "#1c7670";
+        case 'TCL':
+            return "#fe7f1d";
+        case 'DRL':
+            return "#f550a6";
+        case 'EAL':
+            return "#5eb6e4";
+        case 'TML':
+            return "#9a3b26";
+        case 'WRL':
+            return "#a40084";
+    }
+    return "#000";
+}
 
 export function getPageWidth() {
     return Math.max(

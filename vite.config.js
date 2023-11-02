@@ -19,6 +19,6 @@ export default {
     emptyOutDir: false
   },
   plugins: [
-    htmlPurge([/data-bs-theme/, 'leaflet-popup-content', 'leaflet-container', 'leaflet-popup-close-button']), 
+    htmlPurge([/data-bs-theme/, 'leaflet-popup-content', 'leaflet-container', 'leaflet-popup-close-button', 'mtrIcon']), 
   ]
 }

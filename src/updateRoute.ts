@@ -8,6 +8,7 @@ import { Route } from "./class/Route";
 import { Stop } from "./class/Stop";
 import logger from "./utils/logger";
 import CacheUtil from "./utils/cacheUtil";
+import SpatialUtil from "./utils/spatialUtil";
 
 const outputFolder = path.join("public", "api", "route");
 
@@ -216,10 +217,22 @@ const getRoute = async (companyCode: string) => {
                     ]));
 
                     const routeWhitelist = ["AEL", "TCL", "TML", "TKL", "EAL", "SIL", "TWL", "ISL", "KTL"];
+                    const routeNameList = [
+                        {code: "AEL", name: "機場快線"},
+                        {code: "TCL", name: "東湧線"},
+                        {code: "TML", name: "屯馬線"},
+                        {code: "TKL", name: "將軍澳線"},
+                        {code: "EAL", name: "東鐵線"},
+                        {code: "SIL", name: "南港島線"},
+                        {code: "TWL", name: "荃灣線"},
+                        {code: "ISL", name: "港島線"},
+                        {code: "KTL", name: "觀塘線"},
+                        {code: "DRL", name: "迪士尼線"},
+                    ];
 
-                    let routeListByLine = routeList.filter((route) => routeWhitelist.includes(route["Line Code"] && route["Direction"].endsWith("UT")))
+                    let routeListByLine = routeList.filter((route) => routeWhitelist.includes(route["Line Code"]) && route["Direction"].endsWith("UT"))
                         .reduce((result, item) => {
-                            const key = `${item["Line Code"]}-${item["Direction"]}`;
+                            const key = item["Line Code"];
                             if (!result[key]) {
                                 result[key] = [];
                             }
@@ -237,15 +250,16 @@ const getRoute = async (companyCode: string) => {
                         } else {
                             direction = keyArray[1];
                         }
+                        const routeName = routeNameList.filter((route) => route.code == lineCode)[0].name;
 
                         const stopList = await Promise.all(Array.from(station as Array<any>)
                             .map(async (station) => {
-                                const address = await doRequest("GET", `https://www.als.ogcio.gov.hk/lookup?n=1&q=港鐵${station.name}站`, { "Accept": "application/json" }, null, false)
-                                    .then((response) => response.SuggestedAddress[0].Address.PremisesAddress.GeospatialInformation);
+                                const coordinates = await doRequest("GET", `https://geodata.gov.hk/gs/api/v1.0.0/locationSearch?q=港鐵${station.name}站`)
+                                    .then((response) => SpatialUtil.fromHK80ToWGS84([response[0].y, response[0].x]));
 
-                                return new Stop(station.code, station.name, address['Latitude'], address['Longitude']);
+                                return new Stop(station.code, station.name, coordinates[0], coordinates[1]);
                             }));
-                        return new Route(company.CODE, lineCode, routeType, direction, stopList.at(0).getName(), stopList.at(-1).getName(), stopList);
+                        return new Route(company.CODE, routeName, routeType, direction, stopList.at(0).getName(), stopList.at(-1).getName(), stopList, lineCode);
                     }));
                 }
         }
