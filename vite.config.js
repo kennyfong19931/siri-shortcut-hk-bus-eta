@@ -15,6 +15,7 @@ export default {
     hot: true
   },
   build: {
+    target: 'esnext',
     outDir: path.resolve(__dirname, 'public'),
     emptyOutDir: false
   },
