@@ -18,6 +18,10 @@ const routeFolder = path.join("public", "api", "route");
 const outputFolder = path.join("public", "api", "spatial");
 proj4.defs("EPSG:2326", "+proj=tmerc +lat_0=22.31213333333334 +lon_0=114.1785555555556 +k=1 +x_0=836694.05 +y_0=819069.8 +ellps=intl +towgs84=-162.619,-276.959,-161.764,0.067753,-2.24365,-1.15883,-1.09425 +units=m +no_defs");
 
+const convertHK80toWGS84 = (coordinate) => {
+    return proj4('EPSG:2326', 'EPSG:4326', coordinate).map((coor) => parseFloat(coor.toFixed(5))).reverse();
+}
+
 const praseData = async () => {
     logger.info(`Step 1: Download Data`);
 
@@ -81,9 +85,9 @@ const praseData = async () => {
                 company: value.properties.COMPANY_CODE,
                 geometry: value.geometry.coordinates.map(a => {
                     if (Array.isArray(a[0])) {
-                        return a.map(b => proj4('EPSG:2326', 'EPSG:4326', b).reverse());
+                        return a.map(b => convertHK80toWGS84(b));
                     } else {
-                        return proj4('EPSG:2326', 'EPSG:4326', a).reverse();
+                        return convertHK80toWGS84(a);
                     }
                 }),
                 route: value.properties.ROUTE_NAMEE,
