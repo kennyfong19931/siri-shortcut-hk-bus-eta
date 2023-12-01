@@ -371,8 +371,7 @@ mtrHrData = await fetch(ROUTE_API.replace("{route}", 'mtr_hr'))
     .then(response => response.json())
     .then((data) => {
         // add route as select options
-        data.filter((route) => route.dir === 'UT')
-            .forEach((route) => {
+        data.forEach((route) => {
                 let li = getHtmlTemplate('mtrRouteRow', {
                     '{{route}}': `${route.route} (${route.orig}↔️${route.dest})`,
                     '{{routeId}}': route.routeId,

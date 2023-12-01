@@ -3,6 +3,6 @@ proj4.defs("EPSG:2326", "+proj=tmerc +lat_0=22.31213333333334 +lon_0=114.1785555
 
 export default class SpatialUtil {
     static fromHK80ToWGS84(coordinates = []) {
-        return proj4('EPSG:2326', 'EPSG:4326', coordinates).reverse();
+        return proj4('EPSG:2326', 'EPSG:4326', coordinates).map((coor) => parseFloat(coor.toFixed(5))).reverse();
     }
 }
