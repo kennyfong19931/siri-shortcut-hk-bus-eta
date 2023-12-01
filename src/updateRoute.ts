@@ -255,9 +255,9 @@ const getRoute = async (companyCode: string) => {
                         const stopList = await Promise.all(Array.from(station as Array<any>)
                             .map(async (station) => {
                                 const coordinates = await doRequest("GET", `https://geodata.gov.hk/gs/api/v1.0.0/locationSearch?q=港鐵${station.name}站`)
-                                    .then((response) => SpatialUtil.fromHK80ToWGS84([response[0].y, response[0].x]));
+                                    .then((response) => SpatialUtil.fromHK80ToWGS84([response[0].x, response[0].y]));
 
-                                return new Stop(station.code, station.name, coordinates[0], coordinates[1]);
+                                return new Stop(station.code, station.name, coordinates[0].toString(), coordinates[1].toString());
                             }));
                         return new Route(company.CODE, routeName, routeType, direction, stopList.at(0).getName(), stopList.at(-1).getName(), stopList, lineCode);
                     }));
