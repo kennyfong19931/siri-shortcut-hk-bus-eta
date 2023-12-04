@@ -1,3 +1,4 @@
+import * as core from '@actions/core';
 import fetch from "node-fetch";
 import fs from "fs";
 import path from "path";
@@ -116,7 +117,14 @@ const getRoute = async (companyCode: string) => {
 
                         if (response.data.length > 0) {
                             let stopList = response.data
-                                .map((routeStop) => CacheUtil.getCache(`${company.CODE}_stop_${routeStop.stop}`))
+                                .map((routeStop) => {
+                                    try {
+                                        return CacheUtil.getCache(`${company.CODE}_stop_${routeStop.stop}`)
+                                    } catch (e) {
+                                        core.exportVariable('runUpdateStopName', true);
+                                        throw e;
+                                    }
+                                })
                                 .map((json) => new Stop(json.stop, json.name_tc, json.lat, json.long))
                                 .filter(s => s !== undefined);
                             result.push(new Route(company.CODE, route.route, null, route.dir, route.orig, route.dest, stopList));
@@ -170,7 +178,11 @@ const getRoute = async (companyCode: string) => {
                                             .then((response) => response.data.route_stops.map((stop) => {
                                                 const stopDetail = CacheUtil.getCache(`${company.CODE}_stop_${stop.stop_id}`);
                                                 return new Stop(stop.stop_id, stop.name_tc, stopDetail.coordinates.wgs84.latitude, stopDetail.coordinates.wgs84.longitude);
-                                            })));
+                                            }))
+                                            .catch((e) => {
+                                                core.exportVariable('runUpdateStopName', true);
+                                                throw e;
+                                            }));
                                         return new Route(company.CODE, routeObj.route_code, dir.route_seq, undefined, dir.orig_tc, dir.dest_tc, stopList, routeObj.route_id, routeObj.description_tc);
                                     }))
                                 )

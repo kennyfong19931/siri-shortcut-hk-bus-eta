@@ -1,6 +1,11 @@
 name: Update Stop Name Data
 on:
   workflow_dispatch:
+    inputs:
+      reRunId:
+        description: 'Re-run Github Action ID'
+        required: false
+        type: number
   schedule:
     - cron: '0 16 * * 5'
 jobs:
@@ -36,3 +41,7 @@ jobs:
         with:
           path: cache
           key: stop-data-${{ steps.get-date.outputs.date }}
+
+      - name: Re-run Update Route
+        if: inputs.reRunId != ''
+        run: gh run rerun ${{ inputs.reRunId }}

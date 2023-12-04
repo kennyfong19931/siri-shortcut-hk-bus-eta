@@ -46,3 +46,7 @@ jobs:
           file_pattern: 'public/api/route/**'
         env:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      - name: Update Stop Name on exception
+        if: failure() && env.runUpdateStopName == 'true'
+        run: gh workflow run updateStopName.yml -f reRunId=$GITHUB_RUN_ID
