@@ -218,16 +218,16 @@ const getRoute = async (companyCode: string) => {
 
                     const routeWhitelist = ["AEL", "TCL", "TML", "TKL", "EAL", "SIL", "TWL", "ISL", "KTL"];
                     const routeNameList = [
-                        {code: "AEL", name: "機場快線"},
-                        {code: "TCL", name: "東湧線"},
-                        {code: "TML", name: "屯馬線"},
-                        {code: "TKL", name: "將軍澳線"},
-                        {code: "EAL", name: "東鐵線"},
-                        {code: "SIL", name: "南港島線"},
-                        {code: "TWL", name: "荃灣線"},
-                        {code: "ISL", name: "港島線"},
-                        {code: "KTL", name: "觀塘線"},
-                        {code: "DRL", name: "迪士尼線"},
+                        { code: "AEL", name: "機場快線" },
+                        { code: "TCL", name: "東湧線" },
+                        { code: "TML", name: "屯馬線" },
+                        { code: "TKL", name: "將軍澳線" },
+                        { code: "EAL", name: "東鐵線" },
+                        { code: "SIL", name: "南港島線" },
+                        { code: "TWL", name: "荃灣線" },
+                        { code: "ISL", name: "港島線" },
+                        { code: "KTL", name: "觀塘線" },
+                        { code: "DRL", name: "迪士尼線" },
                     ];
 
                     let routeListByLine = routeList.filter((route) => routeWhitelist.includes(route["Line Code"]) && route["Direction"].endsWith("UT"))
@@ -252,12 +252,18 @@ const getRoute = async (companyCode: string) => {
                         }
                         const routeName = routeNameList.filter((route) => route.code == lineCode)[0].name;
 
+                        const stationLength = (station as Array<any>).length;
                         const stopList = await Promise.all(Array.from(station as Array<any>)
-                            .map(async (station) => {
+                            .map(async (station, index) => {
                                 const coordinates = await doRequest("GET", `https://geodata.gov.hk/gs/api/v1.0.0/locationSearch?q=港鐵${station.name}站`)
                                     .then((response) => SpatialUtil.fromHK80ToWGS84([response[0].x, response[0].y]));
-
-                                return new Stop(station.code, station.name, coordinates[0].toString(), coordinates[1].toString());
+                                let stop = new Stop(station.code, station.name, coordinates[0].toString(), coordinates[1].toString());
+                                if (index === 0) {
+                                    stop.setRailwayFilterDir("DT");
+                                } else if (index === stationLength) {
+                                    stop.setRailwayFilterDir("UT");
+                                }
+                                return stop;
                             }));
                         return new Route(company.CODE, routeName, routeType, direction, stopList.at(0).getName(), stopList.at(-1).getName(), stopList, lineCode);
                     }));
