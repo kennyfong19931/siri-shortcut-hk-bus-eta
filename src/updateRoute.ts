@@ -117,15 +117,15 @@ const getRoute = async (companyCode: string) => {
 
                         if (response.data.length > 0) {
                             let stopList = response.data
-                                .map((routeStop) => {
+                                .map((routeStop) => CacheUtil.getCache(`${company.CODE}_stop_${routeStop.stop}`))
+                                .map((json) => {
                                     try {
-                                        return CacheUtil.getCache(`${company.CODE}_stop_${routeStop.stop}`)
+                                        return new Stop(json.stop, json.name_tc, json.lat, json.long);
                                     } catch (e) {
                                         core.exportVariable('runUpdateStopName', true);
                                         throw e;
                                     }
                                 })
-                                .map((json) => new Stop(json.stop, json.name_tc, json.lat, json.long))
                                 .filter(s => s !== undefined);
                             result.push(new Route(company.CODE, route.route, null, route.dir, route.orig, route.dest, stopList));
                         }

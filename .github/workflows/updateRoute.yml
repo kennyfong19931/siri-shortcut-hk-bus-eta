@@ -46,10 +46,6 @@ jobs:
           file_pattern: 'public/api/route/**'
         env:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-
-      - name: Echo env runUpdateStopName
-        if: always()
-        run: echo ${{ env.runUpdateStopName }}
         
       - name: Update Stop Name on exception
         if: failure() && env.runUpdateStopName == 'true'
