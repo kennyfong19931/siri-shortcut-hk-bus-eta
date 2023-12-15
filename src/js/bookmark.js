@@ -149,6 +149,7 @@ const isBoomarked = (stop) => {
                             break;
                         case 'ctb':
                         case 'nwfb':
+                        case 'mtr':
                         case 'mtr_hr':
                             exist = exist && bookmarkRowJson.dir === stop.dir;
                             break;

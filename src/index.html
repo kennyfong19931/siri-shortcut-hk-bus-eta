@@ -159,7 +159,7 @@
         <template id="etaPopup">
             <div>
                 <div class="header d-flex px-3 py-2 align-items-center text-white" style="{{titlecss}}">
-                    <span clas="badge" class="badge bg-white {{companyLogoClass}}">
+                    <span clas="badge" class="badge bg-white">
                         <img class="logo" src="{{companyLogo}}" />
                     </span>
                     <h4 class="m-0 px-2">{{routeNo}}</h4>
@@ -169,8 +169,25 @@
                     </div>
                 </div>
                 <div class="d-flex align-items-baseline justify-content-between p-2">
+                    <div>{{body}}</div>
+                    <div class="px-2">{{bookmarkBtn}}</div>
+                </div>
+            </div>
+        </template>
+
+        <template id="etaPopupRailway">
+            <div>
+                <div class="header d-flex px-3 py-2 align-items-center text-white" style="{{titlecss}}">
+                    <span clas="badge" class="badge bg-white">
+                        <img class="logo" src="{{companyLogo}}" />
+                    </span>
+                    <h4 class="m-0 px-2">
+                        {{route}}
+                        <span class="badge" style="{{stationcss}}">{{station}}</span>
+                    </h4>
+                </div>
+                <div class="d-flex align-items-baseline justify-content-between p-2">
                     <div class="w-100">{{body}}</div>
-                    <div>{{bookmarkBtn}}</div>
                 </div>
             </div>
         </template>

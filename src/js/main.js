@@ -1,7 +1,7 @@
 import "../scss/styles.scss";
 import Offcanvas from 'bootstrap/js/src/offcanvas';
 import Dropdown from 'bootstrap/js/src/dropdown';
-import { utf8_to_b64, b64_to_utf8, getCompanyImage, getCompanyColor, getHtmlTemplate, getPageWidth, getMtrHrColor } from './util.js';
+import { utf8_to_b64, b64_to_utf8, getCompanyImage, getCompanyColor, getHtmlTemplate, getPageWidth, getMtrColor, getMtrTextColor } from './util.js';
 
 const ROUTE_API = `${BASE_API}/api/route/{route}.json`;
 const SPATIAL_API = `${BASE_API}/api/spatial/{path}.json`;
@@ -192,9 +192,8 @@ const getEta = async (stop) => {
         .catch((error) => console.error(error));
 }
 const openPopup = async (e) => {
-    let body = '', subtitle = '', titleCss = '', companyLogoClass = '';
     var marker = e.popup._source;
-    let bookmarkBtn = getHtmlTemplate('bookmarkBtn');
+    let bookmarkBtn = getHtmlTemplate('bookmarkBtn').outerHTML;
     const bookmarkJson = {
         company: marker.options.company,
         route: marker.options.route,
@@ -227,7 +226,7 @@ const openPopup = async (e) => {
                 .then((etaArray) => etaArray.map((eta) => {
                     let line = `<li>`;
                     if (eta.eta != null) {
-                        line += `<span class="badge rounded-pill text-white me-1" style="background-color: ${getMtrHrColor(marker.options.routeId)}">${eta.platform}</span>往${eta.dest}`;
+                        line += `<span class="badge rounded-pill text-white me-1" style="background-color: ${getMtrColor('route-hr', marker.options.routeId)}">${eta.platform}</span>往${eta.dest}`;
                     }
                     if (eta.remark) {
                         line += ` (${eta.remark})`;
@@ -252,7 +251,7 @@ const openPopup = async (e) => {
                 .then((etaArray) => etaArray.map((eta) => {
                     let line = `<li>`;
                     if (eta.eta != null) {
-                        line += `<span class="badge rounded-pill text-white me-1" style="background-color: ${getMtrHrColor(marker.options.routeId)}">${eta.platform}</span>往${eta.dest}`;
+                        line += `<span class="badge rounded-pill text-white me-1" style="background-color: ${getMtrColor('route-hr', marker.options.routeId)}">${eta.platform}</span>往${eta.dest}`;
                     }
                     if (eta.remark) {
                         line += ` (${eta.remark})`;
@@ -272,10 +271,19 @@ const openPopup = async (e) => {
             </div>`);
         }
 
-        body = etaResult.join('<hr class="my-2">');
-        titleCss = `background-color: ${getMtrHrColor(marker.options.routeId)} min-width: 250px;`;
-        companyLogoClass = 'd-none';
-        bookmarkBtn = '';
+        const body = etaResult.join('<hr class="my-2">');
+        const titleCss = `background-color: ${getMtrColor('route-hr', marker.options.routeId)}; min-width: 250px;`;
+        const stationcss = `background-color: ${getMtrColor('station-hr', marker.options.stop)}; color: ${getMtrTextColor('station-hr', marker.options.stop)};`;
+
+        const popupContent = getHtmlTemplate('etaPopupRailway', {
+            '{{companyLogo}}': getCompanyImage(marker.options.company),
+            '{{route}}': marker.options.route,
+            '{{station}}': marker.options.name,
+            '{{titlecss}}': titleCss,
+            '{{stationcss}}': stationcss,
+            '{{body}}': body,
+        });
+        marker._popup.setContent(popupContent);
     } else {
         if (isBoomarked(marker.options)) {
             bookmarkBtn = getAddBookmarkBtn(bookmarkJson);
@@ -296,22 +304,21 @@ const openPopup = async (e) => {
                 .join('')
             )
             .catch(() => '<li>未有資料</li>');
-        body = `<ul>${eta}</ul>`;
-        titleCss = `background-color: ${getCompanyColor(marker.options.company)}`;
-        subtitle = marker.options.routeDesc;
-    }
+        const body = `<ul>${eta}</ul>`;
+        const titleCss = `background-color: ${getCompanyColor(marker.options.company)}`;
+        const subtitle = marker.options.routeDesc;
 
-    const popupContent = getHtmlTemplate('etaPopup', {
-        '{{companyLogoClass}}': companyLogoClass,
-        '{{companyLogo}}': getCompanyImage(marker.options.company),
-        '{{routeNo}}': marker.options.route,
-        '{{title}}': marker.options.name,
-        '{{subtitle}}': subtitle,
-        '{{titlecss}}': titleCss,
-        '{{bookmarkBtn}}': bookmarkBtn,
-        '{{body}}': body,
-    });
-    marker._popup.setContent(popupContent);
+        const popupContent = getHtmlTemplate('etaPopup', {
+            '{{companyLogo}}': getCompanyImage(marker.options.company),
+            '{{routeNo}}': marker.options.route,
+            '{{title}}': marker.options.name,
+            '{{subtitle}}': subtitle,
+            '{{titlecss}}': titleCss,
+            '{{bookmarkBtn}}': bookmarkBtn,
+            '{{body}}': body,
+        });
+        marker._popup.setContent(popupContent);
+    }
 }
 const getAddBookmarkBtn = (json, groupName = null) => {
     if (groupName === null) {
@@ -390,7 +397,7 @@ mtrHrData = await fetch(ROUTE_API.replace("{route}", 'mtr_hr'))
                 '{{route}}': `${route.route} (${route.orig}↔️${route.dest})`,
                 '{{routeId}}': route.routeId,
                 '{{json}}': utf8_to_b64(JSON.stringify(route)),
-                '{{backgroundColor}}': getMtrHrColor(route.routeId),
+                '{{backgroundColor}}': getMtrColor('route-hr', route.routeId),
             });
             document.getElementById("routeInputMtrList").append(li);
         });
