@@ -118,7 +118,7 @@ export async function onRequestPost({ request, env }) {
                             else
                                 return json.estimatedArrivals.map(data => {
                                     return {
-                                        eta: dayjs(data.estimatedArrivalTime, "YYYY-MM-DD HH:mm:ss").subtract(8, 'hour').diff(dayjs(), "minute"),
+                                        eta: dayjs(`${data.estimatedArrivalTime}+08:00`, "YYYY-MM-DD HH:mm:ss").diff(dayjs(), "minute"),
                                         remark: data.remarks_tc == "" ? undefined : data.remarks_tc,
                                         routeVariantName: data.routeVariantName,
                                         wheelChair: data.wheelChair
@@ -210,7 +210,7 @@ export async function onRequestPost({ request, env }) {
                                     remark = '經馬場'
                                 }
                                 return {
-                                    eta: dayjs(data.time, "YYYY-MM-DD HH:mm:ss").diff(dayjs(), "minute"),
+                                    eta: dayjs(`${data.time}+08:00`, "YYYY-MM-DD HH:mm:ss").diff(dayjs(), "minute"),
                                     platform: data.plat,
                                     dest: dest,
                                     remark: remark,
