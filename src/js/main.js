@@ -10,8 +10,6 @@ const SIRI_SHORTCUT_UPDATE_API = `${BASE_API}/update.json`;
 const searchAlert = document.getElementById('searchAlert');
 const searchResult = document.getElementById("searchResult");
 const searchDrawer = new Offcanvas('#searchDrawer');
-const routeTypeDropdown = new Dropdown('#routeTypeDropdown');
-const mtrDropdown = new Dropdown('#mtrDropdown');
 const topographicMapAPI = 'https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/basemap/wgs84/{z}/{x}/{y}.png';
 const imageryMapAPI = 'https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/imagery/wgs84/{z}/{x}/{y}.png';
 const labelAPI = 'https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/label/hk/tc/wgs84/{z}/{x}/{y}.png';
@@ -49,14 +47,16 @@ const searchRoute = () => {
     fetch(ROUTE_API.replace("{route}", route))
         .then(response => response.json())
         .then((data) => {
-            searchResult.innerHTML = '';
-            data.forEach((element, index) => {
-                let html = `<div class="d-flex align-items-center list-group-item list-group-item-action" id="route-${index}" onclick="renderRoute('route-${index}', '${utf8_to_b64(JSON.stringify(element))}')">` +
-                    `<div class="flex-shrink-0"><img class="logo" src="${getCompanyImage(element.company)}" alt="${element.company}"/></div>` +
-                    `<div class="flex-grow-1 ms-3">${element.orig}➡️${element.dest}</div>` +
-                    `</div>`;
-                searchResult.innerHTML += html;
-            });
+            searchResult.innerHTML = data.map((element, index) => {
+                return getHtmlTemplate('searchResultRow', {
+                    '{{id}}': `route-${index}`,
+                    '{{json}}': utf8_to_b64(JSON.stringify(element)),
+                    '{{companyLogo}}': getCompanyImage(element.company),
+                    '{{companyName}}': element.company,
+                    '{{text}}': `${element.orig}➡️${element.dest}`,
+                }).outerHTML;
+            })
+                .join('');
         })
         .catch(function (error) {
             console.log(error);
@@ -224,18 +224,20 @@ const openPopup = async (e) => {
         if (marker.options.railwayFilterDir === undefined || (marker.options.railwayFilterDir && marker.options.railwayFilterDir.contains('UT'))) {
             const etaUT = await getEta({ ...marker.options, dir: 'UT' })
                 .then((etaArray) => etaArray.map((eta) => {
-                    let line = `<li>`;
+                    let text = '', etaTime = '';
                     if (eta.eta != null) {
-                        line += `<span class="badge rounded-pill text-white me-1" style="background-color: ${getMtrColor('route-hr', marker.options.routeId)}">${eta.platform}</span>往${eta.dest}`;
+                        text += `往${eta.dest}`;
+                        etaTime = `${Math.max(eta.eta, 0)}分鐘`;
                     }
                     if (eta.remark) {
                         line += ` (${eta.remark})`;
                     }
-                    if (eta.eta != null) {
-                        line += `<span class="float-end">${eta.eta > -1 ? 0 : eta.eta}分鐘</span>`;
-                    }
-                    line += '</li>';
-                    return line;
+                    return getHtmlTemplate('railwayEtaRow', {
+                        '{{css}}': `background-color: ${getMtrColor('route-hr', marker.options.routeId)}`,
+                        '{{platform}}': eta.platform,
+                        '{{text}}': text,
+                        '{{eta}}': etaTime,
+                    }).outerHTML;
                 })
                     .join('')
                 )
@@ -249,18 +251,20 @@ const openPopup = async (e) => {
         if (marker.options.railwayFilterDir === undefined || (marker.options.railwayFilterDir && marker.options.railwayFilterDir.contains('DT'))) {
             const etaDT = await getEta({ ...marker.options, dir: 'DT' })
                 .then((etaArray) => etaArray.map((eta) => {
-                    let line = `<li>`;
+                    let text = '', etaTime = '';
                     if (eta.eta != null) {
-                        line += `<span class="badge rounded-pill text-white me-1" style="background-color: ${getMtrColor('route-hr', marker.options.routeId)}">${eta.platform}</span>往${eta.dest}`;
+                        text += `往${eta.dest}`;
+                        etaTime = `${Math.max(eta.eta, 0)}分鐘`;
                     }
                     if (eta.remark) {
                         line += ` (${eta.remark})`;
                     }
-                    if (eta.eta != null) {
-                        line += `<span class="float-end">${eta.eta > -1 ? 0 : eta.eta}分鐘</span>`;
-                    }
-                    line += '</li>';
-                    return line;
+                    return getHtmlTemplate('railwayEtaRow', {
+                        '{{css}}': `background-color: ${getMtrColor('route-hr', marker.options.routeId)}`,
+                        '{{platform}}': eta.platform,
+                        '{{text}}': text,
+                        '{{eta}}': etaTime,
+                    }).outerHTML;
                 })
                     .join('')
                 )
@@ -293,7 +297,7 @@ const openPopup = async (e) => {
             .then((etaArray) => etaArray.map((eta) => {
                 let line = '<li>';
                 if (eta.eta != null) {
-                    line += `${eta.eta > -1 ? 0 : eta.eta}分鐘`;
+                    line += `${Math.max(eta.eta, 0)}分鐘`;
                 }
                 if (eta.remark) {
                     line += ` (${eta.remark})`;
@@ -332,8 +336,8 @@ const getAddBookmarkBtn = (json, groupName = null) => {
     }
     return `<button class="btn btn-sm btn-outline-warning" onclick="addBookmark('${groupName}', '${utf8_to_b64(JSON.stringify(json))}', true)"><i id="bookmarkPopupIcon" class="bi bi-bookmark-plus" aria-label="收藏路線"></i></button>`;
 }
-const routeTypeClick = (el, type) => {
-    document.getElementById("routeTypeSelected").innerText = el.innerText;
+const routeTypeClick = (type) => {
+    searchResult.innerHTML = '';
     Array.from(document.querySelectorAll("[data-route-type]")).forEach(function (element) {
         if (element.dataset.routeType === type) {
             element.classList.remove("d-none");
@@ -341,6 +345,17 @@ const routeTypeClick = (el, type) => {
             element.classList.add("d-none");
         }
     });
+    if (type === 'mtr') {
+        searchResult.innerHTML = mtrHrData.map((route, index) => {
+            return getHtmlTemplate('searchResultRailwayRow', {
+                '{{id}}': `route-${index}`,
+                '{{json}}': utf8_to_b64(JSON.stringify(route)),
+                '{{backgroundColor}}': getMtrColor('route-hr', route.routeId),
+                '{{text}}': `${route.route} (${route.orig}↔️${route.dest})`,
+            }).outerHTML;
+        })
+            .join('');
+    }
 }
 
 // events
@@ -389,21 +404,7 @@ fetch(SIRI_SHORTCUT_UPDATE_API)
         document.getElementById("siriShortcutVersion").innerHTML = `(v${data.version})`;
     });
 mtrHrData = await fetch(ROUTE_API.replace("{route}", 'mtr_hr'))
-    .then(response => response.json())
-    .then((data) => {
-        // add route as select options
-        data.forEach((route) => {
-            let li = getHtmlTemplate('mtrRouteRow', {
-                '{{route}}': `${route.route} (${route.orig}↔️${route.dest})`,
-                '{{routeId}}': route.routeId,
-                '{{json}}': utf8_to_b64(JSON.stringify(route)),
-                '{{backgroundColor}}': getMtrColor('route-hr', route.routeId),
-            });
-            document.getElementById("routeInputMtrList").append(li);
-        });
-
-        return data;
-    });
+    .then(response => response.json());
 
 // export
 window.renderRoute = renderRoute;
