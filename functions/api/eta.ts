@@ -16,6 +16,11 @@ async function getMtrHrData(host) {
     }
 }
 
+async function getRouteJson(host, route) {
+    return await fetch(`${host}/api/route/${route}.json`)
+        .then(response => response.json());
+}
+
 export async function onRequestPost({ request, env }) {
     const requestBody = JSON.parse(await request.text());
     let response = [];
@@ -43,6 +48,7 @@ export async function onRequestPost({ request, env }) {
                 case COMPANY.CTB.CODE:
                 case COMPANY.NWFB.CODE:
                 case COMPANY.MTR_HR.CODE:
+                case COMPANY.MTR_LR.CODE:
                     if (!ValidationUtil.containsAllKey(requestItem, ["dir"])) {
                         return jsonResponse({ error: "Missing parameter: dir" }, { status: 400, statusText: "Invalid parameter" });
                     }
@@ -221,7 +227,49 @@ export async function onRequestPost({ request, env }) {
                     if (etaResponse.length == 0) {
                         response.push(noETA);
                     } else {
-                        response.push(etaResponse.slice(0, Math.min(3, etaResponse.length)));
+                        response.push(etaResponse);
+                    }
+                    break;
+                case COMPANY.MTR_LR.CODE:
+                    api = company.ETA_API.replace(PLACEHOLDER.STOP, requestItem.stop);
+
+                    const mtrLrData = await getRouteJson(env.host, requestItem.routeId);
+                    const dest = mtrLrData.filter((route) => route.company === company.CODE && route.routeId === requestItem.routeId && route.dir === requestItem.dir)[0].dest;
+
+                    etaResponse = await fetch(api)
+                        .then(response => response.json())
+                        .then(json => {
+                            if (json.status === 0) {
+                                return noETA;
+                            }
+
+                            return json.platform_list.map((platform) => {
+                                return platform.route_list.filter((train) => train.stop === 0 && train.route_no === requestItem.routeId &&
+                                    ((train.route_no === '705' || train.route_no === '706') ? true : train.dest_ch === dest))
+                                    .map((train) => {
+                                        let remark = null;
+                                        let eta = 0;
+                                        if (train.time_ch === '正在離開' || train.time_ch === '即將抵達') {
+                                            remark = train.time_ch;
+                                        } else if (train.time_ch !== '-') {
+                                            eta = parseInt(train.time_en.replace(' min', ''));
+                                        }
+                                        return {
+                                            eta: eta,
+                                            platform: platform.platform_id,
+                                            dest: train.dest_ch,
+                                            trainLength: train.train_length,
+                                            remark: remark,
+                                        }
+                                    });
+                            })
+                                .flat();
+                        });
+
+                    if (etaResponse.length == 0) {
+                        response.push(noETA);
+                    } else {
+                        response.push(etaResponse);
                     }
                     break;
             }

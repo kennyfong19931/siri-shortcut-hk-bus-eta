@@ -239,7 +239,7 @@ const getRoute = async (companyCode: string) => {
                             result[key].push({ code: item["Station Code"], name: item["Chinese Name"] });
                             return result;
                         }, {});
-                    return await Promise.all(Object.entries(routeListByLine).map(async ([key, station]) => {
+                    return await Promise.all(Object.entries(routeListByLine).map(async ([key, stationList]) => {
                         const keyArray = key.split('-');
                         const lineCode = keyArray[0];
                         let routeType = undefined;
@@ -252,8 +252,8 @@ const getRoute = async (companyCode: string) => {
                         }
                         const routeName = routeNameList.filter((route) => route.code == lineCode)[0].name;
 
-                        const stationLength = (station as Array<any>).length;
-                        const stopList = await Promise.all(Array.from(station as Array<any>)
+                        const stationLength = (stationList as Array<any>).length;
+                        const stopList = await Promise.all(Array.from(stationList as Array<any>)
                             .map(async (station, index) => {
                                 const coordinates = await doRequest("GET", `https://geodata.gov.hk/gs/api/v1.0.0/locationSearch?q=港鐵${station.name}站`)
                                     .then((response) => SpatialUtil.fromHK80ToWGS84([response[0].x, response[0].y]));
@@ -266,6 +266,38 @@ const getRoute = async (companyCode: string) => {
                                 return stop;
                             }));
                         return new Route(company.CODE, routeName, routeType, direction, stopList.at(0).getName(), stopList.at(-1).getName(), stopList, lineCode);
+                    }));
+                }
+            case COMPANY.MTR_LR.CODE:
+                {
+                    const [routeList] = await Promise.all([
+                        doRequest("GET", company.ROUTE_API, null, null, true)
+                    ]).then(async ([routeList]) => await Promise.all([
+                        csv().fromString(routeList)
+                    ]));
+
+                    let routeListByLine = routeList
+                        .reduce((result, item) => {
+                            const key = item["Line Code"] + '-' + item["Direction"];
+                            if (!result[key]) {
+                                result[key] = [];
+                            }
+                            result[key].push({ code: item["Stop ID"], name: item["Chinese Name"] });
+                            return result;
+                        }, {});
+
+                    return await Promise.all(Object.entries(routeListByLine).map(async ([key, stationList]) => {
+                        const keyArray = key.split('-');
+                        const lineCode = keyArray[0];
+                        const direction = keyArray[1];
+                        const stopList = await Promise.all(Array.from(stationList as Array<any>)
+                            .map(async (station) => {
+                                const coordinates = await doRequest("GET", `https://geodata.gov.hk/gs/api/v1.0.0/locationSearch?q=輕鐵－${station.name}`)
+                                    .then((response) => SpatialUtil.fromHK80ToWGS84([response[0].x, response[0].y]));
+                                let stop = new Stop(station.code, station.name, coordinates[0].toString(), coordinates[1].toString());
+                                return stop;
+                            }));
+                        return new Route(company.CODE, lineCode, null, direction, stopList.at(0).getName(), stopList.at(-1).getName(), stopList, lineCode);
                     }));
                 }
         }
@@ -291,7 +323,8 @@ const addToMap = (map: Map<string, Array<Route>>, routeList: Array<Route>) => {
         getRoute(COMPANY.GMB.CODE),
         getRoute(COMPANY.MTR.CODE),
         getRoute(COMPANY.MTR_HR.CODE),
-    ]).then(([kmb, ctb, nlb, gmb, mtr, mtrHr]) => {
+        getRoute(COMPANY.MTR_LR.CODE),
+    ]).then(([kmb, ctb, nlb, gmb, mtr, mtrHr, mtrLr]) => {
         logger.info(`Step 2: Merge by route`);
         const routeMap = new Map();
         addToMap(routeMap, kmb);
@@ -299,6 +332,7 @@ const addToMap = (map: Map<string, Array<Route>>, routeList: Array<Route>) => {
         addToMap(routeMap, nlb);
         addToMap(routeMap, gmb);
         addToMap(routeMap, mtr);
+        addToMap(routeMap, mtrLr);
         logger.info(`route count: ${routeMap.size}`);
 
         logger.info(`Step 3: Save result to JSON file`);

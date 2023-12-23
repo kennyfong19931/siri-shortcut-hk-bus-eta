@@ -2,6 +2,7 @@ import "../scss/styles.scss";
 import { utf8_to_b64, getCompanyImage, getHtmlTemplate, b64_to_utf8 } from './util.js';
 import Modal from 'bootstrap/js/src/modal';
 import Sortable from 'sortablejs';
+import { getMtrColor } from './util.js';
 
 const bookmarkListDiv = document.getElementById('bookmarkList');
 const routeSeparator = '##';
@@ -55,12 +56,21 @@ const addBookmark = (groupName, json, fromWebpageClick = false) => {
     if (fromWebpageClick) {
         json = JSON.parse(b64_to_utf8(json));
     }
+    let routeCss = '', routeClass = '';
+    if (json.company === 'mtr_hr') {
+        routeCss = `background-color: ${getMtrColor('route-hr', json.routeId)}!important;`;
+    } else if (json.company === 'mtr_lr') {
+        routeCss = `--border-color: ${getMtrColor('route-lr', json.routeId)}; background-color: #fff!important;`;
+        routeClass = 'mtrLrRoute p-0'
+    }
     const div = getHtmlTemplate('bookmarkRow', {
         '{{dataRouteJson}}': utf8_to_b64(JSON.stringify(json)),
         '{{companyLogo}}': getCompanyImage(json.company),
         '{{route}}': json.route,
         '{{name}}': json.name,
         '{{routeDesc}}': json.routeDesc,
+        '{{routeCss}}': routeCss,
+        '{{routeClass}}': routeClass,
     });
     const groupDiv = document.querySelectorAll(`div[data-group-name="${groupName}"] .list-group.route`)[0];
     groupDiv.appendChild(div);
@@ -151,6 +161,7 @@ const isBoomarked = (stop) => {
                         case 'nwfb':
                         case 'mtr':
                         case 'mtr_hr':
+                        case 'mtr_lr':
                             exist = exist && bookmarkRowJson.dir === stop.dir;
                             break;
                         case 'gmb':

@@ -277,47 +277,65 @@ const openPopup = async (e) => {
 
         const body = etaResult.join('<hr class="my-2">');
         const titleCss = `background-color: ${getMtrColor('route-hr', marker.options.routeId)}; min-width: 250px;`;
-        const stationcss = `background-color: ${getMtrColor('station-hr', marker.options.stop)}; color: ${getMtrTextColor('station-hr', marker.options.stop)};`;
+        const stationCss = `background-color: ${getMtrColor('station-hr', marker.options.stop)}; color: ${getMtrTextColor('station-hr', marker.options.stop)};`;
 
         const popupContent = getHtmlTemplate('etaPopupRailway', {
             '{{companyLogo}}': getCompanyImage(marker.options.company),
             '{{route}}': marker.options.route,
             '{{station}}': marker.options.name,
-            '{{titlecss}}': titleCss,
-            '{{stationcss}}': stationcss,
+            '{{titleCss}}': titleCss,
+            '{{stationCss}}': stationCss,
             '{{body}}': body,
         });
         marker._popup.setContent(popupContent);
     } else {
-        if (isBoomarked(marker.options)) {
+        if (!isBoomarked(marker.options)) {
             bookmarkBtn = getAddBookmarkBtn(bookmarkJson);
         }
 
         const eta = await getEta(marker.options)
             .then((etaArray) => etaArray.map((eta) => {
-                let line = '<li>';
+                let line = '<div>';
+                if ('mtr_lr' === marker.options.company) {
+                    line += `<span class="badge rounded-pill text-white me-1" style="background-color: ${getMtrColor('lr')};">${eta.platform}</span>`;
+                }
                 if (eta.eta != null) {
                     line += `${Math.max(eta.eta, 0)}分鐘`;
                 }
                 if (eta.remark) {
                     line += ` (${eta.remark})`;
                 }
-                line += '</li>';
+                if ('mtr_lr' === marker.options.company) {
+                    line += '<div class="float-end">'
+                    for (let i = 0; i < eta.trainLength; i++) {
+                        line += '🚃';
+                    }
+                    line += '</div>'
+                }
+                line += '</div>';
                 return line;
             })
                 .join('')
             )
-            .catch(() => '<li>未有資料</li>');
-        const body = `<ul>${eta}</ul>`;
-        const titleCss = `background-color: ${getCompanyColor(marker.options.company)}`;
+            .catch(() => '<div>未有資料</div>');
+        const body = `${eta}`;
+        let titleCss = `background-color: ${getCompanyColor(marker.options.company)}`;
+        let routeNoCss = '', routeNoClass = '';
         const subtitle = marker.options.routeDesc;
+        if ('mtr_lr' === marker.options.company) {
+            titleCss = `background-color: ${getMtrColor('lr')}; color: ${getMtrTextColor('lr')};`;
+            routeNoCss = `--border-color: ${getMtrColor('route-lr', marker.options.routeId)};`;
+            routeNoClass = 'mtrLrRoute';
+        }
 
         const popupContent = getHtmlTemplate('etaPopup', {
             '{{companyLogo}}': getCompanyImage(marker.options.company),
             '{{routeNo}}': marker.options.route,
+            '{{routeNoClass}}': routeNoClass,
+            '{{routeNoCss}}': routeNoCss,
             '{{title}}': marker.options.name,
             '{{subtitle}}': subtitle,
-            '{{titlecss}}': titleCss,
+            '{{titleCss}}': titleCss,
             '{{bookmarkBtn}}': bookmarkBtn,
             '{{body}}': body,
         });
