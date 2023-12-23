@@ -20,8 +20,8 @@
     
     
     
-  <script type="module" crossorigin src="./assets/index-f5bfdbb3.js"></script>
-  <link rel="stylesheet" href="./assets/index-09cfd182.css">
+  <script type="module" crossorigin src="./assets/index-e940b9b9.js"></script>
+  <link rel="stylesheet" href="./assets/index-bf7e5aa3.css">
 </head>
 
 <body>
@@ -105,7 +105,7 @@
     </div>
 
     <div class="d-none" aria-hidden="true">
-        <span class="loader m-3"></span>
+        <span class="loader m-3 col col-auto mtrLrRoute"></span>
 
         <template id="bookmarkGroup">
             <div class="list-group-item group" data-group-name="{{name}}">
@@ -138,7 +138,7 @@
                     <i class="d-none bi bi-list btnBookmarkReorder" role="img" aria-hidden="true"></i> <img class="logo" src="{{companyLogo}}" />
                 </div>
                 <div class="flex-grow-1 ms-3">
-                    <span class="badge text-bg-secondary">{{route}}</span> {{name}}<br /><small class="text-secondary">{{routeDesc}}</small>
+                    <span class="badge bg-secondary {{routeClass}}" style="{{routeCss}}">{{route}}</span> {{name}}<br /><small class="text-secondary">{{routeDesc}}</small>
                 </div>
                 <div class="flex-shrink-0">
                     <button class="d-none btn btn-sm btn-danger btnBookmarkRemove" type="button" onclick="removeBookmark(event)">
@@ -154,18 +154,18 @@
 
         <template id="etaPopup">
             <div>
-                <div class="header d-flex px-3 py-2 align-items-center text-white" style="{{titlecss}}">
+                <div class="header d-flex px-3 py-2 align-items-center text-white" style="{{titleCss}}">
                     <span clas="badge" class="badge bg-white">
                         <img class="logo" src="{{companyLogo}}" />
                     </span>
-                    <h4 class="m-0 px-2">{{routeNo}}</h4>
+                    <h4 class="m-0 px-2 {{routeNoClass}}" style="{{routeNoCss}}">{{routeNo}}</h4>
                     <div>
                         <h5 class="m-0">{{title}}</h5>
                         <span>{{subtitle}}</span>
                     </div>
                 </div>
                 <div class="d-flex align-items-baseline justify-content-between p-2">
-                    <div>{{body}}</div>
+                    <div class="w-100">{{body}}</div>
                     <div class="px-2">{{bookmarkBtn}}</div>
                 </div>
             </div>
@@ -173,12 +173,12 @@
 
         <template id="etaPopupRailway">
             <div>
-                <div class="header d-flex px-3 py-2 align-items-center text-white" style="{{titlecss}}">
+                <div class="header d-flex px-3 py-2 align-items-center text-white" style="{{titleCss}}">
                     <span clas="badge" class="badge bg-white">
                         <img class="logo" src="{{companyLogo}}" />
                     </span>
                     <h4 class="m-0 px-2">{{route}}</h4>
-                    <span class="badge fs-5" style="{{stationcss}}">{{station}}</span>
+                    <span class="badge fs-5" style="{{stationCss}}">{{station}}</span>
                 </div>
                 <div class="d-flex align-items-baseline justify-content-between p-2">
                     <div class="w-100">{{body}}</div>
