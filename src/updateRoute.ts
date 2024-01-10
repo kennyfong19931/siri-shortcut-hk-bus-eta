@@ -260,7 +260,7 @@ const getRoute = async (companyCode: string) => {
                                 let stop = new Stop(station.code, station.name, coordinates[0].toString(), coordinates[1].toString());
                                 if (index === 0) {
                                     stop.setRailwayFilterDir("DT");
-                                } else if (index === stationLength) {
+                                } else if (index === stationLength - 1) {
                                     stop.setRailwayFilterDir("UT");
                                 }
                                 return stop;
