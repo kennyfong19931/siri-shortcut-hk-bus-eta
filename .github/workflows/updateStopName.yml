@@ -6,8 +6,6 @@ on:
         description: 'Re-run Github Action ID'
         required: false
         type: number
-  schedule:
-    - cron: '0 16 * * 5'
 jobs:
   update:
     name: Update Stop Name Data
