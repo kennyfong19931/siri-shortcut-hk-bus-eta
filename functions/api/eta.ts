@@ -243,25 +243,67 @@ export async function onRequestPost({ request, env }) {
                                 return noETA;
                             }
 
+                            let routeStopped = false;
+                            json.platform_list.forEach((platform) => {
+                                platform.route_list.forEach((route) => {
+                                    if (route.stop === 1 && route.route_no === requestItem.routeId) {
+                                        routeStopped = true;
+                                    }
+                                })
+                            })
+                            if(routeStopped){
+                                let remark = '暫停服務';
+                                let url = undefined;
+                                if (json.red_alert_message_ch) {
+                                    remark = json.red_alert_message_ch;
+                                }
+                                if (json.red_alert_url_ch) {
+                                    url = json.red_alert_url_ch;
+                                }
+                                return [{
+                                    eta: null,
+                                    remark: remark,
+                                    url: url,
+                                }]
+                            }
+
+                            console.log(json.platform_list);
+
                             return json.platform_list.map((platform) => {
-                                return platform.route_list.filter((train) => train.stop === 0 && train.route_no === requestItem.routeId &&
-                                    ((train.route_no === '705' || train.route_no === '706') ? true : train.dest_ch === dest))
-                                    .map((train) => {
-                                        let remark = null;
-                                        let eta = 0;
-                                        if (train.time_ch === '正在離開' || train.time_ch === '即將抵達') {
-                                            remark = train.time_ch;
-                                        } else if (train.time_ch !== '-') {
-                                            eta = parseInt(train.time_en.replace(' min', ''));
-                                        }
-                                        return {
-                                            eta: eta,
-                                            platform: platform.platform_id,
-                                            dest: train.dest_ch,
-                                            trainLength: train.train_length,
-                                            remark: remark,
-                                        }
-                                    });
+                                if (platform.route_list.filter((train) => train.stop === 1 && train.route_no === requestItem.routeId).length) {
+                                    let remark = '暫停服務';
+                                    let url = undefined;
+                                    if (json.red_alert_message_ch) {
+                                        remark += ' ' + json.red_alert_message_ch;
+                                    }
+                                    if (json.red_alert_url_ch) {
+                                        url = json.red_alert_url_ch;
+                                    }
+                                    return [{
+                                        eta: null,
+                                        remark: remark,
+                                        url: url,
+                                    }]
+                                } else {
+                                    return platform.route_list.filter((train) => train.stop === 0 && train.route_no === requestItem.routeId &&
+                                        ((train.route_no === '705' || train.route_no === '706') ? true : train.dest_ch === dest))
+                                        .map((train) => {
+                                            let remark = null;
+                                            let eta = 0;
+                                            if (train.time_ch === '正在離開' || train.time_ch === '即將抵達') {
+                                                remark = train.time_ch;
+                                            } else if (train.time_ch !== '-') {
+                                                eta = parseInt(train.time_en.replace(' min', ''));
+                                            }
+                                            return {
+                                                eta: eta,
+                                                platform: platform.platform_id,
+                                                dest: train.dest_ch,
+                                                trainLength: train.train_length,
+                                                remark: remark,
+                                            }
+                                        });
+                                }
                             })
                                 .flat();
                         });
