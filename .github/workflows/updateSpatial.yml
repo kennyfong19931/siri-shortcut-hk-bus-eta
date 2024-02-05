@@ -2,7 +2,7 @@ name: Update Spatial Data
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 1 * *'
+    - cron: '0 0 * * 5'
 jobs:
   update:
     name: Update Spatial Data
