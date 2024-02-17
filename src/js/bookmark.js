@@ -127,10 +127,10 @@ const downloadBookmark = () => {
         bookmark = localStorage.getItem('bookmarkList');
     }
     let a = document.createElement('a');
-    let blob = new Blob([bookmark], { type: 'application/octet-stream' });
+    let blob = new Blob([bookmark], { type: 'text/plain' });
     let url = URL.createObjectURL(blob);
     a.setAttribute('href', url);
-    a.setAttribute('download', 'group');
+    a.setAttribute('download', 'group.txt');
     a.click();
 }
 const uploadBookmark = (event) => {

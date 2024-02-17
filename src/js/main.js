@@ -1,6 +1,5 @@
 import "../scss/styles.scss";
 import Offcanvas from 'bootstrap/js/src/offcanvas';
-import Dropdown from 'bootstrap/js/src/dropdown';
 import { utf8_to_b64, b64_to_utf8, getCompanyImage, getCompanyColor, getHtmlTemplate, getPageWidth, getMtrColor, getMtrTextColor } from './util.js';
 
 const ROUTE_API = `${BASE_API}/api/route/{route}.json`;
