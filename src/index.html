@@ -44,7 +44,7 @@
                         <label for="routeInput">輸入路線號碼</label>
                     </div>
                     <button id="btnSearch" class="btn btn-primary rounded-end" type="button">
-                        <i class="bi-search text-white" role="img" aria-label="Search"></i>
+                        <i class="bi-search" role="img" aria-label="Search"></i>
                     </button>
                 </div>
                 <div class="list-group my-2" id="searchResult"></div>
@@ -74,7 +74,7 @@
             </div>
         </div>
         <button id="btnToggleSearch" class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#searchDrawer" aria-controls="offcanvas">
-            <i class="bi-search text-white" role="img" aria-label="搜尋路線"></i>
+            <i class="bi-search" role="img" aria-label="搜尋路線"></i>
         </button>
         <div class="row">
             <div id="map"></div>
@@ -152,7 +152,7 @@
 
         <template id="etaPopup">
             <div>
-                <div class="header d-flex px-3 py-2 align-items-center text-white" style="{{titleCss}}">
+                <div class="header d-flex px-3 py-2 align-items-center" style="{{titleCss}}">
                     <span clas="badge" class="badge bg-white">
                         <img class="logo" src="{{companyLogo}}" />
                     </span>
@@ -171,7 +171,7 @@
 
         <template id="etaPopupRailway">
             <div>
-                <div class="header d-flex px-3 py-2 align-items-center text-white" style="{{titleCss}}">
+                <div class="header d-flex px-3 py-2 align-items-center" style="{{titleCss}}">
                     <span clas="badge" class="badge bg-white">
                         <img class="logo" src="{{companyLogo}}" />
                     </span>
@@ -187,7 +187,10 @@
         <template id="searchResultRow">
             <div class="d-flex align-items-center list-group-item list-group-item-action" id="{{id}}" onclick="renderRoute('{{id}}', '{{json}}')">
                 <div class="flex-shrink-0"><img class="logo" src="{{companyLogo}}" alt="{{companyName}}"/></div>
-                <div class="flex-grow-1 ms-3">{{text}}</div>
+                <div class="flex-grow-1 ms-3">
+                    <div>{{text}}</div>
+                    <div class="text-secondary">{{description}}</div>
+                </div>
             </div>
         </template>
         <template id="searchResultRailwayRow">
@@ -198,7 +201,7 @@
         </template>
 
         <template id="railwayEtaRow">
-            <div><span class="badge rounded-pill text-white me-1" style="{{css}}">{{platform}}</span>{{text}}<span class="float-end">{{eta}}</span></div>
+            <div><span class="badge rounded-pill me-1" style="{{css}}">{{platform}}</span>{{text}}<span class="float-end">{{eta}}</span></div>
         </template>
     </div>
 </body>

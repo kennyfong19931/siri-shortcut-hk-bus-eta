@@ -20,8 +20,6 @@ const antPathOption = {
         40
     ],
     "weight": 5,
-    // "color": "#0000FF",
-    // "pulseColor": "#FFFFFF",
     "paused": false,
     "reverse": false,
     "hardwareAccelerated": true
@@ -53,6 +51,7 @@ const searchRoute = () => {
                     '{{companyLogo}}': getCompanyImage(element.company),
                     '{{companyName}}': element.company,
                     '{{text}}': `${element.orig}➡️${element.dest}`,
+                    '{{description}}': element.description,
                 }).outerHTML;
             })
                 .join('');
@@ -114,25 +113,20 @@ const renderRoute = (id, encodedJson) => {
         case 'mtr':
             path = `mtr/${json.route}/${json.dir}`;
             break;
-        case 'gmb':
-            path = '';
-            break;
     }
-    if (path) {
-        fetch(SPATIAL_API.replace("{path}", `${path}`))
-            .then(response => response.json())
-            .then((data) => {
-                let polyline = L.polyline.antPath(data, { color: lineColor, pluseColor: lineColorPluse, ...antPathOption });
-                markersLayer.addLayer(polyline);
-            })
-            .catch(function (error) {
-                // no geometry data, show default line by join all stops
-                let data = json.stopList.map((stop) => [stop.lat, stop.long]);
-                data = [data];
-                let polyline = L.polyline.antPath(data, { color: lineColor, pluseColor: lineColorPluse, ...antPathOption });
-                markersLayer.addLayer(polyline);
-            });
-    }
+    fetch(SPATIAL_API.replace("{path}", `${path}`))
+        .then(response => response.json())
+        .then((data) => {
+            let polyline = L.polyline.antPath(data, { color: lineColor, pluseColor: lineColorPluse, ...antPathOption });
+            markersLayer.addLayer(polyline);
+        })
+        .catch(function (error) {
+            // no geometry data, show default line by join all stops
+            let data = json.stopList.map((stop) => [stop.lat, stop.long]);
+            data = [data];
+            let polyline = L.polyline.antPath(data, { color: lineColor, pluseColor: lineColorPluse, ...antPathOption });
+            markersLayer.addLayer(polyline);
+        });
 
     // add layer to map
     markersLayer.addTo(map);

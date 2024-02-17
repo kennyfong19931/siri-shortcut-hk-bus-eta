@@ -159,9 +159,9 @@ export function getMtrColor(type, value) {
             case 'NPT': return '#274060';
             case 'WEK': return '#808080';
         }
-    } else if(type === 'lr'){
+    } else if (type === 'lr') {
         return '#d3a809';
-    } else if(type === 'route-lr'){
+    } else if (type === 'route-lr') {
         // https://zh.wikipedia.org/wiki/Template:%E8%BC%95%E9%90%B5%E9%A1%8F%E8%89%B2
         switch (value) {
             case '505': return '#b53533';

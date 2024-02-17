@@ -105,6 +105,7 @@ $border-radius: .4rem;
 //
 html, body {
   height: 100dvh;
+  --bs-body-color: var(--bs-white);
 }
 
 #btnToggleSearch {
