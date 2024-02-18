@@ -5,7 +5,6 @@
     "update-route": "ts-node src/updateRoute.ts",
     "update-stop-name": "ts-node src/updateStopName.ts",
     "update-spatial": "ts-node src/updateSpatial.ts",
-    "process-manual-spatial": "ts-node src/processManualSpatial.ts",
     "web-start": "vite dev",
     "web-build": "vite build"
   },

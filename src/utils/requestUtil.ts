@@ -1,21 +1,44 @@
 import fetch from 'node-fetch';
 import logger from './logger';
 
-export const doRequest = async (method: string, url: string, headers?: {}, body?: {}, toString = false) => {
+export const doRequest = async (
+    method: string,
+    url: string,
+    headers?: {},
+    body?: any,
+    bodyType = 'json',
+    toString = false,
+    timeout = 60000,
+) => {
     let result;
     while (true) {
         let request;
-        if (method == 'POST' && body != null) {
-            request = fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...headers,
-                },
-                body: JSON.stringify(body),
-            });
+        if (bodyType === 'json') {
+            if (method == 'POST' && body != null) {
+                request = fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...headers,
+                    },
+                    body: JSON.stringify(body),
+                });
+            } else {
+                request = fetch(url, { method: method, headers: headers });
+            }
         } else {
-            request = fetch(url, { method: method, headers: headers });
+            if (method == 'POST' && body != null) {
+                request = fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        ...headers,
+                    },
+                    body: body,
+                });
+            } else {
+                request = fetch(url, { method: method, headers: headers });
+            }
         }
 
         await Promise.all([request])
@@ -32,6 +55,6 @@ export const doRequest = async (method: string, url: string, headers?: {}, body?
 
         if (result !== null && result !== undefined) return result;
 
-        await new Promise((r) => setTimeout(r, 60000));
+        await new Promise((r) => setTimeout(r, timeout));
     }
 };

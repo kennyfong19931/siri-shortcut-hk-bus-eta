@@ -1,3 +1,5 @@
+import csv from 'csvtojson';
+
 import { doRequest } from '../../utils/requestUtil';
 import { Route } from '../Route';
 import { Stop } from '../Stop';
@@ -7,7 +9,7 @@ import SpatialUtil from '../../utils/spatialUtil';
 const company = COMPANY.MTR_LR;
 
 export async function crawlRoute(): Promise<Route[]> {
-    const [routeList] = await Promise.all([doRequest('GET', company.ROUTE_API, null, null, true)]).then(
+    const [routeList] = await Promise.all([doRequest('GET', company.ROUTE_API, null, null, null, true)]).then(
         async ([routeList]) => await Promise.all([csv().fromString(routeList)]),
     );
 

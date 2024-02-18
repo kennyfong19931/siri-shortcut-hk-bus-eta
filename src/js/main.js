@@ -96,6 +96,7 @@ const renderRoute = (id, encodedJson) => {
             street: stop.street,
             fare: stop.fare,
             fareHoliday: stop.fareHoliday,
+            railwayFilterDir: stop.railwayFilterDir,
         };
         var marker = L.marker([stop.lat, stop.long], option).addTo(map);
         marker.bindPopup(defaultPopupContent, defaultPopupOption);
@@ -127,6 +128,11 @@ const renderRoute = (id, encodedJson) => {
             path = `mtr_hr/${json.routeId}`;
             isAntPath = false;
             lineColor = getMtrColor('route-hr', json.routeId);
+            break;
+        case 'mtr_lr':
+            path = `mtr_lr/${json.route}/${json.dir}`;
+            lineColor = getMtrColor('route-lr', json.routeId);
+            lineColorPluse = getMtrColor('route-lr', json.routeId);
             break;
     }
     fetch(SPATIAL_API.replace('{path}', `${path}`))
@@ -183,6 +189,7 @@ const renderBookmarkStop = (event) => {
         street: json.street,
         fare: json.fare,
         fareHoliday: json.fareHoliday,
+        railwayFilterDir: json.railwayFilterDir,
     };
     var marker = L.marker(point, option).addTo(map);
     marker.bindPopup(defaultPopupContent, defaultPopupOption);
@@ -243,7 +250,7 @@ const openPopup = async (e) => {
         let etaResult = [];
         if (
             marker.options.railwayFilterDir === undefined ||
-            (marker.options.railwayFilterDir && marker.options.railwayFilterDir.contains('UT'))
+            (marker.options.railwayFilterDir && marker.options.railwayFilterDir === 'UT')
         ) {
             const etaUT = await getEta({ ...marker.options, dir: 'UT' })
                 .then((etaArray) =>
@@ -276,7 +283,7 @@ const openPopup = async (e) => {
 
         if (
             marker.options.railwayFilterDir === undefined ||
-            (marker.options.railwayFilterDir && marker.options.railwayFilterDir.contains('DT'))
+            (marker.options.railwayFilterDir && marker.options.railwayFilterDir === 'DT')
         ) {
             const etaDT = await getEta({ ...marker.options, dir: 'DT' })
                 .then((etaArray) =>
@@ -331,7 +338,7 @@ const openPopup = async (e) => {
                     .map((eta) => {
                         let line = '<div>';
                         if ('mtr_lr' === marker.options.company) {
-                            line += `<span class="badge rounded-pill text-white me-1" style="background-color: ${getMtrColor('lr')};">${eta.platform}</span>`;
+                            line += `<span class="badge rounded-pill text-white me-1" style="background-color: ${getMtrColor('lr')};">${eta.platform ? eta.platform : ''}</span>`;
                         }
                         if (eta.eta != null) {
                             line += `${Math.max(eta.eta, 0)}分鐘`;

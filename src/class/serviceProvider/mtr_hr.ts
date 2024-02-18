@@ -9,7 +9,7 @@ import SpatialUtil from '../../utils/spatialUtil';
 const company = COMPANY.MTR_HR;
 
 export async function crawlRoute(): Promise<Route[]> {
-    const [routeList] = await Promise.all([doRequest('GET', company.ROUTE_API, null, null, true)]).then(
+    const [routeList] = await Promise.all([doRequest('GET', company.ROUTE_API, null, null, null, true)]).then(
         async ([routeList]) => await Promise.all([csv().fromString(routeList)]),
     );
 
@@ -27,10 +27,10 @@ export async function crawlRoute(): Promise<Route[]> {
         { code: 'DRL', name: '迪士尼線' },
     ];
 
-    let routeListByLine = routeList
+    const routeListByLineAndDirection = routeList
         .filter((route) => routeWhitelist.includes(route['Line Code']) && route['Direction'].endsWith('UT'))
         .reduce((result, item) => {
-            const key = item['Line Code'];
+            const key = item['Line Code'] + '|' + item['Direction'];
             if (!result[key]) {
                 result[key] = [];
             }
@@ -40,23 +40,65 @@ export async function crawlRoute(): Promise<Route[]> {
             });
             return result;
         }, {});
+
+    const routeListByLine = {};
+    Object.keys(routeListByLineAndDirection).forEach((key) => {
+        const lineCode = key.split('|')[0];
+        let finalStationList = [];
+        if (routeListByLine[lineCode]) {
+            finalStationList = routeListByLine[lineCode];
+        }
+
+        // find terminus
+        let stationList = routeListByLineAndDirection[key];
+        stationList[0].railwayFilterDir = 'UT';
+        stationList[stationList.length - 1].railwayFilterDir = 'DT';
+
+        // remove duplicate station
+        for (let i = 0; i < stationList.length; i++) {
+            if (!finalStationList.some((station) => station.code === stationList[i].code)) {
+                finalStationList.push(stationList[i]);
+            }
+        }
+
+        routeListByLine[lineCode] = finalStationList;
+    });
+
+    if (routeListByLine['EAL']) {
+        // RAC is missing from the csv
+        let stationList = [];
+        for (const station of routeListByLine['EAL']) {
+            stationList.push(station);
+            if (station.name === '火炭') {
+                stationList.push({
+                    code: 'RAC',
+                    name: '馬場',
+                });
+            }
+        }
+        routeListByLine['EAL'] = stationList;
+    }
+
     return await Promise.all(
         Object.entries(routeListByLine).map(async ([key, stationList]) => {
-            const keyArray = key.split('-');
-            const lineCode = keyArray[0];
+            const lineCode = key;
             let routeType = undefined;
-            let direction;
-            if (keyArray.length === 3) {
-                routeType = keyArray[1];
-                direction = keyArray[2];
-            } else {
-                direction = keyArray[1];
-            }
             const routeName = routeNameList.filter((route) => route.code == lineCode)[0].name;
+            let orig = (stationList as Array<any>)
+                .filter((station) => station.railwayFilterDir === 'UT')
+                .reduce((result, item) => {
+                    result += (result !== '' ? '/' : '') + item.name;
+                    return result;
+                }, '');
+            let dest = (stationList as Array<any>)
+                .filter((station) => station.railwayFilterDir === 'DT')
+                .reduce((result, item) => {
+                    result += (result !== '' ? '/' : '') + item.name;
+                    return result;
+                }, '');
 
-            const stationLength = (stationList as Array<any>).length;
             const stopList = await Promise.all(
-                Array.from(stationList as Array<any>).map(async (station, index) => {
+                Array.from(stationList as Array<any>).map(async (station) => {
                     const coordinates = await doRequest(
                         'GET',
                         `https://geodata.gov.hk/gs/api/v1.0.0/locationSearch?q=港鐵${station.name}站`,
@@ -67,24 +109,13 @@ export async function crawlRoute(): Promise<Route[]> {
                         coordinates[0].toString(),
                         coordinates[1].toString(),
                     );
-                    if (index === 0) {
-                        stop.setRailwayFilterDir('DT');
-                    } else if (index === stationLength - 1) {
-                        stop.setRailwayFilterDir('UT');
+                    if (station.railwayFilterDir) {
+                        stop.setRailwayFilterDir(station.railwayFilterDir);
                     }
                     return stop;
                 }),
             );
-            return new Route(
-                company.CODE,
-                routeName,
-                routeType,
-                direction,
-                stopList.at(0).getName(),
-                stopList.at(-1).getName(),
-                stopList,
-                lineCode,
-            );
+            return new Route(company.CODE, routeName, routeType, undefined, orig, dest, stopList, lineCode);
         }),
     );
 }
