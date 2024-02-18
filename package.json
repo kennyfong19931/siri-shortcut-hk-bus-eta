@@ -1,9 +1,11 @@
 {
   "scripts": {
     "dev": "npx wrangler pages dev ./public --binding ENVIRONMENT=DEV host=http://localhost:8788",
+    "format": "prettier --write \"{functions,src}/**/*.{js,ts}\"",
     "update-route": "ts-node src/updateRoute.ts",
     "update-stop-name": "ts-node src/updateStopName.ts",
     "update-spatial": "ts-node src/updateSpatial.ts",
+    "process-manual-spatial": "ts-node src/processManualSpatial.ts",
     "web-start": "vite dev",
     "web-build": "vite build"
   },
@@ -27,5 +29,9 @@
     "vite-plugin-html-purgecss": "^0.1.1",
     "wrangler": "^3.13.1",
     "xml2js": "^0.6.2"
+  },
+  "devDependencies": {
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.2.5"
   }
 }

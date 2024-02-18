@@ -1,4 +1,4 @@
-import { Stop } from "./Stop";
+import { Stop } from './Stop';
 
 export class Route {
     private company: string;
@@ -8,10 +8,20 @@ export class Route {
     private orig: string;
     private dest: string;
     private stopList: Array<Stop>;
-    private routeId: string;    // for NLB, GMB
+    private routeId: string; // for NLB, GMB
     private description: string;
 
-    constructor(company: string, route: string, routeType: string, dir: string, orig: string, dest: string, stopList: Array<Stop>, routeId?: string, description?: string) {
+    constructor(
+        company: string,
+        route: string,
+        routeType: string,
+        dir: string,
+        orig: string,
+        dest: string,
+        stopList: Array<Stop>,
+        routeId?: string,
+        description?: string,
+    ) {
         this.company = company;
         this.route = route;
         this.routeType = routeType;
@@ -25,7 +35,7 @@ export class Route {
             this.routeId = routeId;
         }
         if (description === undefined) {
-            this.description = "正常班次";
+            this.description = '正常班次';
         } else {
             this.description = description;
         }
@@ -64,7 +74,7 @@ export class Route {
     }
 
     public setRouteId(routeId: string): void {
-        this.routeId = routeId
+        this.routeId = routeId;
     }
 
     public getDescription(): string {

@@ -6,9 +6,17 @@ export class Stop {
     private street: string;
     private fare: string;
     private fareHoliday: string;
-    private railwayFilterDir: string;   // stop is terminus, only allow to travel in this direction
+    private railwayFilterDir: string; // stop is terminus, only allow to travel in this direction
 
-    constructor(id: string, name: string, lat: string, long: string, street?: string, fare?: string, fareHoliday?: string) {
+    constructor(
+        id: string,
+        name: string,
+        lat: string,
+        long: string,
+        street?: string,
+        fare?: string,
+        fareHoliday?: string,
+    ) {
         this.id = id;
         this.name = name;
         this.lat = lat;
@@ -39,11 +47,11 @@ export class Stop {
     }
 
     public getFare(): string {
-        return this.fare
+        return this.fare;
     }
 
     public getFareHoliday(): string {
-        return this.fareHoliday
+        return this.fareHoliday;
     }
 
     public setRailwayFilterDir(railwayFilterDir: string) {

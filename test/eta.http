@@ -31,5 +31,17 @@ Content-Type: application/json
         "company": "mtr",
         "routeId": "506",
         "stop": "506-U020"
+    },
+    {
+        "company": "mtr_hr",
+        "routeId": "TML",
+        "dir": "DT",
+        "stop": "HIK"
+    },
+    {
+        "company": "mtr_lr",
+        "routeId": "505",
+        "dir": "2",
+        "stop": "120"
     }
 ]
