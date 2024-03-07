@@ -1,8 +1,8 @@
-import dayjs from "dayjs";
+import dayjs from 'dayjs';
 
 const getTime = () => {
-    return dayjs().format("YYYY-MM-DD HH:mm:ss");
-}
+    return dayjs().format('YYYY-MM-DD HH:mm:ss');
+};
 
 export default class logger {
     static info(message: string) {
