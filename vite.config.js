@@ -1,6 +1,6 @@
-const path = require('path')
+import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
-import htmlPurge from 'vite-plugin-html-purgecss'
+import pluginPurgeCss from 'vite-plugin-purgecss-updated-v5';
 
 export default ({ mode }) => {
   // Load app-level env vars to node-level env vars.
@@ -25,7 +25,9 @@ export default ({ mode }) => {
       emptyOutDir: false
     },
     plugins: [
-      htmlPurge([/data-bs-theme/, 'leaflet-popup-content', 'leaflet-container', 'leaflet-popup-close-button', 'mtrIcon']),
+      pluginPurgeCss({
+        safelist: [/data-bs-theme/, 'leaflet-popup-content', 'leaflet-container', 'leaflet-popup-close-button', 'mtrIcon']
+      }),
     ]
   });
 }
