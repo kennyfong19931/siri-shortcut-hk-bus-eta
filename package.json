@@ -3,9 +3,9 @@
   "scripts": {
     "dev": "npx wrangler pages dev ./public --binding ENVIRONMENT=DEV host=http://localhost:8788",
     "format": "prettier --write \"{functions,src}/**/*.{js,ts}\"",
-    "update-route": "ts-node src/updateRoute.ts",
-    "update-stop-name": "ts-node src/updateStopName.ts",
-    "update-spatial": "ts-node src/updateSpatial.ts",
+    "update-route": "tsx src/updateRoute.ts",
+    "update-stop-name": "tsx src/updateStopName.ts",
+    "update-spatial": "tsx src/updateSpatial.ts",
     "web-start": "vite dev",
     "web-build": "vite build"
   },
@@ -25,7 +25,6 @@
     "sass": "^1.71.1",
     "sortablejs": "^1.15.2",
     "stream-json": "^1.8.0",
-    "ts-node": "^10.9.2",
     "vite": "^5.1.5",
     "wrangler": "^3.31.0",
     "xml2js": "^0.6.2"
@@ -33,6 +32,7 @@
   "devDependencies": {
     "eslint-config-prettier": "^9.1.0",
     "prettier": "^3.2.5",
+    "tsx": "^4.7.1",
     "vite-plugin-purgecss-updated-v5": "^1.2.0"
   }
 }
