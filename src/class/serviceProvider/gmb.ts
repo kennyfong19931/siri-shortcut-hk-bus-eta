@@ -30,23 +30,24 @@ export async function crawlRoute(): Promise<Route[]> {
                                     routeObj.route_id,
                                 ).replace(PLACEHOLDER.ROUTE_TYPE, dir.route_seq);
                                 const stopList = await Promise.all(
-                                    await doRequest('GET', routeStopApi).then((response) =>
-                                        response.data.route_stops.map((stop) => {
-                                            const stopDetail = CacheUtil.getCache(
-                                                `${company.CODE}_stop_${stop.stop_id}`,
-                                            );
-                                            return new Stop(
-                                                stop.stop_id,
-                                                stop.name_tc,
-                                                stopDetail.coordinates.wgs84.latitude,
-                                                stopDetail.coordinates.wgs84.longitude,
-                                            );
+                                    await doRequest('GET', routeStopApi)
+                                        .then((response) =>
+                                            response.data.route_stops.map((stop) => {
+                                                const stopDetail = CacheUtil.getCache(
+                                                    `${company.CODE}_stop_${stop.stop_id}`,
+                                                );
+                                                return new Stop(
+                                                    stop.stop_id,
+                                                    stop.name_tc,
+                                                    stopDetail.coordinates.wgs84.latitude,
+                                                    stopDetail.coordinates.wgs84.longitude,
+                                                );
+                                            }),
+                                        )
+                                        .catch((e) => {
+                                            core.exportVariable('runUpdateStopName', true);
+                                            throw e;
                                         }),
-                                    )
-                                    .catch((e) => {
-                                        core.exportVariable('runUpdateStopName', true);
-                                        throw e;
-                                    })
                                 );
                                 return new Route(
                                     company.CODE,
