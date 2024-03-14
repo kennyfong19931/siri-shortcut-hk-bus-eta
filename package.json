@@ -8,8 +8,8 @@
   "scripts": {
     "dev": "npx wrangler pages dev ./public --binding ENVIRONMENT=DEV host=http://localhost:8788",
     "format": "prettier --write \"{functions,src}/**/*.{js,ts}\"",
-    "test": "concurrently -n wrangler,jest --success last --kill-others \"npm:dev\" \"wait-on -t 2m http://localhost:8788 && jest --ci --runInBand\"",
-    "test-local": "jest --reporters default",
+    "test": "concurrently -n wrangler,jest --success first --kill-others \"npm:dev\" \"wait-on -t 2m http://localhost:8788 && npm run test-local\"",
+    "test-local": "jest --ci --runInBand",
     "update-route": "tsx src/updateRoute.ts",
     "update-stop-name": "tsx src/updateStopName.ts",
     "update-spatial": "tsx src/updateSpatial.ts",

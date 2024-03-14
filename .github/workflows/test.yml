@@ -1,5 +1,6 @@
 name: Test Cloudflare Functions
 on:
+  workflow_dispatch:
   push:
     paths:
       - 'functions/**'
@@ -22,5 +23,5 @@ jobs:
 
       - name: Run test
         run: |
+          echo "FORCE_COLOR=true" >> $GITHUB_ENV
           npm run test
-
