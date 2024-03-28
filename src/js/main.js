@@ -75,7 +75,9 @@ const renderRoute = (id, encodedJson) => {
     Array.from(document.querySelectorAll('.list-group-item, .dropdown-item')).forEach(function (element) {
         element.classList.remove('active');
     });
-    document.getElementById(id).classList.add('active');
+    if (id) {
+        document.getElementById(id).classList.add('active');
+    }
     const json = JSON.parse(b64_to_utf8(encodedJson));
 
     // remove all markers
@@ -470,3 +472,4 @@ mtrHrData = await fetch(ROUTE_API.replace('{route}', 'mtr_hr')).then((response) 
 window.renderRoute = renderRoute;
 window.renderBookmarkStop = renderBookmarkStop;
 window.routeTypeClick = routeTypeClick;
+window.alert = alert;

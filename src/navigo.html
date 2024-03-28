@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Simple Server</title>
+</head>
+
+<body>
+    <a href="/courses">Courses</a><br>
+    <a href="/course/1">Course-1 <b>Browser Refresh fails</b></a><br>
+    <a href="/course/2">Course-2 <b>Browser Refresh fails</b></a><br>
+    <a href="/about">About </a><br>
+    <hr>
+    <div id="route"></div>
+    <script src="//unpkg.com/navigo@8"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
+    <script>
+	window.addEventListener("load", () => {
+        const router = new Navigo("/");
+
+        router
+			.on('/courses', function () {
+						$("#route").html('<h1>/courses</h1>');
+					})
+			.on('/course/:id', function (params, query) {
+					$("#route").html(
+						'<h1>/course</h1><br>params : '+JSON.stringify(params)
+						+'<br>query : '+JSON.stringify(query));
+				})
+			.on('/about', function () {
+					$("#route").html('<h1>/about</h1>');
+				})
+			.on('*', function () {
+					$("#route").html('<h1>*</h1>');
+				})
+			.resolve();
+      });
+    </script>
+</body>
+
+</html>
