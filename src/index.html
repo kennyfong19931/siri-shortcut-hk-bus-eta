@@ -16,12 +16,16 @@
 
     <script>
         const BASE_API = '%VITE_BASE_API%';
+        const ROUTE_API = `${BASE_API}/api/route/{route}.json`;
+        const SPATIAL_API = `${BASE_API}/api/spatial/{path}.json`;
+        const ETA_API = `${BASE_API}/api/eta`;
+        const SIRI_SHORTCUT_UPDATE_API = `${BASE_API}/update.json`;
     </script>
     <link rel="stylesheet" href="scss/styles.scss">
+    <script type="module" src="./js/route.js"></script>
     <script type="module" src="./js/color-modes.js"></script>
     <script type="module" src="./js/main.js"></script>
     <script type="module" src="./js/bookmark.js"></script>
-    <script type="module" src="./js/route.js"></script>
 </head>
 
 <body>
@@ -36,7 +40,7 @@
                 <div class="btn-group w-100" role="group" aria-label="路線種類">
                     <input type="radio" class="btn-check d-none" name="btnRouteType" id="btnRouteType1" autocomplete="off" checked onclick="routeTypeClick('bus')">
                     <label class="btn btn-outline-secondary" for="btnRouteType1">巴士/小巴/輕鐵</label>
-                  
+
                     <input type="radio" class="btn-check d-none" name="btnRouteType" id="btnRouteType2" autocomplete="off" onclick="routeTypeClick('mtr')">
                     <label class="btn btn-outline-secondary" for="btnRouteType2">地鐵</label>
                 </div>
@@ -133,7 +137,7 @@
         </template>
 
         <template id="bookmarkRow">
-            <div class="list-group-item d-flex flex-row align-items-center" data-route-json="{{dataRouteJson}}" onclick="renderBookmarkStop(event)">
+            <a class="list-group-item d-flex flex-row align-items-center" data-route-json="{{dataRouteJson}}" href="{{href}}" data-navigo>
                 <div class="flex-shrink-0">
                     <i class="d-none bi bi-list btnBookmarkReorder" role="img" aria-hidden="true"></i> <img class="logo" src="{{companyLogo}}" />
                 </div>
@@ -145,7 +149,7 @@
                         <i class="bi bi-bookmark-dash" role="img" aria-label="移除已收藏路線"></i>
                     </button>
                 </div>
-            </div>
+            </a>
         </template>
 
         <template id="bookmarkBtn">
@@ -187,19 +191,19 @@
         </template>
 
         <template id="searchResultRow">
-            <div class="d-flex align-items-center list-group-item list-group-item-action" id="{{id}}" onclick="renderRoute('{{id}}', '{{json}}')">
+            <a class="d-flex align-items-center list-group-item list-group-item-action" id="{{id}}" href="{{href}}" onclick="setActive('{{id}}')" data-navigo>
                 <div class="flex-shrink-0"><img class="logo" src="{{companyLogo}}" alt="{{companyName}}"/></div>
                 <div class="flex-grow-1 ms-3">
                     <div>{{text}}</div>
                     <div class="text-secondary">{{description}}</div>
                 </div>
-            </div>
+            </a>
         </template>
         <template id="searchResultRailwayRow">
-            <div class="d-flex align-items-center list-group-item list-group-item-action" id="{{id}}" onclick="renderRoute('{{id}}', '{{json}}')">
+            <a class="d-flex align-items-center list-group-item list-group-item-action" id="{{id}}" href="{{href}}" onclick="setActive('{{id}}')" data-navigo>
                 <span class="mtrIcon" style="--background-color: {{backgroundColor}};"></span>
                 <div class="flex-grow-1 ms-3">{{text}}</div>
-            </div>
+            </a>
         </template>
 
         <template id="railwayEtaRow">

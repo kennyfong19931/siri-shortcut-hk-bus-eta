@@ -88,6 +88,7 @@ const addBookmark = (groupName, json, fromWebpageClick = false) => {
     }
     const div = getHtmlTemplate('bookmarkRow', {
         '{{dataRouteJson}}': utf8_to_b64(JSON.stringify(json)),
+        '{{href}}': getRouteUrl(json, true),
         '{{companyLogo}}': getCompanyImage(json.company),
         '{{route}}': json.route,
         '{{name}}': json.name,
@@ -112,7 +113,7 @@ const editBookmark = () => {
 const saveBookmark = () => {
     toggleEditButton(false);
 
-    const newBookmarkList = [...document.getElementsByClassName('list-group-item')]
+    const newBookmarkList = [...document.getElementsByClassName('group')]
         .map((element) => {
             const groupName = element.getAttribute('data-group-name');
             if (groupName) {

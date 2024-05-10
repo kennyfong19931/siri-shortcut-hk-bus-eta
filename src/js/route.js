@@ -1,31 +1,108 @@
 const router = new Navigo('/');
-import { utf8_to_b64 } from './util.js';
-
-router
-    .on('/:company/:route/:direction', function (params, query) {
-        fetch(ROUTE_API.replace('{route}', params.data.route))
-            .then((response) => response.json())
-            .then((data) => {
-                const route = data.filter(
-                    (element) => element.company === params.data.company && element.dir === params.data.direction,
-                );
-                if (!route) {
-                    alert(`Cannot find route ${params.data.route} !`, 'danger');
-                    return;
-                }
-                renderRoute(null, utf8_to_b64(JSON.stringify(route[0])));
-            })
-            .catch(function (error) {
-                console.log(error);
-                alert(`Cannot find route ${route} !`, 'danger');
+window.addEventListener('load', () => {
+    router
+        .on('/:company/:routeId', function (params, query) {
+            /*
+                Possible routes:
+                /mtr_hr/:route
+                /mtr_lr/:route
+             */
+            handleRoute({
+                company: params.data.company,
+                routeId: params.data.routeId,
             });
-    })
-    .on('/:company/:route/:direction/:stop', function (params, query) {
-        console.log('path = stop');
-        console.log(params);
-        console.log(query);
-    })
-    .on('*', function () {
-        console.log('path = *');
-    })
-    .resolve();
+        })
+        .on('/:company/:route/:param1', function (params, query) {
+            /*
+                Possible routes:
+                /kmb/:route/:dir
+                /ctb/:route/:dir
+                /nlb/:route/:routeId
+                /gmb/:route/:routeId
+                /mtr/:route/:dir
+                /mtr_hr/:routeId/:stop
+                /mtr_lr/:routeId/:stop
+             */
+            let param = {};
+            if ('mtr_hr' === params.data.company || 'mtr_lr' === params.data.company) {
+                param.routeId = params.data.route;
+                param.stop = params.data.param1;
+            } else if ('nlb' === params.data.company || 'gmb' === params.data.company) {
+                param.route = params.data.route;
+                param.routeId = params.data.param1;
+            } else {
+                param.route = params.data.route;
+                param.dir = params.data.param1;
+            }
+            handleRoute({
+                company: params.data.company,
+                ...param,
+            });
+        })
+        .on('/:company/:route/:param1/:stop', function (params, query) {
+            /*
+                Possible routes:
+                /kmb/:route/:dir/:stop
+                /ctb/:route/:dir/:stop
+                /nlb/:route/:routeId/:stop
+                /gmb/:route/:routeId/:stop
+                /mtr/:route/:dir/:stop
+             */
+            let param = {};
+            if ('nlb' === params.data.company || 'gmb' === params.data.company) {
+                param.routeId = params.data.param1;
+            } else {
+                param.dir = params.data.param1;
+            }
+            handleRoute({
+                company: params.data.company,
+                route: params.data.route,
+                stop: params.data.stop,
+                ...param,
+            });
+        })
+        .resolve();
+});
+
+function handleRoute(inputData) {
+    fetch(ROUTE_API.replace('{route}', inputData.route))
+        .then((response) => response.json())
+        .then((data) => {
+            const routeArray = data.filter(
+                (element) =>
+                    element.company === inputData.company &&
+                    (inputData.dir ? element.dir === inputData.dir : true) &&
+                    (inputData.routeId ? element.routeId === inputData.routeId : true),
+            );
+            if (!routeArray) {
+                alert(`Cannot find route ${inputData.route} !`, 'danger');
+                return;
+            }
+            renderRoute(routeArray[0]);
+            if (inputData.stop) {
+                triggerStopClick(inputData.stop);
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+            alert(`Cannot find route ${inputData.route} !`, 'danger');
+        });
+}
+
+function getRouteUrl(data, withStop = false) {
+    if ('mtr_hr' === data.company || 'mtr_lr' === data.company) {
+        return `/${data.company}/${data.routeId}${withStop ? '/' + data.stop : ''}`;
+    } else if ('nlb' === data.company || 'gmb' === data.company) {
+        return `/${data.company}/${data.route}/${data.routeId}${withStop ? '/' + data.stop : ''}`;
+    } else {
+        return `/${data.company}/${data.route}/${data.dir}${withStop ? '/' + data.stop : ''}`;
+    }
+}
+
+function reloadRouter() {
+    router.updatePageLinks();
+}
+
+// export
+window.reloadRouter = reloadRouter;
+window.getRouteUrl = getRouteUrl;

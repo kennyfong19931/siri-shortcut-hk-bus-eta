@@ -1,20 +1,16 @@
 import '../scss/styles.scss';
 import Offcanvas from 'bootstrap/js/src/offcanvas';
 import {
-    utf8_to_b64,
     b64_to_utf8,
-    getCompanyImage,
     getCompanyColor,
+    getCompanyImage,
     getHtmlTemplate,
-    getPageWidth,
     getMtrColor,
     getMtrTextColor,
+    getPageWidth,
+    utf8_to_b64,
 } from './util.js';
 
-const ROUTE_API = `${BASE_API}/api/route/{route}.json`;
-const SPATIAL_API = `${BASE_API}/api/spatial/{path}.json`;
-const ETA_API = `${BASE_API}/api/eta`;
-const SIRI_SHORTCUT_UPDATE_API = `${BASE_API}/update.json`;
 const searchAlert = document.getElementById('searchAlert');
 const searchResult = document.getElementById('searchResult');
 const searchDrawer = new Offcanvas('#searchDrawer');
@@ -43,6 +39,14 @@ const alert = (message, type) => {
 const clearAlert = () => {
     searchAlert.innerHTML = '';
 };
+const setActive = (id) => {
+    Array.from(document.querySelectorAll('.list-group-item, .dropdown-item')).forEach(function (element) {
+        element.classList.remove('active');
+    });
+    if (id) {
+        document.getElementById(id).classList.add('active');
+    }
+};
 const searchRoute = () => {
     clearAlert();
     searchResult.innerHTML =
@@ -56,7 +60,8 @@ const searchRoute = () => {
                 .map((element, index) => {
                     return getHtmlTemplate('searchResultRow', {
                         '{{id}}': `route-${index}`,
-                        '{{json}}': utf8_to_b64(JSON.stringify(element)),
+                        // '{{json}}': utf8_to_b64(JSON.stringify(element)),
+                        '{{href}}': getRouteUrl(element),
                         '{{companyLogo}}': getCompanyImage(element.company),
                         '{{companyName}}': element.company,
                         '{{text}}': `${element.orig}➡️${element.dest}`,
@@ -64,6 +69,7 @@ const searchRoute = () => {
                     }).outerHTML;
                 })
                 .join('');
+            reloadRouter();
         })
         .catch(function (error) {
             console.log(error);
@@ -71,15 +77,7 @@ const searchRoute = () => {
             searchResult.innerHTML = '';
         });
 };
-const renderRoute = (id, encodedJson) => {
-    Array.from(document.querySelectorAll('.list-group-item, .dropdown-item')).forEach(function (element) {
-        element.classList.remove('active');
-    });
-    if (id) {
-        document.getElementById(id).classList.add('active');
-    }
-    const json = JSON.parse(b64_to_utf8(encodedJson));
-
+const renderRoute = (json) => {
     // remove all markers
     markersLayer.clearLayers();
 
@@ -166,42 +164,6 @@ const renderRoute = (id, encodedJson) => {
     // add layer to map
     markersLayer.addTo(map);
     map.fitBounds(markersLayer.getBounds());
-
-    if (window.innerWidth < 768) {
-        searchDrawer.hide();
-    }
-};
-const renderBookmarkStop = (event) => {
-    // remove all markers
-    markersLayer.clearLayers();
-
-    let bookmarkRow = event.target.closest('div.list-group-item');
-    const json = JSON.parse(b64_to_utf8(bookmarkRow.dataset.routeJson));
-    const point = json.address.split(',');
-    const option = {
-        company: json.company,
-        route: json.route,
-        routeId: json.routeId,
-        routeType: json.routeType,
-        routeDesc: json.routeDesc,
-        dir: json.dir,
-        stop: json.stop,
-        name: json.name,
-        address: json.address,
-        street: json.street,
-        fare: json.fare,
-        fareHoliday: json.fareHoliday,
-        railwayFilterDir: json.railwayFilterDir,
-    };
-    var marker = L.marker(point, option).addTo(map);
-    marker.bindPopup(defaultPopupContent, defaultPopupOption);
-    markersLayer.addLayer(marker);
-
-    // add layer to map
-    markersLayer.addTo(map);
-    map.fitBounds(markersLayer.getBounds());
-
-    marker.openPopup();
 
     if (window.innerWidth < 768) {
         searchDrawer.hide();
@@ -418,7 +380,15 @@ const routeTypeClick = (type) => {
                 }).outerHTML;
             })
             .join('');
+        reloadRouter();
     }
+};
+const triggerStopClick = (stopId) => {
+    markersLayer.eachLayer(function(layer) {
+        if(layer.options.stop === stopId) {
+            layer.openPopup();
+        }
+    })
 };
 
 // events
@@ -470,6 +440,7 @@ mtrHrData = await fetch(ROUTE_API.replace('{route}', 'mtr_hr')).then((response) 
 
 // export
 window.renderRoute = renderRoute;
-window.renderBookmarkStop = renderBookmarkStop;
 window.routeTypeClick = routeTypeClick;
+window.triggerStopClick = triggerStopClick;
 window.alert = alert;
+window.setActive = setActive;
