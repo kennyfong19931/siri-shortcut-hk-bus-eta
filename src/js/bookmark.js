@@ -102,6 +102,7 @@ const addBookmark = (groupName, json, fromWebpageClick = false) => {
     if (fromWebpageClick) {
         saveBookmark();
     }
+    reloadRouter();
 };
 const removeBookmark = (event) => {
     let routeRow = event.target.closest('div.list-group-item');
