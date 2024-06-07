@@ -1,20 +1,16 @@
 import '../scss/styles.scss';
 import Offcanvas from 'bootstrap/js/src/offcanvas';
 import {
-    utf8_to_b64,
-    b64_to_utf8,
-    getCompanyImage,
     getCompanyColor,
+    getCompanyName,
+    getCompanyImage,
     getHtmlTemplate,
-    getPageWidth,
     getMtrColor,
     getMtrTextColor,
+    getPageWidth,
+    utf8_to_b64,
 } from './util.js';
 
-const ROUTE_API = `${BASE_API}/api/route/{route}.json`;
-const SPATIAL_API = `${BASE_API}/api/spatial/{path}.json`;
-const ETA_API = `${BASE_API}/api/eta`;
-const SIRI_SHORTCUT_UPDATE_API = `${BASE_API}/update.json`;
 const searchAlert = document.getElementById('searchAlert');
 const searchResult = document.getElementById('searchResult');
 const searchDrawer = new Offcanvas('#searchDrawer');
@@ -43,6 +39,14 @@ const alert = (message, type) => {
 const clearAlert = () => {
     searchAlert.innerHTML = '';
 };
+const setActive = (id) => {
+    Array.from(document.querySelectorAll('.list-group-item, .dropdown-item')).forEach(function (element) {
+        element.classList.remove('active');
+    });
+    if (id) {
+        document.getElementById(id).classList.add('active');
+    }
+};
 const searchRoute = () => {
     clearAlert();
     searchResult.innerHTML =
@@ -56,7 +60,7 @@ const searchRoute = () => {
                 .map((element, index) => {
                     return getHtmlTemplate('searchResultRow', {
                         '{{id}}': `route-${index}`,
-                        '{{json}}': utf8_to_b64(JSON.stringify(element)),
+                        '{{href}}': getRouteUrl(element),
                         '{{companyLogo}}': getCompanyImage(element.company),
                         '{{companyName}}': element.company,
                         '{{text}}': `${element.orig}➡️${element.dest}`,
@@ -64,6 +68,7 @@ const searchRoute = () => {
                     }).outerHTML;
                 })
                 .join('');
+            reloadRouter();
         })
         .catch(function (error) {
             console.log(error);
@@ -71,13 +76,7 @@ const searchRoute = () => {
             searchResult.innerHTML = '';
         });
 };
-const renderRoute = (id, encodedJson) => {
-    Array.from(document.querySelectorAll('.list-group-item, .dropdown-item')).forEach(function (element) {
-        element.classList.remove('active');
-    });
-    document.getElementById(id).classList.add('active');
-    const json = JSON.parse(b64_to_utf8(encodedJson));
-
+const renderRoute = (json) => {
     // remove all markers
     markersLayer.clearLayers();
 
@@ -100,6 +99,7 @@ const renderRoute = (id, encodedJson) => {
         };
         var marker = L.marker([stop.lat, stop.long], option).addTo(map);
         marker.bindPopup(defaultPopupContent, defaultPopupOption);
+        marker.on('click', () => routeNavigate(getRouteUrl(option, true)));
         markersLayer.addLayer(marker);
     });
 
@@ -168,42 +168,8 @@ const renderRoute = (id, encodedJson) => {
     if (window.innerWidth < 768) {
         searchDrawer.hide();
     }
-};
-const renderBookmarkStop = (event) => {
-    // remove all markers
-    markersLayer.clearLayers();
 
-    let bookmarkRow = event.target.closest('div.list-group-item');
-    const json = JSON.parse(b64_to_utf8(bookmarkRow.dataset.routeJson));
-    const point = json.address.split(',');
-    const option = {
-        company: json.company,
-        route: json.route,
-        routeId: json.routeId,
-        routeType: json.routeType,
-        routeDesc: json.routeDesc,
-        dir: json.dir,
-        stop: json.stop,
-        name: json.name,
-        address: json.address,
-        street: json.street,
-        fare: json.fare,
-        fareHoliday: json.fareHoliday,
-        railwayFilterDir: json.railwayFilterDir,
-    };
-    var marker = L.marker(point, option).addTo(map);
-    marker.bindPopup(defaultPopupContent, defaultPopupOption);
-    markersLayer.addLayer(marker);
-
-    // add layer to map
-    markersLayer.addTo(map);
-    map.fitBounds(markersLayer.getBounds());
-
-    marker.openPopup();
-
-    if (window.innerWidth < 768) {
-        searchDrawer.hide();
-    }
+    updateSEO('route', json);
 };
 const getEta = async (stop) => {
     return fetch(ETA_API, {
@@ -383,6 +349,8 @@ const openPopup = async (e) => {
         });
         marker._popup.setContent(popupContent);
     }
+
+    updateSEO('stop', marker.options);
 };
 const getAddBookmarkBtn = (json, groupName = null) => {
     if (groupName === null) {
@@ -410,13 +378,82 @@ const routeTypeClick = (type) => {
             .map((route, index) => {
                 return getHtmlTemplate('searchResultRailwayRow', {
                     '{{id}}': `route-${index}`,
-                    '{{json}}': utf8_to_b64(JSON.stringify(route)),
+                    '{{href}}': getRouteUrl(route),
                     '{{backgroundColor}}': getMtrColor('route-hr', route.routeId),
                     '{{text}}': `${route.route} (${route.orig}↔️${route.dest})`,
                 }).outerHTML;
             })
             .join('');
+        reloadRouter();
     }
+};
+const triggerStopClick = (stopId) => {
+    markersLayer.eachLayer(function (layer) {
+        if (layer.options.stop === stopId) {
+            map.setView(layer.getLatLng(), 16);
+            layer.openPopup();
+        }
+    });
+};
+const updateSEO = (type, json) => {
+    const domain = 'https://siri-shortcut-hk-bus-eta.pages.dev';
+    const sitename = '香港交通到站時間';
+    const orig = json.orig ? json.orig : json.routeDesc.split('➡️')[0];
+    const dest = json.dest ? json.dest : json.routeDesc.split('➡️')[1];
+
+    let title = sitename;
+    let description = `${getCompanyName(json.company)} ${json.route}，${json.company === 'mtr_hr' ? '來往' : '由'}${orig}至${dest}`;
+    if (json.stopList) {
+        description += '，途經';
+        json.stopList.forEach((stop) => {
+            description += `${stop.name}、`;
+        });
+    }
+    const url = domain + window.location.pathname;
+    let ldjson = {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+            {
+                '@type': 'ListItem',
+                position: 1,
+                name: getCompanyName(json.company),
+                item: domain + '/' + json.company,
+            },
+            {
+                '@type': 'ListItem',
+                position: 2,
+                name: json.route,
+                item: domain + getRouteUrl(json),
+            },
+        ],
+    };
+    if (json.company === 'mtr_hr') {
+        title = json.route + ' - ' + sitename;
+    } else {
+        title = json.route + ' 往' + dest + ' - ' + sitename;
+    }
+    if (type === 'stop') {
+        title = json.name + ' - ' + title;
+        ldjson.itemListElement.push({
+            '@type': 'ListItem',
+            position: 3,
+            name: json.name,
+            item: domain + getRouteUrl(json, true),
+        });
+    }
+
+    // update
+    document.title = title;
+    document.querySelector('meta[property="og:title"]').content = title;
+    document.querySelector('meta[name="twitter:title"]').content = title;
+    document.querySelector('meta[name="description"]').content = description;
+    document.querySelector('meta[property="og:description"]').content = description;
+    document.querySelector('meta[name="twitter:description"]').content = description;
+    document.querySelector('meta[property="og:url"]').content = url;
+    document.querySelector('meta[name="twitter:url"]').content = url;
+    document.querySelector('link[rel="canonical"]').content = url;
+    document.querySelector('script[type="application/ld+json"]').innerHTML = JSON.stringify(ldjson);
 };
 
 // events
@@ -468,5 +505,7 @@ mtrHrData = await fetch(ROUTE_API.replace('{route}', 'mtr_hr')).then((response) 
 
 // export
 window.renderRoute = renderRoute;
-window.renderBookmarkStop = renderBookmarkStop;
 window.routeTypeClick = routeTypeClick;
+window.triggerStopClick = triggerStopClick;
+window.alert = alert;
+window.setActive = setActive;
