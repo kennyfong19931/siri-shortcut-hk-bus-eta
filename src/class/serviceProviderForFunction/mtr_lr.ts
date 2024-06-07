@@ -55,8 +55,6 @@ export async function fetchEta(requestItem, env) {
                 ];
             }
 
-            console.log(json.platform_list);
-
             return json.platform_list
                 .map((platform) => {
                     if (

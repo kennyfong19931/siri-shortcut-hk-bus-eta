@@ -23,6 +23,29 @@ export function getHtmlTemplate(templateId, param = {}) {
     return template.content.firstChild;
 }
 
+export function getCompanyName(company) {
+    switch (company) {
+        case 'kmb':
+            return '九巴';
+        case 'ctb':
+            return '城巴';
+        case 'nwfb':
+            return '新巴';
+        case 'nlb':
+            return '新大嶼山巴士';
+        case 'gmb':
+            return '小巴';
+        case 'mtr':
+            return '地鐵巴士';
+        case 'mtr-hr':
+            return '地鐵';
+        case 'mtr-lr':
+            return '輕鐵';
+        default:
+            return '';
+    }
+}
+
 export function getCompanyColor(company, isPluse = false) {
     switch (company) {
         case 'kmb':
@@ -40,6 +63,7 @@ export function getCompanyColor(company, isPluse = false) {
     }
     return '#000';
 }
+
 export function getMtrColor(type, value) {
     if (type === 'route-hr') {
         switch (value) {

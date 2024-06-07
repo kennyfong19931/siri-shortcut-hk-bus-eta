@@ -5,7 +5,6 @@ window.addEventListener('load', () => {
             /*
                 Possible routes:
                 /mtr_hr/:route
-                /mtr_lr/:route
              */
             handleRoute({
                 company: params.data.company,
@@ -21,10 +20,10 @@ window.addEventListener('load', () => {
                 /gmb/:route/:routeId
                 /mtr/:route/:dir
                 /mtr_hr/:routeId/:stop
-                /mtr_lr/:routeId/:stop
+                /mtr_lr/:routeId/:dir
              */
             let param = {};
-            if ('mtr_hr' === params.data.company || 'mtr_lr' === params.data.company) {
+            if ('mtr_hr' === params.data.company) {
                 param.routeId = params.data.route;
                 param.stop = params.data.param1;
             } else if ('nlb' === params.data.company || 'gmb' === params.data.company) {
@@ -47,6 +46,7 @@ window.addEventListener('load', () => {
                 /nlb/:route/:routeId/:stop
                 /gmb/:route/:routeId/:stop
                 /mtr/:route/:dir/:stop
+                /mtr_lr/:routeId/:dir/:stop
              */
             let param = {};
             if ('nlb' === params.data.company || 'gmb' === params.data.company) {
@@ -70,7 +70,7 @@ function handleRoute(inputData) {
         .then((data) => {
             const routeArray = data.filter(
                 (element) =>
-                    element.company === inputData.company &&
+                    element.company === (inputData.company === 'nwfb' ? 'ctb' : inputData.company) &&
                     (inputData.dir ? element.dir === inputData.dir : true) &&
                     (inputData.routeId ? element.routeId === inputData.routeId : true),
             );
@@ -90,7 +90,7 @@ function handleRoute(inputData) {
 }
 
 function getRouteUrl(data, withStop = false) {
-    if ('mtr_hr' === data.company || 'mtr_lr' === data.company) {
+    if ('mtr_hr' === data.company) {
         return `/${data.company}/${data.routeId}${withStop ? '/' + data.stop : ''}`;
     } else if ('nlb' === data.company || 'gmb' === data.company) {
         return `/${data.company}/${data.route}/${data.routeId}${withStop ? '/' + data.stop : ''}`;

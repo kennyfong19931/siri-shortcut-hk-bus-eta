@@ -1,8 +1,8 @@
 import '../scss/styles.scss';
 import Offcanvas from 'bootstrap/js/src/offcanvas';
 import {
-    b64_to_utf8,
     getCompanyColor,
+    getCompanyName,
     getCompanyImage,
     getHtmlTemplate,
     getMtrColor,
@@ -60,7 +60,6 @@ const searchRoute = () => {
                 .map((element, index) => {
                     return getHtmlTemplate('searchResultRow', {
                         '{{id}}': `route-${index}`,
-                        // '{{json}}': utf8_to_b64(JSON.stringify(element)),
                         '{{href}}': getRouteUrl(element),
                         '{{companyLogo}}': getCompanyImage(element.company),
                         '{{companyName}}': element.company,
@@ -168,6 +167,8 @@ const renderRoute = (json) => {
     if (window.innerWidth < 768) {
         searchDrawer.hide();
     }
+
+    updateSEO('route', json);
 };
 const getEta = async (stop) => {
     return fetch(ETA_API, {
@@ -347,6 +348,8 @@ const openPopup = async (e) => {
         });
         marker._popup.setContent(popupContent);
     }
+
+    updateSEO('stop', marker.options);
 };
 const getAddBookmarkBtn = (json, groupName = null) => {
     if (groupName === null) {
@@ -374,7 +377,7 @@ const routeTypeClick = (type) => {
             .map((route, index) => {
                 return getHtmlTemplate('searchResultRailwayRow', {
                     '{{id}}': `route-${index}`,
-                    '{{json}}': utf8_to_b64(JSON.stringify(route)),
+                    '{{href}}': getRouteUrl(route),
                     '{{backgroundColor}}': getMtrColor('route-hr', route.routeId),
                     '{{text}}': `${route.route} (${route.orig}↔️${route.dest})`,
                 }).outerHTML;
@@ -384,11 +387,72 @@ const routeTypeClick = (type) => {
     }
 };
 const triggerStopClick = (stopId) => {
-    markersLayer.eachLayer(function(layer) {
-        if(layer.options.stop === stopId) {
+    markersLayer.eachLayer(function (layer) {
+        if (layer.options.stop === stopId) {
+            map.setView(layer.getLatLng(), 16);
             layer.openPopup();
         }
-    })
+    });
+};
+const updateSEO = (type, json) => {
+    const domain = 'https://siri-shortcut-hk-bus-eta.pages.dev';
+    const sitename = '香港交通到站時間';
+    const orig = json.orig ? json.orig : json.routeDesc.split('➡️')[0];
+    const dest = json.dest ? json.dest : json.routeDesc.split('➡️')[1];
+
+    let title = sitename;
+    let description = `${getCompanyName(json.company)} ${json.route}，${json.company === 'mtr_hr' ? '來往' : '由'}${orig}至${dest}`;
+    if (json.stopList) {
+        description += '，途經';
+        json.stopList.forEach((stop) => {
+            description += `${stop.name}、`;
+        });
+    }
+    const url = domain + window.location.pathname;
+    let ldjson = {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+            {
+                '@type': 'ListItem',
+                position: 1,
+                name: getCompanyName(json.company),
+                item: domain + '/' + json.company,
+            },
+            {
+                '@type': 'ListItem',
+                position: 2,
+                name: json.route,
+                item: domain + getRouteUrl(json),
+            },
+        ],
+    };
+    if (json.company === 'mtr_hr') {
+        title = json.route + ' - ' + sitename;
+    } else {
+        title = json.route + ' 往' + dest + ' - ' + sitename;
+    }
+    if (type === 'stop') {
+        title = json.name + ' - ' + title;
+        ldjson.itemListElement.push({
+            '@type': 'ListItem',
+            position: 3,
+            name: json.name,
+            item: domain + getRouteUrl(json, true),
+        });
+    }
+
+    // update
+    document.title = title;
+    document.querySelector('meta[property="og:title"]').content = title;
+    document.querySelector('meta[name="twitter:title"]').content = title;
+    document.querySelector('meta[name="description"]').content = description;
+    document.querySelector('meta[property="og:description"]').content = description;
+    document.querySelector('meta[name="twitter:description"]').content = description;
+    document.querySelector('meta[property="og:url"]').content = url;
+    document.querySelector('meta[name="twitter:url"]').content = url;
+    document.querySelector('link[rel="canonical"]').content = url;
+    document.querySelector('script[type="application/ld+json"]').innerHTML = JSON.stringify(ldjson);
 };
 
 // events
