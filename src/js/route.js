@@ -65,7 +65,7 @@ window.addEventListener('load', () => {
 });
 
 function handleRoute(inputData) {
-    fetch(ROUTE_API.replace('{route}', inputData.route))
+    fetch(ROUTE_API.replace('{route}', 'mtr_hr' === inputData.company ? inputData.company : inputData.route))
         .then((response) => response.json())
         .then((data) => {
             const routeArray = data.filter(
@@ -103,6 +103,11 @@ function reloadRouter() {
     router.updatePageLinks();
 }
 
+function routeNavigate(route) {
+    router.navigate(route);
+}
+
 // export
 window.reloadRouter = reloadRouter;
 window.getRouteUrl = getRouteUrl;
+window.routeNavigate = routeNavigate;

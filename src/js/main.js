@@ -99,6 +99,7 @@ const renderRoute = (json) => {
         };
         var marker = L.marker([stop.lat, stop.long], option).addTo(map);
         marker.bindPopup(defaultPopupContent, defaultPopupOption);
+        marker.on('click', () => routeNavigate(getRouteUrl(option, true)));
         markersLayer.addLayer(marker);
     });
 
