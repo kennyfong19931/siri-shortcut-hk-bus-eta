@@ -29,8 +29,6 @@ jobs:
       - name: Commit and Push data
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_options: '--no-verify'
           commit_message: Update Spatial data
           file_pattern: 'public/api/spatial/**'
-        env:
-          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          commit_author: Actions <github-actions[bot]@users.noreply.github.com>
