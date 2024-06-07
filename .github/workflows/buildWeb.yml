@@ -31,6 +31,10 @@ jobs:
           rm -rf ./public/assets
           npm run web-build
 
+      - name: Generate sitemap
+        run: |
+          npm run generate-sitemap
+
       - name: Commit and Push data
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
