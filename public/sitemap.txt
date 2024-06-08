@@ -788,7 +788,6 @@ https://siri-shortcut-hk-bus-eta.pages.dev/kmb/272E/I
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/272K/O
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/272P/O
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/272P/I
-https://siri-shortcut-hk-bus-eta.pages.dev/kmb/272R/O
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/272S/O
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/272S/I
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/272X/O
@@ -2710,6 +2709,7 @@ https://siri-shortcut-hk-bus-eta.pages.dev/kmb/91M/I
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/91M/I
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/91P/O
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/91P/I
+https://siri-shortcut-hk-bus-eta.pages.dev/kmb/91R/O
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/91S/O
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/92/O
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/92/I
@@ -3311,7 +3311,6 @@ https://siri-shortcut-hk-bus-eta.pages.dev/ctb/N619/I
 https://siri-shortcut-hk-bus-eta.pages.dev/ctb/N619/O
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/N64/O
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/N64P/O
-https://siri-shortcut-hk-bus-eta.pages.dev/kmb/N673/O
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/N680/O
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/N680/I
 https://siri-shortcut-hk-bus-eta.pages.dev/ctb/N680/I
@@ -3393,12 +3392,9 @@ https://siri-shortcut-hk-bus-eta.pages.dev/kmb/R241/O
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/R260/O
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/R261/O
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/R269/O
-https://siri-shortcut-hk-bus-eta.pages.dev/kmb/R270/O
-https://siri-shortcut-hk-bus-eta.pages.dev/kmb/R271/O
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/R283/O
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/R287/O
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/R298/O
-https://siri-shortcut-hk-bus-eta.pages.dev/kmb/R307/O
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/R33/O
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/R33/O
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/R33/I
@@ -3411,16 +3407,11 @@ https://siri-shortcut-hk-bus-eta.pages.dev/kmb/R42/O
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/R42/I
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/R42D/O
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/R603/O
-https://siri-shortcut-hk-bus-eta.pages.dev/kmb/R673/O
-https://siri-shortcut-hk-bus-eta.pages.dev/kmb/R678/O
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/R680/O
-https://siri-shortcut-hk-bus-eta.pages.dev/kmb/R78/O
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/R8/O
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/R8/O
 https://siri-shortcut-hk-bus-eta.pages.dev/ctb/R8/O
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/R934/O
-https://siri-shortcut-hk-bus-eta.pages.dev/kmb/R94/O
-https://siri-shortcut-hk-bus-eta.pages.dev/kmb/R94/I
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/R948/O
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/R968/O
 https://siri-shortcut-hk-bus-eta.pages.dev/kmb/S1/O
