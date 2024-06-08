@@ -3,7 +3,7 @@
 [![Build Web](https://github.com/kennyfong19931/siri-shortcut-hk-bus-eta/actions/workflows/buildWeb.yml/badge.svg)](https://github.com/kennyfong19931/siri-shortcut-hk-bus-eta/actions/workflows/buildWeb.yml)
 [![Postman](https://img.shields.io/badge/Postman-API%20doc-FF6C37?logo=postman&logoColor=white)](https://www.postman.com/crimson-spaceship-895558/workspace/siri-shortcut-hk-bus-eta/documentation/20883356-482dee34-62b2-48c3-b84d-31039fc26c44)
 
-# 巴士到站時間預報
+# ![簡化版設定](/public/img/favicon-32x32.png) 巴士到站時間預報
 使用[資料一線通](https://data.gov.hk/)及其他資料來源, 透過 Siri shortcut 或網頁查詢到站時間預報。
 
 ### 支援的交通工具
