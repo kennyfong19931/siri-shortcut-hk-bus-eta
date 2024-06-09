@@ -1,2 +1,4 @@
 User-agent: *
+Allow: /
+
 Sitemap: https://siri-shortcut-hk-bus-eta.pages.dev/sitemap.txt
