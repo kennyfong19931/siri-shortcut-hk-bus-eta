@@ -1,17 +1,17 @@
 const router = new Navigo('/');
 window.addEventListener('load', () => {
     router
-        .on('/:company/:routeId', function (params, query) {
+        .on('/:company/:routeId', function ({ data }) {
             /*
                 Possible routes:
                 /mtr_hr/:route
              */
             handleRoute({
-                company: params.data.company,
-                routeId: params.data.routeId,
+                company: data.company,
+                routeId: data.routeId,
             });
         })
-        .on('/:company/:route/:param1', function (params, query) {
+        .on('/:company/:route/:param1', function ({ data }) {
             /*
                 Possible routes:
                 /kmb/:route/:dir
@@ -22,22 +22,22 @@ window.addEventListener('load', () => {
                 /mtr_lr/:routeId/:dir
              */
             let param = {};
-            if ('mtr_hr' === params.data.company) {
-                param.routeId = params.data.route;
-                param.stop = params.data.param1;
-            } else if ('nlb' === params.data.company) {
-                param.route = params.data.route;
-                param.routeId = params.data.param1;
+            if ('mtr_hr' === data.company) {
+                param.routeId = data.route;
+                param.stop = data.param1;
+            } else if ('nlb' === data.company) {
+                param.route = data.route;
+                param.routeId = data.param1;
             } else {
-                param.route = params.data.route;
-                param.dir = params.data.param1;
+                param.route = data.route;
+                param.dir = data.param1;
             }
             handleRoute({
-                company: params.data.company,
+                company: data.company,
                 ...param,
             });
         })
-        .on('/:company/:route/:param1/:stop', function (params, query) {
+        .on('/:company/:route/:param1/:stop', function ({ data }) {
             /*
                 Possible routes:
                 /kmb/:route/:dir/:stop
@@ -48,34 +48,38 @@ window.addEventListener('load', () => {
                 /mtr_lr/:routeId/:dir/:stop
              */
             let param = {};
-            if ('nlb' === params.data.company) {
-                param.routeId = params.data.param1;
-                param.stop = params.data.stop;
-            } else if ('gmb' === params.data.company) {
-                param.routeId = params.data.param1;
-                param.routeType = params.data.stop;
+            if ('nlb' === data.company) {
+                param.routeId = data.param1;
+                param.stop = data.stop;
+            } else if ('gmb' === data.company) {
+                param.routeId = data.param1;
+                param.routeType = data.stop;
             } else {
-                param.dir = params.data.param1;
-                param.stop = params.data.stop;
+                param.dir = data.param1;
+                param.stop = data.stop;
             }
             handleRoute({
-                company: params.data.company,
-                route: params.data.route,
+                company: data.company,
+                route: data.route,
                 ...param,
             });
         })
-        .on('/:company/:route/:routeId/:routeType/:stop', function (params, query) {
+        .on('/:company/:route/:routeId/:routeType/:stop', function ({ data }) {
             /*
                 Possible routes:
                 /gmb/:route/:routeId/:routeType/:stop
              */
             handleRoute({
-                company: params.data.company,
-                route: params.data.route,
-                routeId: params.data.routeId,
-                routeType: params.data.routeType,
-                stop: params.data.stop,
+                company: data.company,
+                route: data.route,
+                routeId: data.routeId,
+                routeType: data.routeType,
+                stop: data.stop,
             });
+        })
+        .on('/search', function ({ path, params }) {
+            document.getElementById('routeInput').value = params.q;
+            document.getElementById('btnSearch').click();
         })
         .resolve();
 });
