@@ -2,8 +2,8 @@ import '../scss/styles.scss';
 import Offcanvas from 'bootstrap/js/src/offcanvas';
 import {
     getCompanyColor,
-    getCompanyName,
     getCompanyImage,
+    getCompanyName,
     getHtmlTemplate,
     getMtrColor,
     getMtrTextColor,
@@ -413,6 +413,17 @@ const updateSEO = (type, json) => {
     let ldjson = {
         '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
+        url: domain,
+        potentialAction: [
+            {
+                '@type': 'SearchAction',
+                target: {
+                    '@type': 'EntryPoint',
+                    urlTemplate: domain + '/search?q={search_term_string}',
+                },
+                'query-input': 'required name=search_term_string',
+            },
+        ],
         itemListElement: [
             {
                 '@type': 'ListItem',
