@@ -390,7 +390,7 @@ const routeTypeClick = (type) => {
 const triggerStopClick = (stopId) => {
     markersLayer.eachLayer(function (layer) {
         if (layer.options.stop === stopId) {
-            map.setView(layer.getLatLng(), 16);
+            map.setView(layer.getLatLng(), 17);
             layer.openPopup();
         }
     });
