@@ -75,15 +75,25 @@ const getCsdiRoute = async () => {
     });
 
     logger.info(`Step 1.2: Unzip`);
+    let jsonFilename = '';
     const zip = new StreamZip.async({ file: zipPath });
-    await zip.extract(null, os.tmpdir());
+    const entries = await zip.entries();
+    for (const entry of Object.values(entries)) {
+        if (entry.name.endsWith('.json')) {
+            jsonFilename = entry.name;
+            break;
+        }
+    }
+    const tempJsonPath = path.join(os.tmpdir(), jsonFilename);
+    await zip.extract(jsonFilename, tempJsonPath);
     await zip.close();
+    logger.info(`Unzip success, ${tempJsonPath}`);
 
     try {
         logger.info(`Step 2: Read data`);
         let result = [];
         const jsonArray = new Chain([
-            fs.createReadStream(path.join(os.tmpdir(), 'FB_ROUTE_LINE.json')),
+            fs.createReadStream(tempJsonPath),
             parser(),
             new Pick({ filter: 'features' }),
             new StreamArray(),
