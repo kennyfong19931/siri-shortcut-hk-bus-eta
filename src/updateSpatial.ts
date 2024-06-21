@@ -1,12 +1,8 @@
 import https from 'https';
 import fs from 'fs';
+import gdal from 'gdal-async';
 import os from 'os';
 import path from 'path';
-import StreamZip from 'node-stream-zip';
-import parser from 'stream-json';
-import Pick from 'stream-json/filters/Pick';
-import StreamArray from 'stream-json/streamers/StreamArray';
-import Chain from 'stream-chain';
 import xml2js from 'xml2js';
 
 import logger from './utils/logger';
@@ -21,8 +17,8 @@ const outputFolder = path.join('public', 'api', 'spatial');
 const getCsdiRoute = async () => {
     logger.info(`Step 1: Download Data`);
 
-    logger.info(`Step 1.1: Find GeoJSON URL`);
-    let geojsonUrl;
+    logger.info(`Step 1.1: Find ZIP URL`);
+    let fileId;
     let xmlData = '';
     await new Promise((resolve, reject) => {
         https.get(metadataUrl, function (res) {
@@ -31,32 +27,21 @@ const getCsdiRoute = async () => {
             });
             res.on('end', function () {
                 xml2js.Parser().parseString(xmlData, function (err, result) {
-                    const formatList =
-                        result['gmd:MD_Metadata']['gmd:distributionInfo'][0]['gmd:MD_Distribution'][0][
-                            'gmd:transferOptions'
-                        ];
-                    const formatGeoJson = formatList.filter(
-                        (obj) =>
-                            obj['gmd:MD_DigitalTransferOptions'][0]['gmd:onLine'][0]['gmd:CI_OnlineResource'][0][
-                                'gmd:applicationProfile'
-                            ][0]['gco:CharacterString'][0] === 'GEOJSON',
-                    );
-                    geojsonUrl =
-                        formatGeoJson[0]['gmd:MD_DigitalTransferOptions'][0]['gmd:onLine'][0][
-                            'gmd:CI_OnlineResource'
-                        ][0]['gmd:linkage'][0]['gmd:URL'][0];
+                    fileId = result['gmd:MD_Metadata']['gmd:fileIdentifier'][0]['gco:CharacterString'][0];
+                    fileId = fileId.replaceAll('-', '');
                     resolve('finish');
                 });
             });
         });
     });
-    logger.info(`geojsonUrl = ${geojsonUrl}`);
+    const zipUrl = `https://static.csdi.gov.hk/csdi-webpage/download/${fileId}/fgdb`;
+    logger.info(`zipUrl = ${zipUrl}`);
 
-    const zipPath = path.join(os.tmpdir(), 'BusRoute_GEOJSON.zip');
+    const zipPath = path.join(os.tmpdir(), 'BusRoute_FGDB.gdb.zip');
     logger.info(`zipPath = ${zipPath}`);
     await new Promise((resolve, reject) => {
         const zipFileWriteStream = fs.createWriteStream(zipPath);
-        const request = https.get(geojsonUrl, function (response) {
+        const request = https.get(zipUrl, function (response) {
             response.pipe(zipFileWriteStream);
         });
 
@@ -74,48 +59,32 @@ const getCsdiRoute = async () => {
         request.end();
     });
 
-    logger.info(`Step 1.2: Unzip`);
-    let jsonFilename = '';
-    const zip = new StreamZip.async({ file: zipPath });
-    const entries = await zip.entries();
-    for (const entry of Object.values(entries)) {
-        if (entry.name.endsWith('.json')) {
-            jsonFilename = entry.name;
-            break;
-        }
-    }
-    const tempJsonPath = path.join(os.tmpdir(), jsonFilename);
-    await zip.extract(jsonFilename, tempJsonPath);
-    await zip.close();
-    logger.info(`Unzip success, ${tempJsonPath}`);
-
     try {
         logger.info(`Step 2: Read data`);
         let result = [];
-        const jsonArray = new Chain([
-            fs.createReadStream(tempJsonPath),
-            parser(),
-            new Pick({ filter: 'features' }),
-            new StreamArray(),
-        ]);
-
-        for await (const { value } of jsonArray) {
-            result.push({
-                company: value.properties.COMPANY_CODE,
-                geometry: value.geometry.coordinates.map((a) => {
+        const dataset = gdal.open(zipPath);
+        dataset.layers.get(0).features.forEach((feature, i) => {
+            const properties = feature.fields.toObject();
+            const geometry = feature
+                .getGeometry()
+                .toObject()
+                .coordinates.map((a) => {
                     if (Array.isArray(a[0])) {
                         return a.map((b) => SpatialUtil.fromHK80ToWGS84(b));
                     } else {
                         return SpatialUtil.fromHK80ToWGS84(a);
                     }
-                }),
-                route: value.properties.ROUTE_NAMEE,
-                routeId: value.properties.ROUTE_ID,
-                routeSeq: value.properties.ROUTE_SEQ,
-                startStop: value.properties.ST_STOP_NAMEC,
-                endStop: value.properties.ED_STOP_NAMEC,
+                });
+            result.push({
+                company: properties.COMPANY_CODE,
+                geometry: geometry,
+                route: properties.ROUTE_NAMEE,
+                routeId: properties.ROUTE_ID,
+                routeSeq: properties.ROUTE_SEQ,
+                startStop: properties.ST_STOP_NAMEC,
+                endStop: properties.ED_STOP_NAMEC,
             });
-        }
+        });
 
         logger.info(`Step 3: Group data by company`);
         return result.reduce(function (accumulator, currentValue) {
@@ -278,11 +247,11 @@ async function callOverpassApi(relationId: number | number[]) {
     if (Array.isArray(relationId)) {
         let tempQuery = [];
         for (let id of relationId) {
-            tempQuery.push(`rel(${id})(${bboxHK});`);
+            tempQuery.push(`rel(${id});`);
         }
         query += `(${tempQuery.join('')});`;
     } else {
-        query += `rel(${relationId})(${bboxHK});`;
+        query += `rel(${relationId});`;
     }
     query += `out geom;`;
     return await doRequest(
@@ -292,7 +261,6 @@ async function callOverpassApi(relationId: number | number[]) {
         'data=' + encodeURIComponent(query),
         'formData',
     ).then((json) => {
-        fs.writeFileSync('test.json', JSON.stringify(json, null, 2), 'utf8');
         return json.elements
             .flatMap((element) => element.members)
             .filter(
@@ -356,6 +324,7 @@ async function callOverpassApi(relationId: number | number[]) {
                     let filename = path.join(folder, f);
                     if (fs.existsSync(filename)) {
                         // skip route already created (e.g. route variation)
+                        logger.info(`Skipped [${company}] ${route} (${startStop} - ${endStop}), already created`);
                         return;
                     }
                     let data = JSON.stringify(geoJson.geometry);
