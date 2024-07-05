@@ -131,21 +131,52 @@ const getFilename = (company: string, route: string, startStop: string, endStop:
     if (fs.existsSync(routeFile)) {
         let rawdata = fs.readFileSync(routeFile, 'utf8');
         let json = JSON.parse(rawdata);
-        let matchedRoute = json.filter(
-            (route) =>
-                route.company === company &&
-                route.stopList.length > 0 &&
-                /* match by stop name */
-                (route.stopList.at(0).name.replace(regex, '').includes(startStop) ||
-                    startStop.includes(route.stopList.at(0).name.replace(regex, '')) ||
-                    route.stopList.at(-1).name.replace(regex, '').includes(endStop) ||
-                    endStop.includes(route.stopList.at(-1).name.replace(regex, '')) ||
-                    /* match by route orig dest*/
-                    route.orig.replace(regex, '').includes(startStop) ||
-                    startStop.includes(route.orig.replace(regex, '')) ||
-                    route.dest.replace(regex, '').includes(endStop) ||
-                    endStop.includes(route.dest.replace(regex, ''))),
-        );
+        let matchedRoute = json
+            .filter(
+                (route) =>
+                    route.company === company &&
+                    route.stopList.length > 0 &&
+                    /* match by stop name */
+                    (isStringOverlap(startStop, route.stopList.at(0).name.replace(regex, '')) ||
+                        isStringOverlap(endStop, route.stopList.at(-1).name.replace(regex, '')) ||
+                        /* match by route orig dest*/
+                        isStringOverlap(startStop, route.orig.replace(regex, '')) ||
+                        isStringOverlap(endStop, route.dest.replace(regex, ''))),
+            )
+            .sort((a, b) => {
+                let matchCountA = 0, matchCountB = 0;
+                if (isStringOverlap(startStop, a.stopList.at(0).name.replace(regex, ''))) {
+                    matchCountA++;
+                }
+                if (isStringOverlap(endStop, a.stopList.at(-1).name.replace(regex, ''))) {
+                    matchCountA++;
+                }
+                if (isStringOverlap(startStop, a.orig.replace(regex, ''))) {
+                    matchCountA++;
+                }
+                if (isStringOverlap(endStop, a.dest.replace(regex, ''))) {
+                    matchCountA++;
+                }
+                if (isStringOverlap(startStop, b.stopList.at(0).name.replace(regex, ''))) {
+                    matchCountB++;
+                }
+                if (isStringOverlap(endStop, b.stopList.at(-1).name.replace(regex, ''))) {
+                    matchCountB++;
+                }
+                if (isStringOverlap(startStop, b.orig.replace(regex, ''))) {
+                    matchCountB++;
+                }
+                if (isStringOverlap(endStop, b.dest.replace(regex, ''))) {
+                    matchCountB++;
+                }
+                if (matchCountA > matchCountB) {
+                    return -1;
+                } else if (matchCountA < matchCountB) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            });
         if (matchedRoute.length > 0) {
             if (COMPANY.KMB.CODE === company) {
                 filename = `${matchedRoute[0].dir}_${matchedRoute[0].routeType}.json`;
@@ -157,6 +188,10 @@ const getFilename = (company: string, route: string, startStop: string, endStop:
         }
     }
     return filename;
+};
+
+const isStringOverlap = (str1: string, str2: string) => {
+    return str1.includes(str2) || str2.includes(str1);
 };
 
 async function getCompanyRoute(companyCode: string) {
