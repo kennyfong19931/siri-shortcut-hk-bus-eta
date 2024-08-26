@@ -31,4 +31,4 @@ jobs:
         with:
           commit_message: Update Spatial data
           file_pattern: 'public/api/spatial/**'
-          commit_author: Kenny Fong <kennyfong19931@users.noreply.github.com>
+          commit_author: kennyfong19931 <kennyfong19931@users.noreply.github.com>
