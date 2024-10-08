@@ -393,7 +393,7 @@ const routeTypeClick = (type) => {
 const triggerStopClick = (stopId) => {
     markersLayer.eachLayer(function (layer) {
         if (layer.options.stop === stopId) {
-            map.setView(layer.getLatLng(), stopZoomLevel);
+            map.flyTo(layer.getLatLng(), stopZoomLevel);
             layer.openPopup();
         }
     });
