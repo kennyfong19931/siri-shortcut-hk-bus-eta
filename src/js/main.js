@@ -29,6 +29,7 @@ const antPathOption = {
 };
 const defaultPopupContent = '<span class="loader m-3"></span>';
 const defaultPopupOption = { className: 'etaPopup', maxWidth: getPageWidth() };
+const stopZoomLevel = 17;
 let mtrHrData;
 
 // functions
@@ -163,7 +164,9 @@ const renderRoute = (json) => {
 
     // add layer to map
     markersLayer.addTo(map);
-    map.fitBounds(markersLayer.getBounds());
+    if (!map.getZoom() === stopZoomLevel){
+        map.fitBounds(markersLayer.getBounds());
+    }
 
     if (window.innerWidth < 768) {
         searchDrawer.hide();
@@ -390,7 +393,7 @@ const routeTypeClick = (type) => {
 const triggerStopClick = (stopId) => {
     markersLayer.eachLayer(function (layer) {
         if (layer.options.stop === stopId) {
-            map.setView(layer.getLatLng(), 17);
+            map.setView(layer.getLatLng(), stopZoomLevel);
             layer.openPopup();
         }
     });
