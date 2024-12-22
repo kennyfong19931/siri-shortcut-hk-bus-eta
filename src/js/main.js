@@ -77,7 +77,7 @@ const searchRoute = () => {
             searchResult.innerHTML = '';
         });
 };
-const renderRoute = (json) => {
+const renderRoute = (json, withStop) => {
     // remove all markers
     markersLayer.clearLayers();
 
@@ -135,6 +135,9 @@ const renderRoute = (json) => {
             lineColor = getMtrColor('route-lr', json.routeId);
             lineColorPluse = getMtrColor('route-lr', json.routeId);
             break;
+        case 'gmb':
+            path = `gmb/${json.route}/${json.routeId}_${json.routeType}`;
+            break;
     }
     fetch(SPATIAL_API.replace('{path}', `${path}`))
         .then((response) => response.json())
@@ -164,8 +167,8 @@ const renderRoute = (json) => {
 
     // add layer to map
     markersLayer.addTo(map);
-    if (!map.getZoom() === stopZoomLevel){
-        map.fitBounds(markersLayer.getBounds());
+    if (!withStop) {
+        map.fitBounds(markersLayer.getBounds(), { animate: true });
     }
 
     if (window.innerWidth < 768) {

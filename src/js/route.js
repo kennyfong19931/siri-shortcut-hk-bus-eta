@@ -99,7 +99,7 @@ function handleRoute(inputData) {
                 alert(`Cannot find route ${inputData.route} !`, 'danger');
                 return;
             }
-            renderRoute(routeArray[0]);
+            renderRoute(routeArray[0], inputData.stop !== undefined);
             if (inputData.stop) {
                 triggerStopClick(inputData.company === 'gmb' ? parseInt(inputData.stop) : inputData.stop);
             }

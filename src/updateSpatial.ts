@@ -10,18 +10,19 @@ import { COMPANY } from './constant';
 import { doRequest } from './utils/requestUtil';
 import SpatialUtil from './utils/spatialUtil';
 
-const metadataUrl = 'https://portal.csdi.gov.hk/csdi-webpage/metadata/td_rcd_1638844988873_41214';
 const routeFolder = path.join('public', 'api', 'route');
 const outputFolder = path.join('public', 'api', 'spatial');
 
-const getCsdiRoute = async () => {
+const getCsdiRoute = async (type) => {
     logger.info(`Step 1: Download Data`);
+    const isMinibus = type === 'MINIBUS';
 
     logger.info(`Step 1.1: Find ZIP URL`);
     let fileId;
     let xmlData = '';
+    const url = `https://portal.csdi.gov.hk/csdi-webpage/metadata/${isMinibus ? 'td_rcd_1697082463580_57453' : 'td_rcd_1638844988873_41214'}`;
     await new Promise((resolve, reject) => {
-        https.get(metadataUrl, function (res) {
+        https.get(url, function (res) {
             res.on('data', function (data_) {
                 xmlData += data_.toString();
             });
@@ -37,7 +38,7 @@ const getCsdiRoute = async () => {
     const zipUrl = `https://static.csdi.gov.hk/csdi-webpage/download/${fileId}/fgdb`;
     logger.info(`zipUrl = ${zipUrl}`);
 
-    const zipPath = path.join(os.tmpdir(), 'BusRoute_FGDB.gdb.zip');
+    const zipPath = path.join(os.tmpdir(), `${type}_FGDB.gdb.zip`);
     logger.info(`zipPath = ${zipPath}`);
     await new Promise((resolve, reject) => {
         const zipFileWriteStream = fs.createWriteStream(zipPath);
@@ -76,9 +77,9 @@ const getCsdiRoute = async () => {
                     }
                 });
             result.push({
-                company: properties.COMPANY_CODE,
+                company: isMinibus ? 'GMB' : properties.COMPANY_CODE,
                 geometry: geometry,
-                route: properties.ROUTE_NAMEE,
+                route: isMinibus ? properties.ROUTE_NAME : properties.ROUTE_NAMEE,
                 routeId: properties.ROUTE_ID,
                 routeSeq: properties.ROUTE_SEQ,
                 startStop: properties.ST_STOP_NAMEC,
@@ -144,7 +145,8 @@ const getFilename = (company: string, route: string, startStop: string, endStop:
                         isStringOverlap(endStop, route.dest.replace(regex, ''))),
             )
             .sort((a, b) => {
-                let matchCountA = 0, matchCountB = 0;
+                let matchCountA = 0,
+                    matchCountB = 0;
                 if (isStringOverlap(startStop, a.stopList.at(0).name.replace(regex, ''))) {
                     matchCountA++;
                 }
@@ -313,11 +315,12 @@ async function callOverpassApi(relationId: number | number[]) {
 (async function () {
     logger.info('Start');
     await Promise.all([
-        getCsdiRoute(),
+        getCsdiRoute('BUS'),
+        getCsdiRoute('MINIBUS'),
         getCompanyRoute(COMPANY.MTR_HR.CODE),
         getCompanyRoute(COMPANY.MTR_LR.CODE),
         getCompanyRoute(COMPANY.MTR.CODE),
-    ]).then(([csdi, mtr_hr, mtr_lr, mtr]) => {
+    ]).then(([csdi, minibus, mtr_hr, mtr_lr, mtr]) => {
         logger.info(`Step 4: Save result to file`);
         if (fs.existsSync(path.join(outputFolder))) {
             fs.rmSync(path.join(outputFolder), { recursive: true });
@@ -416,6 +419,28 @@ async function callOverpassApi(relationId: number | number[]) {
             } else {
                 logger.warn(`Skipped [${company}] ${route} (${startStop} - ${endStop}), cannot match route`);
             }
+        });
+
+        logger.info(`Step 4.5: Save minibus data`);
+        minibus.forEach((value, key) => {
+            value.forEach((geoJson) => {
+                let company = key;
+                let route = geoJson.route;
+                let routeId = geoJson.routeId;
+                let routeType = geoJson.routeSeq;
+
+                const folder = path.join(outputFolder, company, route);
+                fs.mkdirSync(folder, { recursive: true });
+                let filename = path.join(folder, `${routeId}_${routeType}.json`);
+                if (fs.existsSync(filename)) {
+                    // skip route already created (e.g. route variation)
+                    logger.info(`Skipped [${company}] ${route} (${filename}), already created`);
+                    return;
+                }
+                let data = JSON.stringify(geoJson.geometry);
+                fs.writeFileSync(filename, data);
+            });
+            logger.info(`End ${key}`);
         });
     });
     logger.info('End');
