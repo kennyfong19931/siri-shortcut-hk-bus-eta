@@ -27,7 +27,8 @@
 - [影像地圖](https://portal.csdi.gov.hk/csdi-webpage/apidoc/ImageryMapAPI)
 - [地名標籤](https://portal.csdi.gov.hk/csdi-webpage/apidoc/MapLabelAPI)
 #### 路線資料
-- [巴士路線](https://portal.csdi.gov.hk/geoportal/?datasetId=td_rcd_1638844988873_41214&lang=en)
+- [巴士路線](https://portal.csdi.gov.hk/geoportal/?datasetId=td_rcd_1638844988873_41214)
+- [專線小巴路線](https://portal.csdi.gov.hk/geoportal/?datasetId=td_rcd_1697082463580_57453)
 - [巴士/鐵路路線](https://wiki.openstreetmap.org/wiki/Hong_Kong/Transport/Routes)
 
 # Development
