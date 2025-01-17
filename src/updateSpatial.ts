@@ -51,6 +51,14 @@ const getCsdiRoute = async (type) => {
             zipFileWriteStream.close();
             resolve('finish');
             logger.info('Download success');
+
+            fs.stat(zipPath, (err, stats) => {
+                if (err) {
+                  logger.error('Cannot read zip file', err);
+                } else {
+                  logger.info(`Filesize for ${type} = ${stats.size / 1024 / 1024} MB`);
+                }
+              });
         });
 
         zipFileWriteStream.on('error', (err) => {
