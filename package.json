@@ -31,7 +31,7 @@
     "proj4": "^2.15.0",
     "sass": "^1.83.0",
     "sortablejs": "^1.15.6",
-    "vite": "^6.0.5",
+    "vite": "^6.0.11",
     "xml2js": "^0.6.2"
   },
   "devDependencies": {
