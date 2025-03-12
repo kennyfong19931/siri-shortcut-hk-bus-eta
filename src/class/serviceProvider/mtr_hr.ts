@@ -13,7 +13,7 @@ export async function crawlRoute(): Promise<Route[]> {
         async ([routeList]) => await Promise.all([csv().fromString(routeList)]),
     );
 
-    const routeWhitelist = ['AEL', 'TCL', 'TML', 'TKL', 'EAL', 'SIL', 'TWL', 'ISL', 'KTL'];
+    const routeWhitelist = ['AEL', 'TCL', 'TML', 'TKL', 'EAL', 'SIL', 'TWL', 'ISL', 'KTL', 'DRL'];
     const routeNameList = [
         { code: 'AEL', name: '機場快線' },
         { code: 'TCL', name: '東湧線' },
