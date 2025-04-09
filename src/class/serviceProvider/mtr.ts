@@ -28,6 +28,7 @@ export async function crawlRoute(): Promise<Route[]> {
                                 new Stop(
                                     stop.STATION_ID,
                                     stop.STATION_NAME_CHI,
+                                    stop.STATION_NAME_ENG,
                                     stop.STATION_LATITUDE,
                                     stop.STATION_LONGITUDE,
                                 ),
@@ -37,10 +38,13 @@ export async function crawlRoute(): Promise<Route[]> {
                         return new Route(
                             company.CODE,
                             route.ROUTE_ID,
+                            route.ROUTE_ID,
                             null,
                             dir,
                             stopList.at(0).getName(),
+                            stopList.at(0).getNameEn(),
                             stopList.at(-1).getName(),
+                            stopList.at(-1).getNameEn(),
                             stopList,
                         );
                 })

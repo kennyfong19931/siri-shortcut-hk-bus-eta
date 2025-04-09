@@ -18,7 +18,7 @@ export async function crawlRoute(): Promise<Route[]> {
         if (!result[key]) {
             result[key] = [];
         }
-        result[key].push({ code: item['Stop ID'], name: item['Chinese Name'] });
+        result[key].push({ code: item['Stop ID'], name: item['Chinese Name'], nameEn: item['English Name'] });
         return result;
     }, {});
 
@@ -36,6 +36,7 @@ export async function crawlRoute(): Promise<Route[]> {
                     let stop = new Stop(
                         station.code,
                         station.name,
+                        station.nameEn,
                         coordinates[0].toString(),
                         coordinates[1].toString(),
                     );
@@ -45,10 +46,13 @@ export async function crawlRoute(): Promise<Route[]> {
             return new Route(
                 company.CODE,
                 lineCode,
+                lineCode,
                 null,
                 direction,
                 stopList.at(0).getName(),
+                stopList.at(0).getNameEn(),
                 stopList.at(-1).getName(),
+                stopList.at(-1).getNameEn(),
                 stopList,
                 lineCode,
             );

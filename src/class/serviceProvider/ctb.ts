@@ -23,7 +23,9 @@ export async function crawlRoute(): Promise<Route[]> {
                     dir: value,
                     route: route.route,
                     orig: route.dest_tc,
+                    origEn: route.dest_en,
                     dest: route.orig_tc,
+                    destEn: route.orig_en,
                 });
             } else {
                 routeListWithBound.push({
@@ -31,7 +33,9 @@ export async function crawlRoute(): Promise<Route[]> {
                     dir: value,
                     route: route.route,
                     orig: route.orig_tc,
+                    origEn: route.orig_en,
                     dest: route.dest_tc,
+                    destEn: route.dest_en,
                 });
             }
         });
@@ -49,14 +53,14 @@ export async function crawlRoute(): Promise<Route[]> {
                 .map((routeStop) => CacheUtil.getCache(`${company.CODE}_stop_${routeStop.stop}`))
                 .map((json) => {
                     try {
-                        return new Stop(json.stop, json.name_tc, json.lat, json.long);
+                        return new Stop(json.stop, json.name_tc, json.name_en, json.lat, json.long);
                     } catch (e) {
                         core.exportVariable('runUpdateStopName', true);
                         throw e;
                     }
                 })
                 .filter((s) => s !== undefined);
-            result.push(new Route(company.CODE, route.route, null, route.dir, route.orig, route.dest, stopList));
+            result.push(new Route(company.CODE, route.route, route.route, null, route.dir, route.orig, route.origEn, route.dest, route.destEn, stopList));
         }
     }
     return result;

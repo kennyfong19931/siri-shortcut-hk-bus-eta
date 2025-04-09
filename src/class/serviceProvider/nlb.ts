@@ -10,6 +10,7 @@ export async function crawlRoute(): Promise<Route[]> {
 
     let result = routeList.routes.map(async (route) => {
         const routeDest = route.routeName_c.split('>');
+        const routeDestEn = route.routeName_e.split('>');
 
         let routeStopApi = company.ROUTE_STOP_API.replace(PLACEHOLDER.ROUTE, route.routeId);
         const stopList = await doRequest('GET', routeStopApi).then((response) =>
@@ -18,9 +19,11 @@ export async function crawlRoute(): Promise<Route[]> {
                     new Stop(
                         stop.stopId,
                         stop.stopName_c,
+                        stop.stopName_e,
                         stop.latitude,
                         stop.longitude,
                         stop.stopLocation_c,
+                        stop.stopLocation_e,
                         stop.fare,
                         stop.fareHoliday,
                     ),
@@ -30,10 +33,13 @@ export async function crawlRoute(): Promise<Route[]> {
         return new Route(
             company.CODE,
             route.routeNo,
+            route.routeNo,
             null,
             null,
             routeDest[0].trim(),
+            routeDestEn[0].trim(),
             routeDest[1].trim(),
+            routeDestEn[1].trim(),
             stopList,
             route.routeId,
         );

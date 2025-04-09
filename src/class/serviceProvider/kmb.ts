@@ -16,10 +16,13 @@ export async function crawlRoute(): Promise<Route[]> {
         return new Route(
             company.CODE,
             route.route,
+            route.route,
             route.service_type,
             route.bound,
             route.orig_tc,
+            route.orig_en,
             route.dest_tc,
+            route.dest_en,
             (routeStopList.data as any[])
                 .filter((s) => s.route == route.route && s.bound == route.bound && s.service_type == route.service_type)
                 .map((routeStop) => {
@@ -27,7 +30,7 @@ export async function crawlRoute(): Promise<Route[]> {
                     if (stop == undefined) {
                         return undefined;
                     } else {
-                        return new Stop(stop.stop, stop.name_tc, stop.lat, stop.long);
+                        return new Stop(stop.stop, stop.name_tc, stop.name_en, stop.lat, stop.long);
                     }
                 })
                 .filter((s) => s !== undefined),

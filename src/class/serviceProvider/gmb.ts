@@ -39,6 +39,7 @@ export async function crawlRoute(): Promise<Route[]> {
                                                 return new Stop(
                                                     stop.stop_id,
                                                     stop.name_tc,
+                                                    stop.name_en,
                                                     stopDetail.coordinates.wgs84.latitude,
                                                     stopDetail.coordinates.wgs84.longitude,
                                                 );
@@ -52,13 +53,17 @@ export async function crawlRoute(): Promise<Route[]> {
                                 return new Route(
                                     company.CODE,
                                     routeObj.route_code,
+                                    routeObj.route_code,
                                     dir.route_seq,
                                     undefined,
                                     dir.orig_tc,
+                                    dir.orig_en,
                                     dir.dest_tc,
+                                    dir.dest_en,
                                     stopList,
                                     routeObj.route_id,
                                     routeObj.description_tc,
+                                    routeObj.description_en,
                                 );
                             }),
                         ),

@@ -1,9 +1,11 @@
 export class Stop {
     private id: string;
     private name: string;
+    private nameEn: string;
     private lat: string;
     private long: string;
     private street: string;
+    private streetEn: string;
     private fare: string;
     private fareHoliday: string;
     private railwayFilterDir: string; // stop is terminus, only allow to travel in this direction
@@ -11,17 +13,21 @@ export class Stop {
     constructor(
         id: string,
         name: string,
+        nameEn: string,
         lat: string,
         long: string,
         street?: string,
+        streetEn?: string,
         fare?: string,
         fareHoliday?: string,
     ) {
         this.id = id;
         this.name = name;
+        this.nameEn = nameEn;
         this.lat = lat;
         this.long = long;
         this.street = street;
+        this.streetEn = streetEn;
         this.fare = fare;
         this.fareHoliday = fareHoliday;
     }
@@ -34,6 +40,10 @@ export class Stop {
         return this.name;
     }
 
+    public getNameEn(): string {
+        return this.nameEn;
+    }
+
     public getLat(): string {
         return this.lat;
     }
@@ -44,6 +54,10 @@ export class Stop {
 
     public getStreet(): string {
         return this.street;
+    }
+
+    public getStreetEn(): string {
+        return this.streetEn;
     }
 
     public getFare(): string {

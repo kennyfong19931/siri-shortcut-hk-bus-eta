@@ -15,16 +15,16 @@ export async function crawlRoute(): Promise<Route[]> {
 
     const routeWhitelist = ['AEL', 'TCL', 'TML', 'TKL', 'EAL', 'SIL', 'TWL', 'ISL', 'KTL', 'DRL'];
     const routeNameList = [
-        { code: 'AEL', name: '機場快線' },
-        { code: 'TCL', name: '東湧線' },
-        { code: 'TML', name: '屯馬線' },
-        { code: 'TKL', name: '將軍澳線' },
-        { code: 'EAL', name: '東鐵線' },
-        { code: 'SIL', name: '南港島線' },
-        { code: 'TWL', name: '荃灣線' },
-        { code: 'ISL', name: '港島線' },
-        { code: 'KTL', name: '觀塘線' },
-        { code: 'DRL', name: '迪士尼線' },
+        { code: 'AEL', name: '機場快線', nameEn: 'Airport Express' },
+        { code: 'TCL', name: '東湧線', nameEn: 'Tung Chung Line' },
+        { code: 'TML', name: '屯馬線', nameEn: 'Tuen Ma Line' },
+        { code: 'TKL', name: '將軍澳線', nameEn: 'Tseung Kwan O Line' },
+        { code: 'EAL', name: '東鐵線', nameEn: 'East Rail Line' },
+        { code: 'SIL', name: '南港島線', nameEn: 'South Island Line' },
+        { code: 'TWL', name: '荃灣線', nameEn: 'Tsuen Wan Line' },
+        { code: 'ISL', name: '港島線', nameEn: 'Island Line' },
+        { code: 'KTL', name: '觀塘線', nameEn: 'Kwun Tong Line' },
+        { code: 'DRL', name: '迪士尼線', nameEn: 'Disneyland Resort Line' },
     ];
 
     const routeListByLineAndDirection = routeList
@@ -37,6 +37,7 @@ export async function crawlRoute(): Promise<Route[]> {
             result[key].push({
                 code: item['Station Code'],
                 name: item['Chinese Name'],
+                nameEn: item['English Name'],
             });
             return result;
         }, {});
@@ -73,6 +74,7 @@ export async function crawlRoute(): Promise<Route[]> {
                 stationList.push({
                     code: 'RAC',
                     name: '馬場',
+                    nameEn: 'Racecourse',
                 });
             }
         }
@@ -84,16 +86,29 @@ export async function crawlRoute(): Promise<Route[]> {
             const lineCode = key;
             let routeType = undefined;
             const routeName = routeNameList.filter((route) => route.code == lineCode)[0].name;
+            const routeNameEn = routeNameList.filter((route) => route.code == lineCode)[0].nameEn;
             let orig = (stationList as Array<any>)
                 .filter((station) => station.railwayFilterDir === 'UT')
                 .reduce((result, item) => {
                     result += (result !== '' ? '/' : '') + item.name;
                     return result;
                 }, '');
+            let origEn = (stationList as Array<any>)
+                .filter((station) => station.railwayFilterDir === 'UT')
+                .reduce((result, item) => {
+                    result += (result !== '' ? '/' : '') + item.nameEn;
+                    return result;
+                }, '');
             let dest = (stationList as Array<any>)
                 .filter((station) => station.railwayFilterDir === 'DT')
                 .reduce((result, item) => {
                     result += (result !== '' ? '/' : '') + item.name;
+                    return result;
+                }, '');
+            let destEn = (stationList as Array<any>)
+                .filter((station) => station.railwayFilterDir === 'DT')
+                .reduce((result, item) => {
+                    result += (result !== '' ? '/' : '') + item.nameEn;
                     return result;
                 }, '');
 
@@ -106,6 +121,7 @@ export async function crawlRoute(): Promise<Route[]> {
                     let stop = new Stop(
                         station.code,
                         station.name,
+                        station.nameEn,
                         coordinates[0].toString(),
                         coordinates[1].toString(),
                     );
@@ -115,7 +131,7 @@ export async function crawlRoute(): Promise<Route[]> {
                     return stop;
                 }),
             );
-            return new Route(company.CODE, routeName, routeType, undefined, orig, dest, stopList, lineCode);
+            return new Route(company.CODE, routeName, routeNameEn, routeType, undefined, orig, origEn, dest, destEn, stopList, lineCode);
         }),
     );
 }
