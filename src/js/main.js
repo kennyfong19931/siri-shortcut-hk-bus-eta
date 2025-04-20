@@ -235,7 +235,7 @@ const openPopup = async (e) => {
                                 etaTime = `${Math.max(eta.eta, 0)}分鐘`;
                             }
                             if (eta.remark) {
-                                line += ` (${eta.remark})`;
+                                text += ` (${eta.remark})`;
                             }
                             return getHtmlTemplate('railwayEtaRow', {
                                 '{{css}}': `background-color: ${getMtrColor('route-hr', marker.options.routeId)}`,
@@ -316,7 +316,7 @@ const openPopup = async (e) => {
                             line += `${Math.max(eta.eta, 0)}分鐘`;
                         }
                         if (eta.remark) {
-                            text += ` (${eta.remark})`;
+                            line += ` (${eta.remark})`;
                         }
                         if ('mtr_lr' === marker.options.company) {
                             line += '<div class="float-end">';
