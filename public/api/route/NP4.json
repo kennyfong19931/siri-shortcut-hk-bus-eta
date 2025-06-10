@@ -1,1 +1,1 @@
-[{"company":"ctb","route":"NP4","routeType":null,"dir":"O","orig":"昂坪360 - 東涌纜車站","dest":"機場 (客運大樓)","stopList":[{},{"id":"003395","name":"一號客運大樓(南), 暢達路","lat":"22.314692162091","long":"113.93649556053"}],"routeId":"NP4","description":"正常班次"}]
+[{"company":"ctb","route":"NP4","routeType":null,"dir":"O","orig":"昂坪360 - 東涌纜車站","dest":"機場 (客運大樓)","stopList":[{},{"id":"003395","name":"一號客運大樓(南), 暢達路","lat":"22.314692162091","long":"113.93649556053"},{}],"routeId":"NP4","description":"正常班次"}]
