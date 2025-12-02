@@ -14,7 +14,7 @@ jobs:
       - name: Setup node env
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
 
       # http://man7.org/linux/man-pages/man1/date.1.html
       - name: Get Date
