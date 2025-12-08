@@ -1,5 +1,4 @@
-import csv from 'csvtojson';
-
+import { parseCsvString } from '../../utils/csvUtil';
 import { doRequest } from '../../utils/requestUtil';
 import { Route } from '../Route';
 import { Stop } from '../Stop';
@@ -10,7 +9,7 @@ const company = COMPANY.MTR_LR;
 
 export async function crawlRoute(): Promise<Route[]> {
     const [routeList] = await Promise.all([doRequest('GET', company.ROUTE_API, null, null, null, true)]).then(
-        async ([routeList]) => await Promise.all([csv().fromString(routeList)]),
+        async ([routeCsv]) => await Promise.all([parseCsvString(routeCsv)]),
     );
 
     let routeListByLine = routeList.reduce((result, item) => {
@@ -20,7 +19,7 @@ export async function crawlRoute(): Promise<Route[]> {
         }
         result[key].push({ code: item['Stop ID'], name: item['Chinese Name'] });
         return result;
-    }, {});
+    }, {} as Record<string, any>);
 
     return await Promise.all(
         Object.entries(routeListByLine).map(async ([key, stationList]) => {

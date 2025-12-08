@@ -6,7 +6,7 @@ import path from 'path';
 import xml2js from 'xml2js';
 
 import logger from './utils/logger';
-import { COMPANY } from './constant';
+import { COMPANY, COORDINATE_DP } from './constant';
 import { doRequest } from './utils/requestUtil';
 import SpatialUtil from './utils/spatialUtil';
 
@@ -315,7 +315,10 @@ async function callOverpassApi(relationId: number | number[]) {
                     index === array.findIndex((o) => o.ref === member.ref), // remove duplicate way
             )
             .map((member) =>
-                member.geometry.map((geom) => [parseFloat(geom.lat).toFixed(5), parseFloat(geom.lon).toFixed(5)]),
+                member.geometry.map((geom) => [
+                    parseFloat(geom.lat).toFixed(COORDINATE_DP),
+                    parseFloat(geom.lon).toFixed(COORDINATE_DP),
+                ]),
             );
     });
 }

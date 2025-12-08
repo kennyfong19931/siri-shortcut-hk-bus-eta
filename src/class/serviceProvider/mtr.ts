@@ -1,5 +1,4 @@
-import csv from 'csvtojson';
-
+import { parseCsvString } from '../../utils/csvUtil';
 import { doRequest } from '../../utils/requestUtil';
 import { Route } from '../Route';
 import { Stop } from '../Stop';
@@ -11,9 +10,7 @@ export async function crawlRoute(): Promise<Route[]> {
     const [routeList, stopList] = await Promise.all([
         doRequest('GET', company.ROUTE_API, null, null, null, true),
         doRequest('GET', company.ROUTE_STOP_API, null, null, null, true),
-    ]).then(
-        async ([routeList, stopList]) => await Promise.all([csv().fromString(routeList), csv().fromString(stopList)]),
-    );
+    ]).then(async ([routeCsv, stopCsv]) => await Promise.all([parseCsvString(routeCsv), parseCsvString(stopCsv)]));
 
     return routeList
         .filter((route) => route.ROUTE_ID != '')

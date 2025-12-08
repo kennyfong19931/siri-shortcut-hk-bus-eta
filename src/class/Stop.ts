@@ -1,3 +1,5 @@
+import { parse } from 'path';
+import { COORDINATE_DP } from '../constant';
 export class Stop {
     private id: string;
     private name: string;
@@ -19,8 +21,8 @@ export class Stop {
     ) {
         this.id = id;
         this.name = name;
-        this.lat = lat;
-        this.long = long;
+        this.lat = parseFloat(lat).toFixed(COORDINATE_DP);
+        this.long = parseFloat(long).toFixed(COORDINATE_DP);
         this.street = street;
         this.fare = fare;
         this.fareHoliday = fareHoliday;

@@ -67,3 +67,4 @@ export const COMPANY = {
     },
 };
 export const noETA = [{ eta: null, remark: '未有資料' }];
+export const COORDINATE_DP = 6;
