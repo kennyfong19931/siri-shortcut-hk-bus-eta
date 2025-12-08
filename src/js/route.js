@@ -17,7 +17,6 @@ window.addEventListener('load', () => {
                 /kmb/:route/:dir
                 /ctb/:route/:dir
                 /nlb/:route/:routeId
-                /mtr/:route/:dir
                 /mtr_hr/:routeId/:stop
                 /mtr_lr/:routeId/:dir
              */
@@ -44,14 +43,14 @@ window.addEventListener('load', () => {
                 /ctb/:route/:dir/:stop
                 /nlb/:route/:routeId/:stop
                 /gmb/:route/:routeId/:routeType
-                /mtr/:route/:dir/:stop
+                /mtr/:route/:routeId/:routeType
                 /mtr_lr/:routeId/:dir/:stop
              */
             let param = {};
             if ('nlb' === data.company) {
                 param.routeId = data.param1;
                 param.stop = data.stop;
-            } else if ('gmb' === data.company) {
+            } else if ('gmb' === data.company || 'mtr' === data.company) {
                 param.routeId = data.param1;
                 param.routeType = data.stop;
             } else {
@@ -68,6 +67,7 @@ window.addEventListener('load', () => {
             /*
                 Possible routes:
                 /gmb/:route/:routeId/:routeType/:stop
+                /mtr/:route/:routeId/:routeType/:stop
              */
             handleRoute({
                 company: data.company,
@@ -93,7 +93,7 @@ function handleRoute(inputData) {
                     element.company === (inputData.company === 'nwfb' ? 'ctb' : inputData.company) &&
                     (inputData.dir ? element.dir === inputData.dir : true) &&
                     (inputData.routeId ? element.routeId === inputData.routeId || element.routeId === parseInt(inputData.routeId) : true) &&
-                    (inputData.routeType ? element.routeType === parseInt(inputData.routeType) : true),
+                    (inputData.routeType ? element.routeType === inputData.routeType || element.routeType === parseInt(inputData.routeType) : true),
             );
             if (!routeArray) {
                 alert(`Cannot find route ${inputData.route} !`, 'danger');
@@ -115,7 +115,7 @@ function getRouteUrl(data, withStop = false) {
         return `/${data.company}/${data.routeId}${withStop ? '/' + data.stop : ''}`;
     } else if ('nlb' === data.company) {
         return `/${data.company}/${data.route}/${data.routeId}${withStop ? '/' + data.stop : ''}`;
-    } else if ('gmb' === data.company) {
+    } else if ('gmb' === data.company || 'mtr' === data.company) {
         return `/${data.company}/${data.route}/${data.routeId}/${data.routeType}${withStop ? '/' + data.stop : ''}`;
     } else {
         return `/${data.company}/${data.route}/${data.dir}${withStop ? '/' + data.stop : ''}`;

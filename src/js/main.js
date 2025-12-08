@@ -123,7 +123,7 @@ const renderRoute = (json, withStop) => {
             path = `nlb/${json.route}/${json.routeId}`;
             break;
         case 'mtr':
-            path = `mtr/${json.route}/${json.dir}`;
+            path = `mtr/${json.route}/${json.routeType}`;
             break;
         case 'mtr_hr':
             path = `mtr_hr/${json.routeId}`;

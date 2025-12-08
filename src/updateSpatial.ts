@@ -192,6 +192,8 @@ const getFilename = (company: string, route: string, startStop: string, endStop:
                 filename = `${matchedRoute[0].dir}_${matchedRoute[0].routeType}.json`;
             } else if (COMPANY.NLB.CODE === company) {
                 filename = `${matchedRoute[0].routeId}.json`;
+            } else if (COMPANY.MTR.CODE === company) {
+                filename = `${matchedRoute[0].routeType}.json`;
             } else {
                 filename = `${matchedRoute[0].dir}.json`;
             }
@@ -245,8 +247,11 @@ async function getCompanyRoute(companyCode: string) {
     } else if (companyCode === COMPANY.MTR.CODE) {
         queue.push({ route: '506', startStop: '屯門碼頭', endStop: '兆麟', relationId: 2230969 });
         queue.push({ route: '506', startStop: '兆麟', endStop: '屯門碼頭', relationId: 2230969 });
+        queue.push({ route: '506', startStop: '富健花園', endStop: '屯門站', relationId: 6582886 });
         queue.push({ route: 'K51', startStop: '富泰', endStop: '大欖', relationId: 6535744 });
         queue.push({ route: 'K51', startStop: '大欖', endStop: '富泰', relationId: 6535743 });
+        queue.push({ route: 'K51', startStop: '富泰', endStop: '兆康站', relationId: 6582883 });
+        queue.push({ route: 'K51', startStop: '兆康站', endStop: '富泰', relationId: 6582882 });
         queue.push({ route: 'K52', startStop: '龍鼓灘', endStop: '屯門站', relationId: 5595696 });
         queue.push({ route: 'K52', startStop: '屯門站', endStop: '龍鼓灘', relationId: 6535453 });
         queue.push({ route: 'K53', startStop: '屯門站', endStop: '屯門站', relationId: 6535476 });
@@ -261,9 +266,11 @@ async function getCompanyRoute(companyCode: string) {
         queue.push({ route: 'K68', startStop: '元朗工業邨', endStop: '元朗工業邨', relationId: 5608554 });
         queue.push({ route: 'K73', startStop: '天恆', endStop: '元朗（西）', relationId: 6551092 });
         queue.push({ route: 'K73', startStop: '元朗（西）', endStop: '天恆', relationId: 6698574 });
+        queue.push({ route: 'K73', startStop: '天恩', endStop: '元朗（西）', relationId: 6551140 });
         queue.push({ route: 'K74', startStop: '天水圍市中心', endStop: '天水圍市中心', relationId: 6563799 });
         queue.push({ route: 'K75A', startStop: '天水圍站', endStop: '天水圍站', relationId: 6482275 });
         queue.push({ route: 'K75P', startStop: '天瑞', endStop: '天瑞', relationId: 6482276 });
+        queue.push({ route: 'K75S', startStop: '天水圍站', endStop: '洪福邨', relationId: 6482277 });
         queue.push({ route: 'K76', startStop: '天恆', endStop: '天水圍站', relationId: 3178687 });
         queue.push({ route: 'K76', startStop: '天水圍站', endStop: '天恆', relationId: 3178676 });
     }

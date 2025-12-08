@@ -15,9 +15,20 @@ export async function crawlRoute(): Promise<Route[]> {
     return routeList
         .filter((route) => route.ROUTE_ID != '')
         .map((route) => {
-            let routeStop = stopList.filter((stop) => stop.ROUTE_ID == route.ROUTE_ID);
+            let routeStop = stopList.filter((stop) => stop.REFERENCE_ID === route.REFERENCE_ID);
+            const routeOrigDest = route.ROUTE_NAME_CHI.split('至');
+
+            // special handling for K53*
+            if (route.ROUTE_ID == 'K53*') {
+                route.ROUTE_ID = 'K53';
+            }
+
             return ['O', 'I']
                 .map((dir) => {
+                    const lineDownExist = route.LINE_DOWN !== '';
+                    const lineCode = dir === 'I' && lineDownExist ? route.LINE_DOWN : route.LINE_UP;
+                    const routeOrig = routeOrigDest[dir === 'I' && lineDownExist ? 1 : 0];
+                    const routeDest = routeOrigDest[dir === 'I' && lineDownExist ? 0 : 1];
                     let stopList = routeStop
                         .filter((stop) => stop.DIRECTION == dir)
                         .map(
@@ -34,11 +45,13 @@ export async function crawlRoute(): Promise<Route[]> {
                         return new Route(
                             company.CODE,
                             route.ROUTE_ID,
-                            null,
+                            lineCode,
                             dir,
-                            stopList.at(0).getName(),
-                            stopList.at(-1).getName(),
+                            routeOrig,
+                            routeDest,
                             stopList,
+                            route.REFERENCE_ID,
+                            route.ROUTE_ID === route.REFERENCE_ID ? '正常班次' : '特別班次',
                         );
                 })
                 .filter((result) => result != null);
