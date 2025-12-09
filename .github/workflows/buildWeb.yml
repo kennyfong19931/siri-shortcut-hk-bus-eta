@@ -14,10 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup node env
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 24
 
@@ -36,8 +36,8 @@ jobs:
           npm run generate-sitemap
 
       - name: Commit and Push data
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: Update Web
           file_pattern: 'public/**'
-          commit_author: Actions <github-actions[bot]@users.noreply.github.com>
+          #commit_author: Actions <github-actions[bot]@users.noreply.github.com>

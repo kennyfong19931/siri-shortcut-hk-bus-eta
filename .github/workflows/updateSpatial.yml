@@ -11,10 +11,10 @@ jobs:
       NODE_OPTIONS: "--max_old_space_size=8192"
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup node env
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 24
 
@@ -27,8 +27,8 @@ jobs:
           npm run update-spatial
 
       - name: Commit and Push data
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: Update Spatial data
           file_pattern: 'public/api/spatial/**'
-          commit_author: kennyfong19931 <kennyfong19931@users.noreply.github.com>
+          #commit_author: kennyfong19931 <kennyfong19931@users.noreply.github.com>
