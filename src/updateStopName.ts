@@ -4,6 +4,8 @@ import { COMPANY, PLACEHOLDER } from './constant';
 import logger from './utils/logger';
 import CacheUtil from './utils/cacheUtil';
 
+const timeout = 500;
+
 const doRequest = async (method: string, url: string, body?: {}, toString = false) => {
     let result;
     while (true) {
@@ -82,14 +84,15 @@ const updateStopNameCache = async (companyCode: string) => {
                     let response = await doRequest('GET', routeStopApi);
 
                     if (response.data.length > 0) {
-                        response.data.forEach(async (routeStop) => {
+                        for (const routeStop of response.data) {
                             let stopApi = COMPANY.CTB.STOP_API.replace(PLACEHOLDER.STOP, routeStop.stop);
                             await doRequest('GET', stopApi).then((stop) => {
                                 if (stop != undefined) {
                                     CacheUtil.setCache(`${company.CODE}_stop_${routeStop.stop}`, stop.data);
                                 }
                             });
-                        });
+                            await new Promise((resolve) => setTimeout(resolve, timeout));
+                        }
                     }
                 }
             }
@@ -97,13 +100,12 @@ const updateStopNameCache = async (companyCode: string) => {
                 const stopLastUpdateDate = await doRequest('GET', COMPANY.GMB.STOP_LAST_UPDATE_API).then(
                     (response) => response.data,
                 );
-                stopLastUpdateDate
-                    // .filter((i) => new Date(i.last_update_date) > new Date())
-                    .forEach(async (i) => {
-                        const stopApi = company.STOP_API.replace(PLACEHOLDER.STOP, i.stop_id);
-                        let json = await doRequest('GET', stopApi).then((response) => response.data);
-                        CacheUtil.setCache(`${company.CODE}_stop_${i.stop_id}`, json);
-                    });
+                for (const i of stopLastUpdateDate) {
+                    const stopApi = company.STOP_API.replace(PLACEHOLDER.STOP, i.stop_id);
+                    let json = await doRequest('GET', stopApi).then((response) => response.data);
+                    CacheUtil.setCache(`${company.CODE}_stop_${i.stop_id}`, json);
+                    await new Promise((resolve) => setTimeout(resolve, timeout));
+                }
             }
         }
     } catch (err) {
