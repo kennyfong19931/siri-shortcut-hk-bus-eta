@@ -4,7 +4,7 @@ import { COMPANY, PLACEHOLDER } from './constant';
 import logger from './utils/logger';
 import CacheUtil from './utils/cacheUtil';
 
-const timeout = 500;
+const timeout = 100;
 
 const doRequest = async (method: string, url: string, body?: {}, toString = false) => {
     let result;
