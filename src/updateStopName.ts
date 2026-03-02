@@ -1,5 +1,3 @@
-import fetch from 'node-fetch';
-
 import { COMPANY, PLACEHOLDER } from './constant';
 import logger from './utils/logger';
 import CacheUtil from './utils/cacheUtil';

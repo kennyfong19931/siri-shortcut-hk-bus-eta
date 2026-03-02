@@ -1,4 +1,3 @@
-import fetch from 'node-fetch';
 import fs from 'fs';
 
 const requestObj = {};
@@ -46,8 +45,8 @@ beforeAll(() => {
         requestObj[route.company] = {
             company: route.company,
             routeId: route.routeId,
+            routeType: route.routeType,
             stop: route.stopList[1].id,
-            dir: route.dir,
         };
     }
 
@@ -129,7 +128,7 @@ describe('KMB', () => {
 
     test('Call ETA API', async () => {
         return doRequest([requestObj['kmb']]).then((json: any) => {
-            expect(json[0]).toBeInstanceOf(Array);
+            expect(json[0]).toEqual(expect.arrayOf(expect.any(Object)));
             expect(json[0][0].eta).toBeGreaterThanOrEqual(-1);
         });
     });
@@ -144,7 +143,7 @@ describe('CTB', () => {
 
     test('Call ETA API', async () => {
         return doRequest([requestObj['ctb']]).then((json: any) => {
-            expect(json[0]).toBeInstanceOf(Array);
+            expect(json[0]).toEqual(expect.arrayOf(expect.any(Object)));
             expect(json[0][0].eta).toBeGreaterThanOrEqual(-1);
         });
     });
@@ -159,7 +158,7 @@ describe('NWFB', () => {
 
     test('Call ETA API', async () => {
         return doRequest([requestObj['nwfb']]).then((json: any) => {
-            expect(json[0]).toBeInstanceOf(Array);
+            expect(json[0]).toEqual(expect.arrayOf(expect.any(Object)));
             expect(json[0][0].eta).toBeGreaterThanOrEqual(-1);
         });
     });
@@ -168,7 +167,7 @@ describe('NWFB', () => {
 describe('NLB', () => {
     test('Call ETA API', async () => {
         return doRequest([requestObj['nlb']]).then((json: any) => {
-            expect(json[0]).toBeInstanceOf(Array);
+            expect(json[0]).toEqual(expect.arrayOf(expect.any(Object)));
             expect(json[0][0].eta).toBeGreaterThanOrEqual(-1);
         });
     });
@@ -183,7 +182,7 @@ describe('GMB', () => {
 
     test('Call ETA API', async () => {
         return doRequest([requestObj['gmb']]).then((json: any) => {
-            expect(json[0]).toBeInstanceOf(Array);
+            expect(json[0]).toEqual(expect.arrayOf(expect.any(Object)));
             expect(json[0][0].eta).toBeGreaterThanOrEqual(-1);
         });
     });
@@ -192,7 +191,7 @@ describe('GMB', () => {
 describe('MTR', () => {
     test('Call ETA API', async () => {
         return doRequest([requestObj['mtr']]).then((json: any) => {
-            expect(json[0]).toBeInstanceOf(Array);
+            expect(json[0]).toEqual(expect.arrayOf(expect.any(Object)));
             expect(json[0][0].eta).toBeGreaterThanOrEqual(-1);
         });
     });
@@ -207,7 +206,7 @@ describe('MTR_HR', () => {
 
     test('Call ETA API', async () => {
         return doRequest([requestObj['mtr_hr']]).then((json: any) => {
-            expect(json[0]).toBeInstanceOf(Array);
+            expect(json[0]).toEqual(expect.arrayOf(expect.any(Object)));
             expect(json[0][0].eta).toBeGreaterThanOrEqual(-1);
         });
     });
@@ -222,7 +221,7 @@ describe('MTR_LR', () => {
 
     test('Call ETA API', async () => {
         return doRequest([requestObj['mtr_lr']]).then((json: any) => {
-            expect(json[0]).toBeInstanceOf(Array);
+            expect(json[0]).toEqual(expect.arrayOf(expect.any(Object)));
             expect(json[0][0].eta).toBeGreaterThanOrEqual(-1);
         });
     });
@@ -230,7 +229,7 @@ describe('MTR_LR', () => {
 
 test('Call multiple ETA', async () => {
     return doRequest(Object.values(requestObj)).then((json: any) => {
-        expect(json[0]).toBeInstanceOf(Array);
+        expect(json[0]).toEqual(expect.arrayOf(expect.any(Object)));
         expect(json[0][0].eta).toBeGreaterThanOrEqual(-1);
     });
 });
