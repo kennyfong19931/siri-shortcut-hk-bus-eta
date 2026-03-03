@@ -245,6 +245,7 @@ async function getCompanyRoute(companyCode: string) {
         queue.push({ route: '761P', startStop: '天逸', endStop: '元朗', relationId: 6485221 });
         queue.push({ route: '761P', startStop: '元朗', endStop: '天逸', relationId: 2942633 });
     } else if (companyCode === COMPANY.MTR.CODE) {
+        /*
         queue.push({ route: '506', startStop: '屯門碼頭', endStop: '兆麟', relationId: 2230969 });
         queue.push({ route: '506', startStop: '兆麟', endStop: '屯門碼頭', relationId: 2230969 });
         queue.push({ route: '506', startStop: '富健花園', endStop: '屯門站', relationId: 6582886 });
@@ -273,6 +274,7 @@ async function getCompanyRoute(companyCode: string) {
         queue.push({ route: 'K75S', startStop: '天水圍站', endStop: '洪福邨', relationId: 6482277 });
         queue.push({ route: 'K76', startStop: '天恆', endStop: '天水圍站', relationId: 3178687 });
         queue.push({ route: 'K76', startStop: '天水圍站', endStop: '天恆', relationId: 3178676 });
+        */
     }
     logger.info(`company: ${companyCode}, size: ${queue.length}`);
     for (let queueElement of queue) {
@@ -309,7 +311,7 @@ async function callOverpassApi(relationId: number | number[]) {
     return await doRequest(
         'POST',
         'https://overpass-api.de/api/interpreter',
-        null,
+        undefined,
         'data=' + encodeURIComponent(query),
         'formData',
     ).then((json) => {
