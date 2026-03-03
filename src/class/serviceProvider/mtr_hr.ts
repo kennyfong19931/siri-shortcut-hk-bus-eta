@@ -8,7 +8,7 @@ import SpatialUtil from '../../utils/spatialUtil';
 const company = COMPANY.MTR_HR;
 
 export async function crawlRoute(): Promise<Route[]> {
-    const [routeList] = await Promise.all([doRequest('GET', company.ROUTE_API, null, null, null, true)]).then(
+    const [routeList] = await Promise.all([doRequest('GET', company.ROUTE_API, undefined, undefined, undefined, true)]).then(
         async ([routeCsv]) => await Promise.all([parseCsvString(routeCsv)]),
     );
 

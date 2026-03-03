@@ -8,8 +8,8 @@ const company = COMPANY.MTR;
 
 export async function crawlRoute(): Promise<Route[]> {
     const [routeList, stopList] = await Promise.all([
-        doRequest('GET', company.ROUTE_API, null, null, null, true),
-        doRequest('GET', company.ROUTE_STOP_API, null, null, null, true),
+        doRequest('GET', company.ROUTE_API, undefined, undefined, undefined, true),
+        doRequest('GET', company.ROUTE_STOP_API, undefined, undefined, undefined, true),
     ]).then(async ([routeCsv, stopCsv]) => await Promise.all([parseCsvString(routeCsv), parseCsvString(stopCsv)]));
 
     return routeList
