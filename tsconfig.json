@@ -3,6 +3,7 @@
         "target": "esnext",
         "lib": ["esnext"],
         "module": "CommonJS",
+        "types": ["jest", "node"],
 
         "esModuleInterop": true,
         "strictNullChecks": false,

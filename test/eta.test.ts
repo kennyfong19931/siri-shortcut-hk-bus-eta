@@ -1,7 +1,7 @@
 import fs from 'fs';
 
-const requestObj = {};
-const doRequest = async (body) => {
+const requestObj: Record<string, any> = {};
+const doRequest = async (body: any) => {
     return fetch('http://127.0.0.1:8788/api/eta', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
