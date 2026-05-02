@@ -311,9 +311,12 @@ async function callOverpassApi(relationId: number | number[]) {
     return await doRequest(
         'POST',
         'https://overpass-api.de/api/interpreter',
-        undefined,
+        {
+            'Content-Type': 'text/plain',
+            'User-Agent': 'siri-shortcut-hk-bus-eta/1.0',
+        },
         'data=' + encodeURIComponent(query),
-        'formData',
+        'text',
     ).then((json) => {
         return json.elements
             .flatMap((element) => element.members)
