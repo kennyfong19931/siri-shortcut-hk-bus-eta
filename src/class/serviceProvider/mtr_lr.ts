@@ -30,7 +30,7 @@ export async function crawlRoute(): Promise<Route[]> {
                 Array.from(stationList as Array<any>).map(async (station) => {
                     const coordinates = await doRequest(
                         'GET',
-                        `https://geodata.gov.hk/gs/api/v1.0.0/locationSearch?q=輕鐵－${station.name}`,
+                        `https://www.map.gov.hk/gs/api/v1.0.0/locationSearch?q=輕鐵－${station.name}`,
                     ).then((response) => SpatialUtil.fromHK80ToWGS84([response[0].x, response[0].y]));
                     let stop = new Stop(
                         station.code,
