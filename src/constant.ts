@@ -60,7 +60,7 @@ export const COMPANY = {
     },
     MTR_LR: {
         CODE: 'mtr_lr',
-        ETA_API: `https://rt.data.gov.hk/v1/transport/mtr/lrt/getSchedule?station_id=${PLACEHOLDER.STOP}`,
+        ETA_API: `https://rt.data.gov.hk/v1/transport/mtr/lrt/getSchedule?station_id=${PLACEHOLDER.STOP}&with_special=1`,
         ROUTE_API: `https://opendata.mtr.com.hk/data/light_rail_routes_and_stops.csv`,
         STOP_API: null,
         ROUTE_STOP_API: null,
