@@ -22,7 +22,7 @@
     "dayjs": "^1.11.20",
     "sass": "^1.99.0",
     "sortablejs": "^1.15.6",
-    "vite": "^8.0.10"
+    "vite": "^8.0.11"
   },
   "devDependencies": {
     "@actions/core": "^3.0.1",
@@ -42,7 +42,7 @@
     "tsx": "^4.21.0",
     "vite-plugin-purgecss-updated-v5": "^1.2.7",
     "wait-on": "^9.0.5",
-    "wrangler": "^4.87.0",
+    "wrangler": "^4.90.0",
     "xml": "^1.0.1",
     "xml2js": "^0.6.2"
   }

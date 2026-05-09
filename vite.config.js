@@ -25,7 +25,15 @@ export default ({ mode }) => {
     },
     plugins: [
       pluginPurgeCss({
-        safelist: [/data-bs-theme/, 'leaflet-popup-content', 'leaflet-container', 'leaflet-popup-close-button', 'mtrIcon']
+        safelist: [
+            /data-bs-theme/,
+            'leaflet-popup-content',
+            'leaflet-container',
+            'leaflet-popup-close-button',
+            'mtrIcon',
+            'alert',
+            'alert-danger',
+        ],
       }),
     ]
   });
