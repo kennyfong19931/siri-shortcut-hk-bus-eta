@@ -27,7 +27,7 @@ export async function crawlRoute(): Promise<Route[]> {
     for (const [stopId, stopName] of distinctStops) {
         const coordinates = await doRequest(
             'GET',
-            `https://www.map.gov.hk/gs/api/v1.0.0/locationSearch?q=輕鐵－${stopName}`,
+            `https://www.map.gov.hk/gs/api/v1.0.0/locationSearch?q=${stopName}輕鐵站`,
         ).then((response) => SpatialUtil.fromHK80ToWGS84([response[0].x, response[0].y]));
         stopNameCache.set(stopId, { stopName, lat: coordinates[0].toString(), long: coordinates[1].toString() });
     }
@@ -78,7 +78,7 @@ export async function crawlRoute(): Promise<Route[]> {
             const stopList = trip.listStation.map((station) => {
                 const cached = stopNameCache.get(station.stationCode);
                 return new Stop(
-                    station.code,
+                    station.stationCode,
                     cached.stopName,
                     cached.lat,
                     cached.long,
@@ -88,7 +88,7 @@ export async function crawlRoute(): Promise<Route[]> {
                 company.CODE,
                 route.displayCode.replaceAll("*", ""),
                 null,
-                idx,
+                String(idx),
                 stopList.at(0).getName(),
                 stopList.at(-1).getName(),
                 stopList,

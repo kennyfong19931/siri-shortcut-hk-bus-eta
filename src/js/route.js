@@ -18,7 +18,6 @@ window.addEventListener('load', () => {
                 /ctb/:route/:dir
                 /nlb/:route/:routeId
                 /mtr_hr/:routeId/:stop
-                /mtr_lr/:routeId/:dir
              */
             let param = {};
             if ('mtr_hr' === data.company) {
@@ -44,7 +43,7 @@ window.addEventListener('load', () => {
                 /nlb/:route/:routeId/:stop
                 /gmb/:route/:routeId/:routeType
                 /mtr/:route/:routeId/:routeType
-                /mtr_lr/:routeId/:dir/:stop
+                /mtr_lr/:route/:routeId/:dir
              */
             let param = {};
             if ('nlb' === data.company) {
@@ -53,6 +52,9 @@ window.addEventListener('load', () => {
             } else if ('gmb' === data.company || 'mtr' === data.company) {
                 param.routeId = data.param1;
                 param.routeType = data.stop;
+            } else if ('mtr_lr' === data.company) {
+                param.routeId = data.param1;
+                param.dir = data.stop;
             } else {
                 param.dir = data.param1;
                 param.stop = data.stop;
@@ -63,18 +65,24 @@ window.addEventListener('load', () => {
                 ...param,
             });
         })
-        .on('/:company/:route/:routeId/:routeType/:stop', function ({ data }) {
+        .on('/:company/:route/:routeId/:param1/:stop', function ({ data }) {
             /*
                 Possible routes:
                 /gmb/:route/:routeId/:routeType/:stop
                 /mtr/:route/:routeId/:routeType/:stop
+                /mtr_lr/:route/:routeId/:dir/:stop
              */
+            if ('mtr_lr' === data.company) {
+                param.dir = data.param1;
+            } else {
+                param.routeType = data.param1;
+            }
             handleRoute({
                 company: data.company,
                 route: data.route,
                 routeId: data.routeId,
-                routeType: data.routeType,
                 stop: data.stop,
+                ...param,
             });
         })
         .on('/search', function ({ path, params }) {
@@ -92,8 +100,8 @@ function handleRoute(inputData) {
                 (element) =>
                     element.company === (inputData.company === 'nwfb' ? 'ctb' : inputData.company) &&
                     (inputData.dir ? element.dir === inputData.dir : true) &&
-                    (inputData.routeId ? element.routeId === inputData.routeId || element.routeId === parseInt(inputData.routeId) : true) &&
-                    (inputData.routeType ? element.routeType === inputData.routeType || element.routeType === parseInt(inputData.routeType) : true),
+                    (inputData.routeId ? element.routeId === inputData.routeId || parseInt(element.routeId) === parseInt(inputData.routeId) : true) &&
+                    (inputData.routeType ? element.routeType === inputData.routeType || parseInt(element.routeType) === parseInt(inputData.routeType) : true),
             );
             if (!routeArray) {
                 alert(`Cannot find route ${inputData.route} !`, 'danger');
@@ -117,6 +125,8 @@ function getRouteUrl(data, withStop = false) {
         return `/${data.company}/${data.route}/${data.routeId}${withStop ? '/' + data.stop : ''}`;
     } else if ('gmb' === data.company || 'mtr' === data.company) {
         return `/${data.company}/${data.route}/${data.routeId}/${data.routeType}${withStop ? '/' + data.stop : ''}`;
+    } else if ('mtr_lr' === data.company) {
+        return `/${data.company}/${data.route}/${data.routeId}/${data.dir}${withStop ? '/' + data.stop : ''}`;
     } else {
         return `/${data.company}/${data.route}/${data.dir}${withStop ? '/' + data.stop : ''}`;
     }
