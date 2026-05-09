@@ -28,6 +28,18 @@ export async function crawlRoute(): Promise<Route[]> {
 
     const routeListByLineAndDirection = routeList
         .filter((route) => routeWhitelist.includes(route['Line Code']) && route['Direction'].endsWith('UT'))
+        .sort((a, b) => {
+            const aHasDash = a['Direction'].includes('-');
+            const bHasDash = b['Direction'].includes('-');
+            
+            // Items without '-' in dir come first
+            if (aHasDash !== bHasDash) {
+                return aHasDash ? 1 : -1;
+            }
+            
+            // Then sort by sequence numerically
+            return parseFloat(a['Sequence']) - parseFloat(b['Sequence']);
+        })
         .reduce((result, item) => {
             const key = item['Line Code'] + '|' + item['Direction'];
             if (!result[key]) {

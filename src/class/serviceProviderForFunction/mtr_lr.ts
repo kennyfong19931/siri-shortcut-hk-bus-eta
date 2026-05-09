@@ -95,6 +95,9 @@ export async function fetchEta(requestItem, env) {
                                 } else if (train.time_ch !== '-') {
                                     eta = parseInt(train.time_en.replace(' min', ''));
                                 }
+                                if (train.routeRemarkChi2) {
+                                    remark += ' ' + train.routeRemarkChi2;
+                                }
                                 return {
                                     eta: eta,
                                     platform: platform.platform_id,
