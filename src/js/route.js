@@ -72,6 +72,7 @@ window.addEventListener('load', () => {
                 /mtr/:route/:routeId/:routeType/:stop
                 /mtr_lr/:route/:routeId/:dir/:stop
              */
+            let param = {};
             if ('mtr_lr' === data.company) {
                 param.dir = data.param1;
             } else {
