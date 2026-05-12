@@ -16,7 +16,7 @@ export function validateEtaRequest(requestItem) {
 export async function fetchEta(requestItem, env) {
     const api = company.ETA_API.replace(PLACEHOLDER.STOP, requestItem.stop);
 
-    const mtrLrData = await getRouteJson(env.host, requestItem.routeId);
+    const mtrLrData = await getRouteJson(env.host, requestItem.route);
     const dest = mtrLrData.filter(
         (route) =>
             route.company === company.CODE && route.routeId === requestItem.routeId && route.dir === requestItem.dir,
@@ -82,7 +82,7 @@ export async function fetchEta(requestItem, env) {
                             .filter(
                                 (train) =>
                                     train.stop === 0 &&
-                                    train.route_no === requestItem.routeId &&
+                                    (train.route_no === requestItem.route || (train.special === 1 && train.route_no === requestItem.routeId)) &&
                                     (train.route_no === '705' || train.route_no === '706'
                                         ? true
                                         : train.dest_ch === dest),
