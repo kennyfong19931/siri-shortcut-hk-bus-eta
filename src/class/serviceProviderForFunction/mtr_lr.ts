@@ -7,6 +7,11 @@ async function getRouteJson(host, route) {
     return await fetch(`${host}/api/route/${route}.json`).then((response) => response.json());
 }
 
+function routeMatch(requestItem, train, dest) {
+    return (train.route_no === requestItem.route || (train.special === 1 && train.route_no === requestItem.routeId)) &&
+        (train.route_no === '705' || train.route_no === '706' ? true : train.dest_ch === dest);
+}
+
 export function validateEtaRequest(requestItem) {
     if (!ValidationUtil.containsAllKey(requestItem, ['dir'])) {
         throw new Error('Missing parameter: dir');
@@ -32,7 +37,7 @@ export async function fetchEta(requestItem, env) {
             let routeStopped = false;
             json.platform_list.forEach((platform) => {
                 platform.route_list.forEach((route) => {
-                    if (route.stop === 1 && route.route_no === requestItem.routeId) {
+                    if (route.stop === 1 && routeMatch(requestItem, route, dest)) {
                         routeStopped = true;
                     }
                 });
@@ -79,14 +84,7 @@ export async function fetchEta(requestItem, env) {
                         ];
                     } else {
                         return platform.route_list
-                            .filter(
-                                (train) =>
-                                    train.stop === 0 &&
-                                    (train.route_no === requestItem.route || (train.special === 1 && train.route_no === requestItem.routeId)) &&
-                                    (train.route_no === '705' || train.route_no === '706'
-                                        ? true
-                                        : train.dest_ch === dest),
-                            )
+                            .filter((train) => train.stop === 0 && routeMatch(requestItem, train, dest))
                             .map((train) => {
                                 let remark = null;
                                 let eta = 0;
