@@ -1,0 +1,12 @@
+{
+    "$schema": "https://agentskills.io/schema/index.json",
+    "skills": [
+        {
+            "name": "get-eta",
+            "type": "skill-md",
+            "description": "Gets ETA (Estimated Time of Arrival) for Hong Kong transport routes. Use when the user asks for real-time arrival information for buses, minibuses, MTR, or light rail.",
+            "url": "https://siri-shortcut-hk-bus-eta.pages.dev/.well-known/agent-skills/get-eta/SKILL.md",
+            "digest": "sha256:98F2355AE3730CCC8DEE02F24604DE80AFB8CA1B88298B4BB4C96A6B0AFDF7DB"
+        }
+    ]
+}

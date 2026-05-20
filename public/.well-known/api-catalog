@@ -1,0 +1,31 @@
+{
+    "linkset": [
+        {
+            "anchor": "https://siri-shortcut-hk-bus-eta.pages.dev/api/",
+            "service-desc": [
+                {
+                    "href": "https://siri-shortcut-hk-bus-eta.pages.dev/api/openapi.json",
+                    "type": "application/json",
+                    "title": "OpenAPI 3.1 machine-readable spec"
+                }
+            ],
+            "service-doc": [
+                {
+                    "href": "https://www.postman.com/crimson-spaceship-895558/workspace/siri-shortcut-hk-bus-eta/documentation/20883356-482dee34-62b2-48c3-b84d-31039fc26c44",
+                    "type": "text/html",
+                    "title": "Human readable API documentation"
+                }
+            ]
+        },
+        {
+            "anchor": "https://siri-shortcut-hk-bus-eta.pages.dev/.well-known/api-catalog",
+            "api-catalog": [
+                {
+                    "href": "https://siri-shortcut-hk-bus-eta.pages.dev/.well-known/api-catalog",
+                    "title": "API catalog"
+                }
+            ],
+            "description": "API Catalog"
+        }
+    ]
+}

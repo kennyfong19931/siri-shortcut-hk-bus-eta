@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /api/*
+Content-Signal: ai-train=yes, search=yes, ai-input=yes
 
 Sitemap: https://siri-shortcut-hk-bus-eta.pages.dev/sitemap.xml
