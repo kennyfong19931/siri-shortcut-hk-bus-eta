@@ -21,6 +21,10 @@ export function validateEtaRequest(requestItem) {
 export async function fetchEta(requestItem, env) {
     const api = company.ETA_API.replace(PLACEHOLDER.STOP, requestItem.stop);
 
+    if (requestItem.route === undefined) {
+        requestItem.route = requestItem.routeId;
+    }
+
     const mtrLrData = await getRouteJson(env.host, requestItem.route);
     const dest = mtrLrData.filter(
         (route) =>

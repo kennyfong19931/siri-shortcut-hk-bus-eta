@@ -13,9 +13,9 @@ export async function crawlRoute(): Promise<Route[]> {
     );
 
     // Collect distinct stops from routeList
-    const distinctStops = new Map<string, string>(); // stopId -> stopName
+    const distinctStops = new Map<number, string>(); // stopId -> stopName
     for (const item of routeList) {
-        const stopId = item['Stop ID'];
+        const stopId = parseInt(item['Stop ID']);
         const stopName = item['Chinese Name'];
         if (!distinctStops.has(stopId)) {
             distinctStops.set(stopId, stopName);
@@ -23,7 +23,7 @@ export async function crawlRoute(): Promise<Route[]> {
     }
 
     // Get lat/long by name for each distinct stop and cache it (stopId, stopName, lat, long)
-    const stopNameCache = new Map<string, { stopName: string; lat: string; long: string }>();
+    const stopNameCache = new Map<number, { stopName: string; lat: string; long: string }>();
     for (const [stopId, stopName] of distinctStops) {
         const coordinates = await doRequest(
             'GET',
@@ -47,7 +47,7 @@ export async function crawlRoute(): Promise<Route[]> {
             const lineCode = keyArray[0];
             const direction = keyArray[1];
             const stopList = Array.from(stationList as Array<any>).map((station) => {
-                const cached = stopNameCache.get(station.code);
+                const cached = stopNameCache.get(parseInt(station.code));
                 return new Stop(
                     station.code,
                     cached.stopName,
@@ -76,7 +76,7 @@ export async function crawlRoute(): Promise<Route[]> {
     const specialRoutes = response.special_routes.flatMap((route) =>
         route.listTrip.map((trip, idx) => {
             const stopList = trip.listStation.map((station) => {
-                const cached = stopNameCache.get(station.stationCode);
+                const cached = stopNameCache.get(parseInt(station.stationCode));
                 return new Stop(
                     station.stationCode,
                     cached.stopName,
