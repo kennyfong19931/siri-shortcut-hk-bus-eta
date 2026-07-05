@@ -3,8 +3,7 @@ import { COMPANY, noETA } from '../../src/constant';
 import * as ServiceProvider from '../../src/class/serviceProviderForFunction';
 import ValidationUtil from '../../src/utils/validateUtil';
 
-export async function onRequestPost({ request, env }) {
-    const requestBody = JSON.parse(await request.text());
+export async function getEta(requestBody, env) {
     let response = [];
 
     // validation
@@ -55,4 +54,9 @@ export async function onRequestPost({ request, env }) {
     }
 
     return jsonResponse(returnValue);
+}
+
+export async function onRequestPost({ request, env }) {
+    const requestBody = JSON.parse(await request.text());
+    return await getEta(requestBody, env);
 }

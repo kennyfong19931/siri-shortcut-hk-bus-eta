@@ -1,0 +1,5 @@
+/*
+  Link: </sitemap.xml>; rel="sitemap", </.well-known/api-catalog>; rel="api-catalog", </.well-known/agent-skills/index.json>; rel="agent-skills", </.well-known/mcp-server-card.json>; rel="mcp-server-card"
+
+/.well-known/api-catalog
+  Content-Type: application/linkset+json
