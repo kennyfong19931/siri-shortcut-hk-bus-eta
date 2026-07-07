@@ -4,11 +4,11 @@
         "version": "1.0.0",
         "description": "MCP server to find Hong Kong transport route and next arrival."
     },
-    "endpoint": "https://siri-shortcut-hk-bus-eta.pages.dev/mcp",
+    "endpoint": "https://siri-shortcut-hk-bus-eta.pages.dev/api/mcp",
     "remotes": [
         {
             "type": "streamable-http",
-            "url": "https://siri-shortcut-hk-bus-eta.pages.dev/mcp"
+            "url": "https://siri-shortcut-hk-bus-eta.pages.dev/api/mcp"
         }
     ],
     "capabilities": {
