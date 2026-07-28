@@ -1,11 +1,8 @@
 import { COMPANY, PLACEHOLDER, noETA } from '../../constant';
+import { getRouteJson } from '../../utils/requestUtil';
 import ValidationUtil from '../../utils/validateUtil';
 
 const company = COMPANY.MTR_LR;
-
-async function getRouteJson(host, route) {
-    return await fetch(`${host}/api/route/${route}.json`).then((response) => response.json());
-}
 
 function routeMatch(requestItem, train, dest) {
     return (train.route_no === requestItem.route || (train.special === 1 && train.route_no === requestItem.routeId)) &&
@@ -25,11 +22,15 @@ export async function fetchEta(requestItem, env) {
         requestItem.route = requestItem.routeId;
     }
 
-    const mtrLrData = await getRouteJson(env.host, requestItem.route);
-    const dest = mtrLrData.filter(
+    const mtrLrData = getRouteJson(requestItem.route);
+    const filteredRoute = mtrLrData.filter(
         (route) =>
             route.company === company.CODE && route.routeId === requestItem.routeId && route.dir === requestItem.dir,
-    )[0].dest;
+    );
+    if (filteredRoute.length === 0) {
+        throw new Error('route not found');
+    }
+    const dest = filteredRoute[0].dest;
 
     const etaResponse = await fetch(api)
         .then((response) => response.json())

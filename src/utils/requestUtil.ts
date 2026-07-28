@@ -57,3 +57,5 @@ export const doRequest = async (
         await new Promise((r) => setTimeout(r, timeout));
     }
 };
+
+export const getRouteJson = (route: string) => require(`../../public/api/route/${route}.json`);

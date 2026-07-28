@@ -1,5 +1,6 @@
 import { jsonRpcResponse } from '../../src/utils/jsonResponse';
 import * as etaModule from './eta';
+import { getRouteJson } from '../../src/utils/requestUtil';
 
 function mcpHeaders(headers = {}) {
     return {
@@ -73,8 +74,12 @@ function getToolList() {
 
 async function callTool(env, toolName, args) {
     if (toolName === 'get-route') {
-        const routeData = await fetch(`${env.host}/api/route/${args.routeNo}.json`).then((response) => response.json());
-        return routeData;
+        try {
+            return getRouteJson(args.routeNo);
+        } catch (e) {
+            console.error(e);
+            throw new Error('route not found');
+        }
     } else if (toolName === 'get-eta') {
         return etaModule.getEta([args], env);
     }

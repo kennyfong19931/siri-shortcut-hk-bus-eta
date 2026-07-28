@@ -1,19 +1,9 @@
 import dayjs from 'dayjs';
 import { COMPANY, PLACEHOLDER, noETA } from '../../constant';
+import { getRouteJson } from '../../utils/requestUtil';
 import ValidationUtil from '../../utils/validateUtil';
 
 const company = COMPANY.MTR_HR;
-
-let mtr_hr_data;
-
-async function getMtrHrData(host) {
-    if (mtr_hr_data !== undefined) {
-        return mtr_hr_data;
-    } else {
-        mtr_hr_data = await fetch(`${host}/api/route/mtr_hr.json`).then((response) => response.json());
-        return mtr_hr_data;
-    }
-}
 
 export function validateEtaRequest(requestItem) {
     if (!ValidationUtil.containsAllKey(requestItem, ['dir'])) {
@@ -27,7 +17,7 @@ export async function fetchEta(requestItem, env) {
         requestItem.routeId,
     );
 
-    const mtrHrData = await getMtrHrData(env.host);
+    const mtrHrData = getRouteJson('mtr_hr');
 
     const etaResponse = await fetch(api)
         .then((response) => response.json())

@@ -1,4 +1,5 @@
 import { COMPANY, noETA } from '../../constant';
+import { getRouteJson } from '../../utils/requestUtil';
 
 const company = COMPANY.MTR;
 
@@ -8,12 +9,14 @@ export async function fetchEta(requestItem, env) {
         routeType = requestItem.routeType;
     } else {
         // backward compatibility for call without routeType
-        const routeJson = await fetch(`${env.host}/api/route/${requestItem.routeId}.json`).then((response) =>
-            response.json(),
-        );
-        requestItem.routeType = routeJson.filter(
+        const routeJson = getRouteJson(requestItem.routeId);
+        const filteredRoute = routeJson.filter(
             (route) => route.company === requestItem.company && route.routeId === requestItem.routeId,
-        )[0].routeType;
+        );
+        if (filteredRoute.length === 0) {
+            throw new Error('route not found');
+        }
+        requestItem.routeType = filteredRoute[0].routeType;
     }
 
     const etaResponse = await fetch(company.ETA_API, {
