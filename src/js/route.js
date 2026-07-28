@@ -101,8 +101,14 @@ function handleRoute(inputData) {
                 (element) =>
                     element.company === (inputData.company === 'nwfb' ? 'ctb' : inputData.company) &&
                     (inputData.dir ? element.dir === inputData.dir : true) &&
-                    (inputData.routeId ? element.routeId === inputData.routeId || parseInt(element.routeId) === parseInt(inputData.routeId) : true) &&
-                    (inputData.routeType ? element.routeType === inputData.routeType || parseInt(element.routeType) === parseInt(inputData.routeType) : true),
+                    (inputData.routeId
+                        ? element.routeId === inputData.routeId ||
+                          parseInt(element.routeId) === parseInt(inputData.routeId)
+                        : true) &&
+                    (inputData.routeType
+                        ? element.routeType === inputData.routeType ||
+                          parseInt(element.routeType) === parseInt(inputData.routeType)
+                        : true),
             );
             if (!routeArray) {
                 alert(`Cannot find route ${inputData.route} !`, 'danger');

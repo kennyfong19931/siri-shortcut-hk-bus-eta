@@ -8,9 +8,9 @@ import SpatialUtil from '../../utils/spatialUtil';
 const company = COMPANY.MTR_LR;
 
 export async function crawlRoute(): Promise<Route[]> {
-    const [routeList] = await Promise.all([doRequest('GET', company.ROUTE_API, undefined, undefined, undefined, true)]).then(
-        async ([routeCsv]) => await Promise.all([parseCsvString(routeCsv)]),
-    );
+    const [routeList] = await Promise.all([
+        doRequest('GET', company.ROUTE_API, undefined, undefined, undefined, true),
+    ]).then(async ([routeCsv]) => await Promise.all([parseCsvString(routeCsv)]));
 
     // Collect distinct stops from routeList
     const distinctStops = new Map<number, string>(); // stopId -> stopName
@@ -32,14 +32,17 @@ export async function crawlRoute(): Promise<Route[]> {
         stopNameCache.set(stopId, { stopName, lat: coordinates[0].toString(), long: coordinates[1].toString() });
     }
 
-    let routeListByLine = routeList.reduce((result, item) => {
-        const key = item['Line Code'] + '-' + item['Direction'];
-        if (!result[key]) {
-            result[key] = [];
-        }
-        result[key].push({ code: item['Stop ID'], name: item['Chinese Name'] });
-        return result;
-    }, {} as Record<string, any>);
+    let routeListByLine = routeList.reduce(
+        (result, item) => {
+            const key = item['Line Code'] + '-' + item['Direction'];
+            if (!result[key]) {
+                result[key] = [];
+            }
+            result[key].push({ code: item['Stop ID'], name: item['Chinese Name'] });
+            return result;
+        },
+        {} as Record<string, any>,
+    );
 
     const regularRoutes = await Promise.all(
         Object.entries(routeListByLine).map(async ([key, stationList]) => {
@@ -48,12 +51,7 @@ export async function crawlRoute(): Promise<Route[]> {
             const direction = keyArray[1];
             const stopList = Array.from(stationList as Array<any>).map((station) => {
                 const cached = stopNameCache.get(parseInt(station.code));
-                return new Stop(
-                    station.code,
-                    cached.stopName,
-                    cached.lat,
-                    cached.long,
-                );
+                return new Stop(station.code, cached.stopName, cached.lat, cached.long);
             });
             return new Route(
                 company.CODE,
@@ -65,7 +63,7 @@ export async function crawlRoute(): Promise<Route[]> {
                 stopList,
                 lineCode,
             );
-        })
+        }),
     );
 
     // special route
@@ -77,25 +75,20 @@ export async function crawlRoute(): Promise<Route[]> {
         route.listTrip.map((trip, idx) => {
             const stopList = trip.listStation.map((station) => {
                 const cached = stopNameCache.get(parseInt(station.stationCode));
-                return new Stop(
-                    station.stationCode,
-                    cached.stopName,
-                    cached.lat,
-                    cached.long,
-                );
+                return new Stop(station.stationCode, cached.stopName, cached.lat, cached.long);
             });
             return new Route(
                 company.CODE,
-                route.displayCode.replaceAll("*", ""),
+                route.displayCode.replaceAll('*', ''),
                 null,
                 String(idx),
                 stopList.at(0).getName(),
                 stopList.at(-1).getName(),
                 stopList,
                 route.routeNo,
-                '特別路線: ' + route.routeRemarksChi2
+                '特別路線: ' + route.routeRemarksChi2,
             );
-        })
+        }),
     );
 
     return [...regularRoutes, ...specialRoutes];

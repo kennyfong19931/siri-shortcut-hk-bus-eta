@@ -8,9 +8,9 @@ import SpatialUtil from '../../utils/spatialUtil';
 const company = COMPANY.MTR_HR;
 
 export async function crawlRoute(): Promise<Route[]> {
-    const [routeList] = await Promise.all([doRequest('GET', company.ROUTE_API, undefined, undefined, undefined, true)]).then(
-        async ([routeCsv]) => await Promise.all([parseCsvString(routeCsv)]),
-    );
+    const [routeList] = await Promise.all([
+        doRequest('GET', company.ROUTE_API, undefined, undefined, undefined, true),
+    ]).then(async ([routeCsv]) => await Promise.all([parseCsvString(routeCsv)]));
 
     const routeWhitelist = ['AEL', 'TCL', 'TML', 'TKL', 'EAL', 'SIL', 'TWL', 'ISL', 'KTL', 'DRL'];
     const routeNameList = [
@@ -31,26 +31,29 @@ export async function crawlRoute(): Promise<Route[]> {
         .sort((a, b) => {
             const aHasDash = a['Direction'].includes('-');
             const bHasDash = b['Direction'].includes('-');
-            
+
             // Items without '-' in dir come first
             if (aHasDash !== bHasDash) {
                 return aHasDash ? 1 : -1;
             }
-            
+
             // Then sort by sequence numerically
             return parseFloat(a['Sequence']) - parseFloat(b['Sequence']);
         })
-        .reduce((result, item) => {
-            const key = item['Line Code'] + '|' + item['Direction'];
-            if (!result[key]) {
-                result[key] = [];
-            }
-            result[key].push({
-                code: item['Station Code'],
-                name: item['Chinese Name'],
-            });
-            return result;
-        }, {} as Record<string, any>);
+        .reduce(
+            (result, item) => {
+                const key = item['Line Code'] + '|' + item['Direction'];
+                if (!result[key]) {
+                    result[key] = [];
+                }
+                result[key].push({
+                    code: item['Station Code'],
+                    name: item['Chinese Name'],
+                });
+                return result;
+            },
+            {} as Record<string, any>,
+        );
 
     const routeListByLine = {};
     Object.keys(routeListByLineAndDirection).forEach((key) => {

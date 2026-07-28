@@ -8,5 +8,5 @@ export const jsonResponse = (value: any, init: ResponseInit = {}) =>
     });
 
 export const jsonRpcResponse = (id, result, status = 200) => {
-    return jsonResponse({ jsonrpc: "2.0", id: id, result }, { status });
-}
+    return jsonResponse({ jsonrpc: '2.0', id: id, result }, { status });
+};

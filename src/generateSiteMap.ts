@@ -24,18 +24,21 @@ function getRouteUrl(data) {
 
 async function getLastModify() {
     return new Promise((resolve, reject) => {
-        exec(`git log --pretty=format:%ad --date=format-local:"Date:%Y-%m-%d" --name-only ${routeFolder}`, (error, stdout, stderr) => {
-            if (error) {
-                reject(new Error(`Error executing command: ${error.message}`));
-                return;
-            }
-            if (stderr) {
-                reject(new Error(`Command stderr: ${stderr}`));
-                return;
-            }
-            resolve(stdout);
-        });
-    }).then((stdout:string) => {
+        exec(
+            `git log --pretty=format:%ad --date=format-local:"Date:%Y-%m-%d" --name-only ${routeFolder}`,
+            (error, stdout, stderr) => {
+                if (error) {
+                    reject(new Error(`Error executing command: ${error.message}`));
+                    return;
+                }
+                if (stderr) {
+                    reject(new Error(`Command stderr: ${stderr}`));
+                    return;
+                }
+                resolve(stdout);
+            },
+        );
+    }).then((stdout: string) => {
         let resultMap = new Map<string, string>();
         const lines = stdout.trim().split('\n');
         let currentDate = null;
@@ -46,7 +49,7 @@ async function getLastModify() {
             } else {
                 const match = line.match(/[\/\\](\w*\.json)/);
                 const filename = match ? match[1] : '';
-                if(filename !== '' && !resultMap.has(filename)) {
+                if (filename !== '' && !resultMap.has(filename)) {
                     resultMap.set(filename, currentDate);
                 }
             }
@@ -68,7 +71,10 @@ async function getLastModify() {
         const data = fs.readFileSync(filePath, 'utf8');
         const routeList = JSON.parse(data);
         for (let route of routeList) {
-            pageList.push({ href: DOMAIN + getRouteUrl(route), srcFileLastModifiedAt: fileLastModifiedAt.has(file) ? fileLastModifiedAt.get(file) : today });
+            pageList.push({
+                href: DOMAIN + getRouteUrl(route),
+                srcFileLastModifiedAt: fileLastModifiedAt.has(file) ? fileLastModifiedAt.get(file) : today,
+            });
         }
     }
 

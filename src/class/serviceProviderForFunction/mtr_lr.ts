@@ -5,8 +5,10 @@ import ValidationUtil from '../../utils/validateUtil';
 const company = COMPANY.MTR_LR;
 
 function routeMatch(requestItem, train, dest) {
-    return (train.route_no === requestItem.route || (train.special === 1 && train.route_no === requestItem.routeId)) &&
-        (train.route_no === '705' || train.route_no === '706' ? true : train.dest_ch === dest);
+    return (
+        (train.route_no === requestItem.route || (train.special === 1 && train.route_no === requestItem.routeId)) &&
+        (train.route_no === '705' || train.route_no === '706' ? true : train.dest_ch === dest)
+    );
 }
 
 export function validateEtaRequest(requestItem) {
