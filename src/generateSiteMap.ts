@@ -16,7 +16,9 @@ function getRouteUrl(data) {
     } else if ('nlb' === data.company) {
         return `/${data.company}/${data.route}/${data.routeId}`;
     } else if ('gmb' === data.company) {
-        return `/${data.company}/${data.route}/${data.routeType}`;
+        return `/${data.company}/${data.route}/${data.routeId}/${data.routeType}`;
+    } else if ('mtr_lr' === data.company) {
+        return `/${data.company}/${data.route}/${data.routeId}/${data.dir}`;
     } else {
         return `/${data.company}/${data.route}/${data.dir}`;
     }
