@@ -31,6 +31,7 @@
 - [巴士路線](https://portal.csdi.gov.hk/geoportal/?datasetId=td_rcd_1638844988873_41214)
 - [專線小巴路線](https://portal.csdi.gov.hk/geoportal/?datasetId=td_rcd_1697082463580_57453)
 - [巴士/鐵路路線](https://wiki.openstreetmap.org/wiki/Hong_Kong/Transport/Routes)
+- [公共交通路線及收費資料](https://data.gov.hk/tc-data/dataset/hk-td-tis_11-pt-headway-en)
 
 # Development
 ## Install depedency

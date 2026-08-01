@@ -5,6 +5,13 @@ const getTime = () => {
 };
 
 export default class logger {
+    static debug(message: string, object?: any) {
+        console.debug(`[${getTime()}][DEBUG] ${message}`);
+        if (object) {
+            console.debug(object);
+        }
+    }
+
     static info(message: string) {
         console.info(`[${getTime()}][INFO] ${message}`);
     }

@@ -10,6 +10,7 @@ export class Route {
     private stopList: Array<Stop>;
     private routeId: string; // for NLB, GMB
     private description: string;
+    private gtfsId: string;
 
     constructor(
         company: string,
@@ -21,6 +22,7 @@ export class Route {
         stopList: Array<Stop>,
         routeId?: string,
         description?: string,
+        gtfsId?: string,
     ) {
         this.company = company;
         this.route = route;
@@ -39,6 +41,7 @@ export class Route {
         } else {
             this.description = description;
         }
+        this.gtfsId = gtfsId;
     }
 
     public getCompany(): string {
@@ -69,6 +72,10 @@ export class Route {
         return this.stopList;
     }
 
+    setStopList(stopList: Array<Stop>) {
+        this.stopList = stopList;
+    }
+
     public getRouteId(): string {
         return this.routeId;
     }
@@ -79,5 +86,13 @@ export class Route {
 
     public getDescription(): string {
         return this.description;
+    }
+
+    public setGtfsId(gtfsId: string): void {
+        this.gtfsId = gtfsId;
+    }
+
+    public getGtfsId(): string {
+        return this.gtfsId;
     }
 }

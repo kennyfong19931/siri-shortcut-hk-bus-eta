@@ -1,0 +1,119 @@
+
+[2026-08-08 22:41:55][WARN] [ctb|50M|1000241-1] Failed to match stop: 屯門站
+[2026-08-08 22:41:55][WARN] [kmb|52X|1239-2] Failed to match stop: 御天峰 (TW201)
+[2026-08-08 22:41:55][WARN] [kmb|53|1240-2] Failed to match stop: 御天峰 (TW201)
+[2026-08-08 22:41:55][WARN] [kmb|57M|1242-1] Failed to match stop: 屯門公路轉車站 (TM750)
+[2026-08-08 22:41:55][WARN] [kmb|58M|1243-1] Failed to match stop: 屯門公路轉車站 (TM750)
+[2026-08-08 22:41:55][WARN] [kmb|58M|8610-1] Failed to match stop: 屯門公路轉車站 (TM750)
+[2026-08-08 22:41:55][WARN] [kmb|58M|8611-1] Failed to match stop: 屯門公路轉車站 (TM750)
+[2026-08-08 22:41:55][WARN] [kmb|5R|8169-1] Failed to match stop: 啟德郵輪碼頭 (KA900)
+[2026-08-08 22:41:55][WARN] [kmb|5R|8169-1] Failed to match stop: 啟德郵輪碼頭 (KA900)
+[2026-08-08 22:41:55][WARN] [kmb|5R|1000095-1] Failed to match stop: 啟德郵輪碼頭 (KA900)
+[2026-08-08 22:41:55][WARN] [kmb|5R|1000201-1] Failed to match stop: 啟德郵輪碼頭 (KA900)
+[2026-08-08 22:41:55][WARN] [kmb|601|1769-1] Failed to match stop: 中央圖書館
+[2026-08-08 22:41:55][WARN] [ctb|601|1769-1] Failed to match stop: 銅鑼灣 - 希慎廣場, 軒尼詩道
+[2026-08-08 22:41:55][WARN] [ctb|601|1769-1] Failed to match stop: 堅拿道東, 軒尼詩道
+[2026-08-08 22:41:55][WARN] [ctb|606|1563-1] Failed to match stop: 康民街, 柴灣道
+[2026-08-08 22:41:55][WARN] [kmb|60M|1261-1] Failed to match stop: 屯門公路轉車站 (TM750)
+[2026-08-08 22:41:55][WARN] [ctb|619|1263-1] Failed to match stop: 順安邨安逸樓, 利安道
+[2026-08-08 22:41:55][WARN] [ctb|619P|1264-1] Failed to match stop: 順安邨安逸樓, 利安道
+[2026-08-08 22:41:55][WARN] [ctb|619X|1271-1] Failed to match stop: 順安邨安逸樓, 利安道
+[2026-08-08 22:41:55][WARN] [kmb|61X|1266-1] Failed to match stop: 九龍城碼頭巴士總站(落客站)
+[2026-08-08 22:41:55][WARN] [kmb|66M|1275-1] Failed to match stop: 屯門公路轉車站 (TM750)
+[2026-08-08 22:41:55][WARN] [kmb|678|8172-1] Failed to match stop: 中央圖書館
+[2026-08-08 22:41:55][WARN] [kmb|67A|1000242-1] Failed to match stop: 屯門公路轉車站 (TM750)
+[2026-08-08 22:41:55][WARN] [kmb|67M|1279-1] Failed to match stop: 屯門公路轉車站 (TM750)
+[2026-08-08 22:41:55][WARN] [kmb|680|1564-1] Failed to match stop: 中央圖書館
+[2026-08-08 22:41:55][WARN] [kmb|680|1564-1] Failed to match stop: 中央圖書館
+[2026-08-08 22:41:55][WARN] [ctb|680|1564-1] Failed to match stop: 銅鑼灣 - 希慎廣場, 軒尼詩道
+[2026-08-08 22:41:55][WARN] [ctb|680|1564-1] Failed to match stop: 堅拿道東, 軒尼詩道
+[2026-08-08 22:41:55][WARN] [kmb|680B|8170-1] Failed to match stop: 中央圖書館
+[2026-08-08 22:41:55][WARN] [kmb|680P|1579-1] Failed to match stop: 中央圖書館
+[2026-08-08 22:41:55][WARN] [ctb|682|8206-1] Failed to match stop: 青年廣場, 柴灣道
+[2026-08-08 22:41:55][WARN] [kmb|690|8180-1] Failed to match stop: 中央圖書館
+[2026-08-08 22:41:55][WARN] [ctb|694|1589-2] Failed to match stop: 重華路
+[2026-08-08 22:41:55][WARN] [ctb|694|1589-1] Failed to match stop: 青年廣場, 柴灣道
+[2026-08-08 22:41:55][WARN] [kmb|6C|1297-2] Failed to match stop: 九龍城碼頭巴士總站(落客站)
+[2026-08-08 22:41:55][WARN] [kmb|6F|1299-2] Failed to match stop: 九龍城碼頭巴士總站(落客站)
+[2026-08-08 22:41:55][WARN] [ctb|7|8271-2] Failed to match stop: 香港站
+[2026-08-08 22:41:55][WARN] [ctb|7|8271-1] Failed to match stop: 香港站
+[2026-08-08 22:41:55][WARN] [ctb|720|1775-1] Failed to match stop: 政府總部, 夏慤道
+[2026-08-08 22:41:56][WARN] [ctb|76|1608-1] Failed to match stop: 紀利華木球會, 禮頓道
+[2026-08-08 22:41:56][WARN] [ctb|796X|8090-2] Failed to match stop: 日出康城
+[2026-08-08 22:41:56][WARN] [ctb|796X|8090-1] Failed to match stop: 日出康城
+[2026-08-08 22:41:56][WARN] [ctb|796X|8090-1] Failed to match stop: 香港郵政大樓, 啟福道
+[2026-08-08 22:41:56][WARN] [ctb|796X|8090-1] Failed to match stop: 家維邨, 馬頭圍道
+[2026-08-08 22:41:56][WARN] [ctb|796X|8090-1] Failed to match stop: 北拱街, 馬頭圍道
+[2026-08-08 22:41:56][WARN] [ctb|796X|8090-1] Failed to match stop: 江西街, 馬頭圍道
+[2026-08-08 22:41:56][WARN] [ctb|796X|8090-1] Failed to match stop: 天光道, 馬頭圍道
+[2026-08-08 22:41:56][WARN] [ctb|796X|8090-1] Failed to match stop: 馬頭圍邨洋葵樓, 馬頭涌道
+[2026-08-08 22:41:56][WARN] [ctb|796X|8090-1] Failed to match stop: 亞皆老街遊樂場, 馬頭涌道
+[2026-08-08 22:41:56][WARN] [ctb|796X|8090-1] Failed to match stop: 富豪東方酒店, 太子道東
+[2026-08-08 22:41:56][WARN] [ctb|796X|8090-1] Failed to match stop: 譽．港灣, 太子道東
+[2026-08-08 22:41:56][WARN] [ctb|796X|8090-1] Failed to match stop: 景泰街, 太子道東
+[2026-08-08 22:41:56][WARN] [ctb|798|1621-1] Failed to match stop: 重華路
+[2026-08-08 22:41:56][WARN] [kmb|81|1334-1] Failed to match stop: 美林邨 (TA732)
+[2026-08-08 22:41:56][WARN] [ctb|81A|1627-2] Failed to match stop: 賽西湖大廈, 寶馬山道
+[2026-08-08 22:41:56][WARN] [ctb|81A|1627-1] Failed to match stop: 賽西湖大廈, 寶馬山道
+[2026-08-08 22:41:56][WARN] [kmb|85|1350-1] Failed to match stop: 九龍城碼頭巴士總站 (KC944)
+[2026-08-08 22:41:56][WARN] [kmb|85A|1351-1] Failed to match stop: 九龍城碼頭巴士總站(落客站)
+[2026-08-08 22:41:56][WARN] [ctb|85P|1553-1] Failed to match stop: 賽西湖大廈, 寶馬山道
+[2026-08-08 22:41:56][WARN] [kmb|88K|1380-2] Failed to match stop: 顯徑巴士總站 (TA930)
+[2026-08-08 22:41:56][WARN] [ctb|8H|8478-1] Failed to match stop: 青年廣場, 柴灣道
+[2026-08-08 22:41:56][WARN] [ctb|8X|1636-1] Failed to match stop: 青年廣場, 柴灣道
+[2026-08-08 22:41:56][WARN] [ctb|905|1394-2] Failed to match stop: 修頓球場, 莊士敦道
+[2026-08-08 22:41:56][WARN] [kmb|91|1395-1] Failed to match stop: 清水灣第一灘 (SK480)
+[2026-08-08 22:41:56][WARN] [ctb|91|1782-2] Failed to match stop: 香港站
+[2026-08-08 22:41:56][WARN] [ctb|914|1396-2] Failed to match stop: 香港中央圖書館, 高士威道
+[2026-08-08 22:41:56][WARN] [kmb|91R|8263-1] Failed to match stop: 清水灣第一灘 (SK480)
+[2026-08-08 22:41:56][WARN] [kmb|91S|8363-1] Failed to match stop: 清水灣第一灘 (SK480)
+[2026-08-08 22:41:56][WARN] [ctb|930X|8266-2] Failed to match stop: 海底隧道巴士轉乘站
+[2026-08-08 22:41:56][WARN] [ctb|930X|8266-2] Failed to match stop: 伊利莎伯大廈, 告士打道
+[2026-08-08 22:41:56][WARN] [ctb|930X|8266-2] Failed to match stop: 國際調解院, 告士打道
+[2026-08-08 22:41:56][WARN] [ctb|930X|8266-2] Failed to match stop: 分域街, 告士打道
+[2026-08-08 22:41:56][WARN] [ctb|930X|8266-2] Failed to match stop: 金鐘 - 海富中心, 夏慤道
+[2026-08-08 22:41:56][WARN] [ctb|930X|8266-2] Failed to match stop: 域多利皇后街, 干諾道中
+[2026-08-08 22:41:56][WARN] [ctb|930X|8266-2] Failed to match stop: 林士街, 干諾道中
+[2026-08-08 22:41:56][WARN] [ctb|930X|8266-2] Failed to match stop: 中環 (港澳碼頭)
+[2026-08-08 22:41:56][WARN] [kmb|960B|1951-1] Failed to match stop: 屯門公路轉車站 (TM750)
+[2026-08-08 22:41:56][WARN] [kmb|960X|8100-1] Failed to match stop: 屯門公路轉車站 (TM750)
+[2026-08-08 22:41:56][WARN] [ctb|962X|1660-1] Failed to match stop: 海底隧道巴士轉乘站
+[2026-08-08 22:41:56][WARN] [ctb|962X|1660-1] Failed to match stop: 伊利莎伯大廈, 告士打道
+[2026-08-08 22:41:56][WARN] [ctb|962X|1660-1] Failed to match stop: 國際調解院, 告士打道
+[2026-08-08 22:41:56][WARN] [ctb|962X|1660-1] Failed to match stop: 分域街, 告士打道
+[2026-08-08 22:41:56][WARN] [ctb|962X|1660-1] Failed to match stop: 金鐘 - 海富中心, 夏慤道
+[2026-08-08 22:41:56][WARN] [ctb|962X|1660-1] Failed to match stop: 域多利皇后街, 干諾道中
+[2026-08-08 22:41:56][WARN] [ctb|962X|1660-1] Failed to match stop: 林士街, 干諾道中
+[2026-08-08 22:41:56][WARN] [ctb|962X|1660-1] Failed to match stop: 中環 (港澳碼頭)
+[2026-08-08 22:41:56][WARN] [ctb|967|1661-1] Failed to match stop: 海底隧道巴士轉乘站
+[2026-08-08 22:41:56][WARN] [ctb|967|1661-1] Failed to match stop: 伊利莎伯大廈, 告士打道
+[2026-08-08 22:41:56][WARN] [ctb|967|1661-1] Failed to match stop: 國際調解院, 告士打道
+[2026-08-08 22:41:56][WARN] [ctb|967|1661-1] Failed to match stop: 分域街, 告士打道
+[2026-08-08 22:41:56][WARN] [ctb|967|1661-1] Failed to match stop: 金鐘 - 海富中心, 夏慤道
+[2026-08-08 22:41:56][WARN] [ctb|967|1661-1] Failed to match stop: 域多利皇后街, 干諾道中
+[2026-08-08 22:41:56][WARN] [ctb|967|1661-1] Failed to match stop: 林士街, 干諾道中
+[2026-08-08 22:41:56][WARN] [ctb|967|1661-1] Failed to match stop: 中環 (港澳碼頭)
+[2026-08-08 22:41:56][WARN] [ctb|969|1000054-1] Failed to match stop: 海底隧道巴士轉乘站
+[2026-08-08 22:41:56][WARN] [ctb|969|1000054-1] Failed to match stop: 伊利莎伯大廈, 告士打道
+[2026-08-08 22:41:56][WARN] [ctb|969|1000054-1] Failed to match stop: 國際調解院, 告士打道
+[2026-08-08 22:41:56][WARN] [ctb|969|1000054-1] Failed to match stop: 分域街, 告士打道
+[2026-08-08 22:41:56][WARN] [ctb|969|1000054-1] Failed to match stop: 金鐘 - 海富中心, 夏慤道
+[2026-08-08 22:41:56][WARN] [ctb|969|1000054-1] Failed to match stop: 域多利皇后街, 干諾道中
+[2026-08-08 22:41:56][WARN] [ctb|969|1000054-1] Failed to match stop: 林士街, 干諾道中
+[2026-08-08 22:41:56][WARN] [ctb|969|1000054-1] Failed to match stop: 中環 (港澳碼頭)
+[2026-08-08 22:41:56][WARN] [ctb|97|1664-2] Failed to match stop: 政府總部, 夏慤道
+[2026-08-08 22:41:56][WARN] [ctb|97|1664-2] Failed to match stop: 入境事務大樓, 告士打道
+[2026-08-08 22:41:56][WARN] [ctb|980A|8535-1] Failed to match stop: 碩門邨
+[2026-08-08 22:41:56][WARN] [kmb|980X|8402-1] Failed to match stop: 港澳碼頭
+[2026-08-08 22:41:56][WARN] [kmb|980X|1000668-1] Failed to match stop: 港澳碼頭
+[2026-08-08 22:41:56][WARN] [kmb|981P|8404-1] Failed to match stop: 港澳碼頭
+[2026-08-08 22:41:56][WARN] [ctb|A26|1000460-2] Failed to match stop: 順安邨安逸樓, 利安道
+[2026-08-08 22:41:56][WARN] [ctb|B3|1000419-1] Failed to match stop: 翠寧花園, 海珠路
+[2026-08-08 22:41:56][WARN] [ctb|B3A|1690-2] Failed to match stop: 富泰商場, 青山公路
+[2026-08-08 22:41:56][WARN] [ctb|E22|1678-2] Failed to match stop: 富東廣場, 達東路
+[2026-08-08 22:41:56][WARN] [ctb|E22A|1679-2] Failed to match stop: 富東廣場, 達東路
+[2026-08-08 22:41:56][WARN] [mtr|K14|1425-1] Failed to match stop: 大埔墟站
+[2026-08-08 22:41:56][WARN] [mtr|K17|1427-2] Failed to match stop: 怡雅苑
+[2026-08-08 22:41:56][WARN] [kmb|N252|8699-1] Failed to match stop: 御天峰 (TW201)
+[2026-08-08 22:41:56][WARN] [ctb|N619|1445-1] Failed to match stop: 順安邨安逸樓, 利安道
+[2026-08-08 22:41:56][WARN] [ctb|X15|8700-1] Failed to match stop: 中環 (香港摩天輪)

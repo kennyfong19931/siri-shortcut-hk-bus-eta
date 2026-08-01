@@ -20,7 +20,7 @@ export const doRequest = async (
                         'Content-Type': 'application/json',
                         ...headers,
                     },
-                    body: JSON.stringify(body),
+                    body: JSON.stringify(body.replace(/^\uFEFF/, '')),
                 });
             } else {
                 request = fetch(url, { method: method, headers: headers });
@@ -59,3 +59,5 @@ export const doRequest = async (
 };
 
 export const getRouteJson = (route: string) => require(`../../public/api/route/${route}.json`);
+
+export const getJointJson = () => require(`../../public/api/joint.json`);
