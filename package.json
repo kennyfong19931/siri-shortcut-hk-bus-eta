@@ -6,7 +6,7 @@
   },
   "type": "module",
   "scripts": {
-    "dev": "npx wrangler pages dev ./public --port 8788 --binding ENVIRONMENT=DEV",
+    "dev": "npx wrangler pages dev ./public --port 8788 --binding ENVIRONMENT=DEV --compatibility-date=2026-08-04",
     "format": "prettier --write \"{functions,src}/**/*.{js,ts}\"",
     "generate-sitemap": "tsx src/generateSiteMap.ts",
     "test": "concurrently -n wrangler,jest --success first --kill-others \"npm:dev\" \"wait-on -t 2m http://localhost:8788 && npm run test-local\"",
@@ -22,7 +22,7 @@
     "dayjs": "^1.11.21",
     "sass": "^1.102.0",
     "sortablejs": "^1.15.6",
-    "vite": "^8.1.5"
+    "vite": "^8.2.1"
   },
   "devDependencies": {
     "@actions/core": "^3.0.1",
@@ -31,18 +31,19 @@
     "@types/proj4": "^2.5.6",
     "@types/xml": "^1.0.11",
     "@types/xml2js": "^0.4.14",
-    "concurrently": "^10.0.4",
+    "concurrently": "^10.0.5",
     "csv-parse": "^6.2.1",
+    "dice-coefficient": "^2.1.1",
     "eslint-config-prettier": "^10.1.8",
     "gdal-async": "^3.12.3",
     "jest": "^30.4.2",
     "prettier": "^3.9.6",
     "proj4": "^2.21.0",
     "ts-jest": "^29.4.12",
-    "tsx": "^4.23.1",
+    "tsx": "^4.23.12",
     "vite-plugin-purgecss-updated-v5": "^1.2.7",
     "wait-on": "^9.1.0",
-    "wrangler": "^4.114.0",
+    "wrangler": "^4.123.0",
     "xml": "^1.0.1",
     "xml2js": "^0.6.2"
   }
