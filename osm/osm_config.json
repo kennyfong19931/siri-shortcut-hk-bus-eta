@@ -1,0 +1,523 @@
+{
+    "mtr_hr": [
+        {
+            "route": "AEL",
+            "relationId": [
+                5317239
+            ]
+        },
+        {
+            "route": "EAL",
+            "relationId": [
+                4248592,
+                4250434
+            ]
+        },
+        {
+            "route": "ISL",
+            "relationId": [
+                4432666
+            ]
+        },
+        {
+            "route": "KTL",
+            "relationId": [
+                6452935
+            ]
+        },
+        {
+            "route": "TML",
+            "relationId": [
+                6102299
+            ]
+        },
+        {
+            "route": "TCL",
+            "relationId": [
+                5317706
+            ]
+        },
+        {
+            "route": "TKL",
+            "relationId": [
+                269672,
+                9736610
+            ]
+        },
+        {
+            "route": "TWL",
+            "relationId": [
+                269669
+            ]
+        },
+        {
+            "route": "SIL",
+            "relationId": [
+                6827211
+            ]
+        },
+        {
+            "route": "DRL",
+            "relationId": [
+                4709540
+            ]
+        }
+    ],
+    "mtr_lr": [
+        {
+            "route": "505",
+            "startStop": "兆康",
+            "endStop": "三聖",
+            "relationId": [
+                3515354
+            ]
+        },
+        {
+            "route": "505",
+            "startStop": "三聖",
+            "endStop": "兆康",
+            "relationId": [
+                6481282
+            ]
+        },
+        {
+            "route": "507",
+            "startStop": "田景",
+            "endStop": "屯門碼頭",
+            "relationId": [
+                6481316
+            ]
+        },
+        {
+            "route": "507",
+            "startStop": "屯門碼頭",
+            "endStop": "田景",
+            "relationId": [
+                3679916
+            ]
+        },
+        {
+            "route": "610",
+            "startStop": "元朗",
+            "endStop": "屯門碼頭",
+            "relationId": [
+                6481420
+            ]
+        },
+        {
+            "route": "610",
+            "startStop": "屯門碼頭",
+            "endStop": "元朗",
+            "relationId": [
+                3680161
+            ]
+        },
+        {
+            "route": "614",
+            "startStop": "元朗",
+            "endStop": "屯門碼頭",
+            "relationId": [
+                3680323
+            ]
+        },
+        {
+            "route": "614",
+            "startStop": "屯門碼頭",
+            "endStop": "元朗",
+            "relationId": [
+                6485194
+            ]
+        },
+        {
+            "route": "614P",
+            "startStop": "兆康",
+            "endStop": "屯門碼頭",
+            "relationId": [
+                5955256
+            ]
+        },
+        {
+            "route": "614P",
+            "startStop": "屯門碼頭",
+            "endStop": "兆康",
+            "relationId": [
+                5955257
+            ]
+        },
+        {
+            "route": "615",
+            "startStop": "元朗",
+            "endStop": "屯門碼頭",
+            "relationId": [
+                3680520
+            ]
+        },
+        {
+            "route": "615",
+            "startStop": "屯門碼頭",
+            "endStop": "元朗",
+            "relationId": [
+                6481434
+            ]
+        },
+        {
+            "route": "615P",
+            "startStop": "兆康",
+            "endStop": "屯門碼頭",
+            "relationId": [
+                5955258
+            ]
+        },
+        {
+            "route": "615P",
+            "startStop": "屯門碼頭",
+            "endStop": "兆康",
+            "relationId": [
+                5955259
+            ]
+        },
+        {
+            "route": "705",
+            "startStop": "天水圍",
+            "endStop": "天榮",
+            "relationId": [
+                2941692
+            ]
+        },
+        {
+            "route": "705",
+            "startStop": "天榮",
+            "endStop": "天水圍",
+            "relationId": [
+                2941692
+            ]
+        },
+        {
+            "route": "706",
+            "startStop": "天水圍",
+            "endStop": "天榮",
+            "relationId": [
+                2941790
+            ]
+        },
+        {
+            "route": "706",
+            "startStop": "天榮",
+            "endStop": "天水圍",
+            "relationId": [
+                2941790
+            ]
+        },
+        {
+            "route": "751",
+            "startStop": "天逸",
+            "endStop": "友愛",
+            "relationId": [
+                2926506
+            ]
+        },
+        {
+            "route": "751",
+            "startStop": "友愛",
+            "endStop": "天逸",
+            "relationId": [
+                6485218
+            ]
+        },
+        {
+            "route": "751P",
+            "startStop": "天逸",
+            "endStop": "天水圍",
+            "relationId": [
+                2929802
+            ]
+        },
+        {
+            "route": "751P",
+            "startStop": "天水圍",
+            "endStop": "天逸",
+            "relationId": [
+                6485219
+            ]
+        },
+        {
+            "route": "761P",
+            "startStop": "天逸",
+            "endStop": "元朗",
+            "relationId": [
+                6485221
+            ]
+        },
+        {
+            "route": "761P",
+            "startStop": "元朗",
+            "endStop": "天逸",
+            "relationId": [
+                2942633
+            ]
+        }
+    ],
+    "mtr": [
+        {
+            "route": "506",
+            "startStop": "屯門碼頭",
+            "endStop": "兆麟",
+            "routeType": "506_SL",
+            "relationId": [
+                2230969
+            ]
+        },
+        {
+            "route": "506",
+            "startStop": "兆麟",
+            "endStop": "屯門碼頭",
+            "routeType": "506_TMFP",
+            "relationId": [
+                2230969
+            ]
+        },
+        {
+            "route": "506",
+            "startStop": "富健花園",
+            "endStop": "屯門站",
+            "routeType": "506_GG_TMS",
+            "relationId": [
+                6582886
+            ]
+        },
+        {
+            "route": "K51",
+            "startStop": "富泰",
+            "endStop": "大欖",
+            "routeType": "K51_TL",
+            "relationId": [
+                6535744
+            ]
+        },
+        {
+            "route": "K51",
+            "startStop": "大欖",
+            "endStop": "富泰",
+            "routeType": "K51_FT",
+            "relationId": [
+                6535743
+            ]
+        },
+        {
+            "route": "K51",
+            "startStop": "富泰",
+            "endStop": "兆康站",
+            "routeType": "K51_FT_SHS",
+            "relationId": [
+                6582883
+            ]
+        },
+        {
+            "route": "K51",
+            "startStop": "兆康站",
+            "endStop": "富泰",
+            "routeType": "K51_SHS_FT",
+            "relationId": [
+                6582882
+            ]
+        },
+        {
+            "route": "K52",
+            "startStop": "龍鼓灘",
+            "endStop": "悅湖山莊",
+            "routeType": "K52_LKT_YWV",
+            "relationId": [
+                5595696
+            ]
+        },
+        {
+            "route": "K52",
+            "startStop": "悅湖山莊",
+            "endStop": "龍鼓灘",
+            "routeType": "K52_YWV_LKT",
+            "relationId": [
+                6535453
+            ]
+        },
+        {
+            "route": "K53",
+            "startStop": "屯門站",
+            "endStop": "掃管笏 (循環線)",
+            "routeType": "K53_SKW_CIR",
+            "relationId": [
+                6535476
+            ]
+        },
+        {
+            "route": "K58",
+            "startStop": "富泰",
+            "endStop": "掃管笏",
+            "routeType": "K58_FT_SKW",
+            "relationId": [
+                6535655
+            ]
+        },
+        {
+            "route": "K58",
+            "startStop": "掃管笏",
+            "endStop": "富泰",
+            "routeType": "K58_SKW_FT",
+            "relationId": [
+                2235402
+            ]
+        },
+        {
+            "route": "K65",
+            "startStop": "流浮山",
+            "endStop": "元朗站",
+            "routeType": "K65_YLS",
+            "relationId": [
+                3144224
+            ]
+        },
+        {
+            "route": "K65",
+            "startStop": "元朗站",
+            "endStop": "流浮山",
+            "routeType": "K65_LFS",
+            "relationId": [
+                3128480
+            ]
+        },
+        {
+            "route": "K65A",
+            "startStop": "流浮山",
+            "endStop": "天水圍站",
+            "routeType": "K65A_TSWS",
+            "relationId": [
+                6550897
+            ]
+        },
+        {
+            "route": "K65A",
+            "startStop": "天水圍站",
+            "endStop": "流浮山",
+            "routeType": "K65A_LFS",
+            "relationId": [
+                6864448
+            ]
+        },
+        {
+            "route": "K66",
+            "startStop": "大棠黃泥墩村",
+            "endStop": "朗屏",
+            "routeType": "K66_LP",
+            "relationId": [
+                3174921
+            ]
+        },
+        {
+            "route": "K66",
+            "startStop": "朗屏",
+            "endStop": "大棠黃泥墩村",
+            "routeType": "K66_TTWNTT",
+            "relationId": [
+                3174915
+            ]
+        },
+        {
+            "route": "K68",
+            "startStop": "元朗工業邨",
+            "endStop": "元朗公園 (循環線)",
+            "routeType": "K68_CIR",
+            "relationId": [
+                5608554
+            ]
+        },
+        {
+            "route": "K73",
+            "startStop": "天恆",
+            "endStop": "元朗（西）",
+            "routeType": "K73_YLW",
+            "relationId": [
+                6551092
+            ]
+        },
+        {
+            "route": "K73",
+            "startStop": "元朗（西）",
+            "endStop": "天恆",
+            "routeType": "K73_TH",
+            "relationId": [
+                6698574
+            ]
+        },
+        {
+            "route": "K73",
+            "startStop": "天恩",
+            "endStop": "元朗（西）",
+            "routeType": "K73_TY_YLW",
+            "relationId": [
+                6551140
+            ]
+        },
+        {
+            "route": "K73",
+            "startStop": "香港青年協會李兆基書院",
+            "endStop": "元朗（西）",
+            "routeType": "K73_HKFYG_YLW",
+            "relationId": [
+                6551138
+            ]
+        },
+        {
+            "route": "K74",
+            "startStop": "天水圍市中心",
+            "endStop": "凹頭 (循環線)",
+            "routeType": "K74_POH_CIR",
+            "relationId": [
+                6563799
+            ]
+        },
+        {
+            "route": "K75A",
+            "startStop": "天水圍站",
+            "endStop": "洪水橋 (循環線)",
+            "routeType": "K75A_CIR",
+            "relationId": [
+                6482275
+            ]
+        },
+        {
+            "route": "K75P",
+            "startStop": "天瑞",
+            "endStop": "洪水橋 (循環線)",
+            "routeType": "K75P_CIR",
+            "relationId": [
+                6482276
+            ]
+        },
+        {
+            "route": "K75S",
+            "startStop": "天水圍站",
+            "endStop": "洪福邨 (循環線)",
+            "routeType": "K75S_CIR",
+            "relationId": [
+                6482277
+            ]
+        },
+        {
+            "route": "K76",
+            "startStop": "天恆",
+            "endStop": "天水圍站",
+            "routeType": "K76_TSWS",
+            "relationId": [
+                3178687
+            ]
+        },
+        {
+            "route": "K76",
+            "startStop": "天水圍站",
+            "endStop": "天恆",
+            "routeType": "K76_TH",
+            "relationId": [
+                3178676
+            ]
+        }
+    ]
+}

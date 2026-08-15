@@ -8,7 +8,9 @@ export class Stop {
     private street: string;
     private fare: string;
     private fareHoliday: string;
+    private gtfsId: string;
     private railwayFilterDir: string; // stop is terminus, only allow to travel in this direction
+    private ctbDir: string; // for mergeRoute
 
     constructor(
         id: string,
@@ -18,6 +20,7 @@ export class Stop {
         street?: string,
         fare?: string,
         fareHoliday?: string,
+        gtfsId?: string,
     ) {
         this.id = id;
         this.name = name;
@@ -26,6 +29,7 @@ export class Stop {
         this.street = street;
         this.fare = fare;
         this.fareHoliday = fareHoliday;
+        this.gtfsId = gtfsId;
     }
 
     public getId(): string {
@@ -56,11 +60,27 @@ export class Stop {
         return this.fareHoliday;
     }
 
+    public setGtfsId(gtfsId: string): void {
+        this.gtfsId = gtfsId;
+    }
+
+    public getGtfsId(): string {
+        return this.gtfsId;
+    }
+
     public setRailwayFilterDir(railwayFilterDir: string) {
         this.railwayFilterDir = railwayFilterDir;
     }
 
     public getRailwayFilterDir() {
         return this.railwayFilterDir;
+    }
+
+    public setCtbDir(ctbDir: string): void {
+        this.ctbDir = ctbDir;
+    }
+
+    public getCtbDir(): string {
+        return this.ctbDir;
     }
 }

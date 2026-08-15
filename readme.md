@@ -4,7 +4,7 @@
 [![Postman](https://img.shields.io/badge/Postman-API%20doc-FF6C37?logo=postman&logoColor=white)](https://www.postman.com/crimson-spaceship-895558/workspace/siri-shortcut-hk-bus-eta/documentation/20883356-482dee34-62b2-48c3-b84d-31039fc26c44)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/kennyfong19931/siri-shortcut-hk-bus-eta)
 
-# ![簡化版設定](/public/img/favicon-32x32.png) 巴士到站時間預報
+# ![icon](/public/img/favicon-32x32.png) 巴士到站時間預報
 使用[資料一線通](https://data.gov.hk/)及其他資料來源, 透過 Siri shortcut 或網頁查詢到站時間預報。
 
 ### 支援的交通工具
@@ -31,6 +31,7 @@
 - [巴士路線](https://portal.csdi.gov.hk/geoportal/?datasetId=td_rcd_1638844988873_41214)
 - [專線小巴路線](https://portal.csdi.gov.hk/geoportal/?datasetId=td_rcd_1697082463580_57453)
 - [巴士/鐵路路線](https://wiki.openstreetmap.org/wiki/Hong_Kong/Transport/Routes)
+- [公共交通路線及收費資料](https://data.gov.hk/tc-data/dataset/hk-td-tis_11-pt-headway-en)
 
 # Development
 ## Install depedency
@@ -41,3 +42,35 @@
 
 ## Start Dev server for Web
 `npm run web-start`
+
+## Prepare data
+### Route data
+```mermaid
+flowchart TD
+    A[Start] --> B["`Update gtfs data
+    _npm run update-gtfs_`"]
+    A --> G["`Update route data
+    _npm run update-route_`"]
+    G --> C{success ?}
+    C -->|No| D{missing stop name ?}
+    D -->|Yes| E["`Update stop name cache
+    _npm run update-stop-name_`"]
+    E --> A
+    B --> F["`Merge route and gtfs data
+    _npm run merge-route_`"]
+    C -->|Yes| F
+    F --> H[End]
+    D -->|No|H
+```
+
+### Spatial data
+```mermaid
+flowchart TD
+    A[Start] --> B["`Download OSM data from <u>geofabrik.de</u>`"]
+    B --> C["`extract route from OSM data with osmium-tool
+    _./osm/extract_relation.sh_`"]
+    C --> D["`Update spatial data
+    _npm run update-spatial_`"]
+    D --> E[End]
+  
+```
