@@ -12,27 +12,33 @@ export async function crawlRoute(): Promise<Route[]> {
         doRequest('GET', company.STOP_API),
         doRequest('GET', company.ROUTE_STOP_API),
     ]);
-    return routeList.data.map((route) => {
-        return new Route(
-            company.CODE,
-            route.route,
-            route.service_type,
-            route.bound,
-            route.orig_tc,
-            route.dest_tc,
-            (routeStopList.data as any[])
-                .filter((s) => s.route == route.route && s.bound == route.bound && s.service_type == route.service_type)
-                .map((routeStop) => {
-                    let stop = (stopList.data as any[]).find((s) => s.stop == routeStop.stop);
-                    if (stop == undefined) {
-                        return undefined;
-                    } else {
-                        return new Stop(stop.stop, stop.name_tc, stop.lat, stop.long);
-                    }
-                })
-                .filter((s) => s !== undefined),
-            undefined,
-            route.service_type == 1 ? '正常班次' : '特別班次',
-        );
-    });
+    return routeList.data
+        .filter(
+            (route) => !['K12', 'K14', 'K17', 'K18'].includes(route.route), // remove MTR bus
+        )
+        .map((route) => {
+            return new Route(
+                company.CODE,
+                route.route,
+                route.service_type,
+                route.bound,
+                route.orig_tc,
+                route.dest_tc,
+                (routeStopList.data as any[])
+                    .filter(
+                        (s) => s.route == route.route && s.bound == route.bound && s.service_type == route.service_type,
+                    )
+                    .map((routeStop) => {
+                        let stop = (stopList.data as any[]).find((s) => s.stop == routeStop.stop);
+                        if (stop == undefined) {
+                            return undefined;
+                        } else {
+                            return new Stop(stop.stop, stop.name_tc, stop.lat, stop.long);
+                        }
+                    })
+                    .filter((s) => s !== undefined),
+                undefined,
+                route.service_type == 1 ? '正常班次' : '特別班次',
+            );
+        });
 }
