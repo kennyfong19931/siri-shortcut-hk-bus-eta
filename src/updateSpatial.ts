@@ -127,6 +127,8 @@ const getCsdiRoute = async (type: string) => {
                 route: isMinibus ? properties.ROUTE_NAME : properties.ROUTE_NAMEE,
                 routeId: properties.ROUTE_ID,
                 routeSeq: properties.ROUTE_SEQ,
+                startStop: properties.ST_STOP_NAMEC,
+                endStop: properties.ED_STOP_NAMEC,
             });
         });
 
@@ -324,24 +326,22 @@ async function getCompanyRoute(companyCode: string) {
                 const { company, route } = GeneralUtil.gtfsSpecialHandling(key, csdiRecord.route);
                 const folder = path.join(outputFolder, company, route);
                 fs.mkdirSync(folder, { recursive: true });
-                const filename = getFilename(
-                    company,
-                    route,
-                    `${csdiRecord.routeId}_${csdiRecord.routeSeq}`,
-                    null,
-                    null,
-                    null,
-                );
+                const gtfsId = `${csdiRecord.routeId}_${csdiRecord.routeSeq}`;
+                const filename = getFilename(company, route, gtfsId, null, null, null);
                 if (filename) {
                     const file = path.join(folder, filename);
                     if (fs.existsSync(file)) {
                         // skip route already created (e.g. route variation)
-                        logger.info(`Skipped [${company}] ${route} (${filename}), already created`);
+                        logger.info(
+                            `Skipped [${company}] ${route} ${gtfsId} (${csdiRecord.startStop} - ${csdiRecord.endStop}), already created`,
+                        );
                         return;
                     }
                     fs.writeFileSync(file, JSON.stringify(csdiRecord.geometry));
                 } else {
-                    logger.warn(`Skipped [${company}] ${route} (${filename}), cannot match route`);
+                    logger.warn(
+                        `Skipped [${company}] ${route} ${gtfsId} (${csdiRecord.startStop} - ${csdiRecord.endStop}), cannot match route`,
+                    );
                 }
             });
             logger.info(`End ${key}`);

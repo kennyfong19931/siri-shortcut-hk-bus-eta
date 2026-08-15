@@ -388,7 +388,10 @@ function createVirtualCircularRoute(routeA: Route, routeB: Route) {
                     }
                     return matchRoute(gtfs, route, false);
                 });
-                if (debugMatchRoute) logger.debug(`${route.getCompany()} ${route.getOrig()} - ${route.getDest()} candidate count=${gtfsRouteList.length}`);
+                if (debugMatchRoute)
+                    logger.debug(
+                        `${route.getCompany()} ${route.getOrig()} - ${route.getDest()} candidate count=${gtfsRouteList.length}`,
+                    );
                 let matchedRoute: Route | undefined = gtfsRouteList[0];
                 if (gtfsRouteList.length > 1) {
                     matchedRoute = gtfsRouteList.reduce((bestRoute: Route | undefined, candidate: Route) => {
@@ -587,7 +590,9 @@ function createVirtualCircularRoute(routeA: Route, routeB: Route) {
 
                 subRoutes.forEach((r, idx) => {
                     if (idx === keepIndex) return;
-                    logger.info(`[${r.getCompany()}|${r.getRoute()}] Removed duplicate gtfsId ${r.getGtfsId()} from ${r.getOrig()} - ${r.getDest()}.`);
+                    logger.info(
+                        `[${r.getCompany()}|${r.getRoute()}] Removed duplicate gtfsId ${r.getGtfsId()} from ${r.getOrig()} - ${r.getDest()}.`,
+                    );
                     r.setGtfsId(undefined);
                     r.setStopList(
                         r.getStopList().map((s: Stop) => {
