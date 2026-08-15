@@ -173,13 +173,6 @@ const getFilename = (
     startStop: string,
     endStop: string,
 ) => {
-    logger.debug(
-        `company=${company} route=${route} gtfsId=${gtfsId} routeType=${routeType} startStop=${startStop} endStop=${endStop}`,
-    );
-    const regex = /[\s(（)）](?:循環線)*/g;
-    startStop = startStop.replace(regex, '');
-    endStop = endStop.replace(regex, '');
-
     let filename = null;
     const routeFile = path.join(routeFolder, route + '.json');
     if (fs.existsSync(routeFile)) {
@@ -187,15 +180,15 @@ const getFilename = (
         let json = JSON.parse(rawdata);
         let matchedRoute;
         if (gtfsId) {
-            logger.debug(`match by gtfsId`);
             matchedRoute = json.find((route) => route.company === company && route.gtfsId === gtfsId);
         }
         if (matchedRoute == null && routeType != null) {
-            logger.debug(`match by routeType`);
             matchedRoute = json.find((route) => route.company === company && route.routeType === routeType);
         }
         if (matchedRoute == null && startStop != null && endStop != null) {
-            logger.debug(`match by startStop endStop`);
+            const regex = /[\s(（)）](?:循環線)*/g;
+            startStop = startStop.replace(regex, '');
+            endStop = endStop.replace(regex, '');
             matchedRoute = json
                 .filter(
                     (route) =>
@@ -242,21 +235,20 @@ const getFilename = (
                     } else {
                         return 0;
                     }
-                });
+                })[0];
         }
-        if (matchedRoute.length > 0) {
+        if (matchedRoute) {
             if (COMPANY.KMB.CODE === company) {
-                filename = `${matchedRoute[0].dir}_${matchedRoute[0].routeType}.json`;
+                filename = `${matchedRoute.dir}_${matchedRoute.routeType}.json`;
             } else if (COMPANY.NLB.CODE === company) {
-                filename = `${matchedRoute[0].routeId}.json`;
+                filename = `${matchedRoute.routeId}.json`;
             } else if (COMPANY.MTR.CODE === company) {
-                filename = `${matchedRoute[0].routeType}.json`;
+                filename = `${matchedRoute.routeType}.json`;
             } else {
-                filename = `${matchedRoute[0].dir}.json`;
+                filename = `${matchedRoute.dir}.json`;
             }
         }
     }
-    logger.debug(`filename=${filename}`);
     return filename;
 };
 
@@ -322,9 +314,12 @@ async function getCompanyRoute(companyCode: string) {
         logger.info(`Step 4: Save result to file`);
 
         logger.info(`Step 4.1: Save CSDI BUS data`);
+        fs.rmSync(path.join(outputFolder, COMPANY.MTR.CODE), { recursive: true });
         bus.forEach((value, key) => {
             logger.info(`Start ${key}`);
-            fs.rmSync(path.join(outputFolder, key), { recursive: true });
+            if (fs.existsSync(path.join(outputFolder, key))) {
+                fs.rmSync(path.join(outputFolder, key), { recursive: true });
+            }
             value.forEach((csdiRecord) => {
                 const { company, route } = GeneralUtil.gtfsSpecialHandling(key, csdiRecord.route);
                 const folder = path.join(outputFolder, company, route);
@@ -356,7 +351,9 @@ async function getCompanyRoute(companyCode: string) {
         minibus.forEach((value, key) => {
             const company = key;
             const gmbFolder = path.join(outputFolder, company);
-            fs.rmSync(gmbFolder, { recursive: true });
+            if (fs.existsSync(gmbFolder)) {
+                fs.rmSync(gmbFolder, { recursive: true });
+            }
             value.forEach((csdiRecord) => {
                 const route = csdiRecord.route;
                 const folder = path.join(gmbFolder, route);
@@ -374,7 +371,9 @@ async function getCompanyRoute(companyCode: string) {
         });
 
         logger.info(`Step 4.3: Save MTR HR data`);
-        fs.rmSync(path.join(outputFolder, COMPANY.MTR_HR.CODE), { recursive: true });
+        if (fs.existsSync(path.join(outputFolder, COMPANY.MTR_HR.CODE))) {
+            fs.rmSync(path.join(outputFolder, COMPANY.MTR_HR.CODE), { recursive: true });
+        }
         mtr_hr.forEach((value) => {
             const company = COMPANY.MTR_HR.CODE;
             const route = value.route;
@@ -387,7 +386,9 @@ async function getCompanyRoute(companyCode: string) {
         logger.info(`End ${COMPANY.MTR_HR.CODE}`);
 
         logger.info(`Step 4.4: Save MTR LR data`);
-        fs.rmSync(path.join(outputFolder, COMPANY.MTR_LR.CODE), { recursive: true });
+        if (fs.existsSync(path.join(outputFolder, COMPANY.MTR_LR.CODE))) {
+            fs.rmSync(path.join(outputFolder, COMPANY.MTR_LR.CODE), { recursive: true });
+        }
         mtr_lr.forEach((value) => {
             const company = COMPANY.MTR_LR.CODE;
             const route = value.route;

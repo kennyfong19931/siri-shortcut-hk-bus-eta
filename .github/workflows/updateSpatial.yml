@@ -25,7 +25,8 @@ jobs:
         working-directory: ./osm
         shell: bash
         run: |
-          curl -o hk.osm.pbf https://download.geofabrik.de/asia/china/hong-kong-latest.osm.pbf
+          curl -L -o hk.osm.pbf https://download.geofabrik.de/asia/china/hong-kong-latest.osm.pbf
+          osmium fileinfo hk.osm.pbf
           chmod +x ./extract_relation.sh
           ./extract_relation.sh hk.osm.pbf
 
