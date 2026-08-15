@@ -1,9 +1,11 @@
 import { jsonResponse } from '../../src/utils/jsonResponse';
 import { COMPANY, noETA } from '../../src/constant';
+import { JointRoute } from '../../src/class/JointRoute';
 import * as ServiceProvider from '../../src/class/serviceProviderForFunction';
+import { getJointJson } from '../../src/utils/requestUtil';
 import ValidationUtil from '../../src/utils/validateUtil';
 
-export async function getEta(requestBody, env) {
+export async function getEta(requestBody, env, request) {
     let response = [];
 
     // validation
@@ -38,10 +40,107 @@ export async function getEta(requestBody, env) {
     // ETA
     for (const requestItem of requestBody) {
         try {
+            let etaResult = [];
             const company = Object.values(COMPANY).find((c) => c.CODE == requestItem.company);
             if (typeof ServiceProvider[company.CODE].fetchEta === 'function') {
-                response.push(await ServiceProvider[company.CODE].fetchEta(requestItem, env));
+                etaResult = await ServiceProvider[company.CODE].fetchEta(requestItem, env, request);
             }
+            if (company.CODE === COMPANY.KMB.CODE) {
+                const jointJson = getJointJson();
+                const jointRouteConfig: JointRoute[] | undefined = Object.entries(jointJson).find(
+                    ([route]) => route === requestItem.routeId,
+                )?.[1];
+
+                if (jointRouteConfig) {
+                    const jointRoute = jointRouteConfig.find(
+                        (item) =>
+                            item.kmb &&
+                            item.kmb.routeId === requestItem.routeId &&
+                            item.kmb.dir === requestItem.dir &&
+                            item.kmb.serviceType === requestItem.routeType,
+                    );
+
+                    if (!jointRoute) continue;
+
+                    const jointStop = jointRoute.stopList.find((stop) => stop?.kmb === requestItem.stop);
+                    if (!jointStop) continue;
+
+                    const jointRequestItem = {
+                        company: COMPANY.CTB.CODE,
+                        routeId: jointRoute.ctb.routeId,
+                        stop: jointStop.ctb,
+                        dir: jointRoute.ctb.dir,
+                        routeType: jointRoute.ctb.serviceType,
+                    };
+
+                    const ctbEta = await ServiceProvider[COMPANY.CTB.CODE].fetchEta(jointRequestItem, env, request);
+                    if (ctbEta.length) {
+                        etaResult.map((eta) => (eta.remark = '九巴' + (eta.remark ? ` - ${eta.remark}` : '')));
+                        ctbEta.forEach((eta) => {
+                            eta.remark = '城巴' + (eta.remark ? ` - ${eta.remark}` : '');
+                            etaResult.push(eta);
+                        });
+                    }
+                    etaResult = etaResult
+                        .filter((eta) => eta.eta != null && !isNaN(eta.eta))
+                        .sort((a, b) => {
+                            if (isNaN(a.eta) || a.eta == null) {
+                                return 1;
+                            } else if (isNaN(b.eta) || b.eta == null) {
+                                return -1;
+                            } else {
+                                return a.eta - b.eta;
+                            }
+                        });
+                }
+            }
+            if (company.CODE === COMPANY.CTB.CODE) {
+                const jointJson = getJointJson();
+                const jointRouteConfig: JointRoute[] | undefined = Object.entries(jointJson).find(
+                    ([route]) => route === requestItem.routeId,
+                )?.[1];
+
+                if (jointRouteConfig) {
+                    const jointRoute = jointRouteConfig.find(
+                        (item) =>
+                            item.ctb && item.ctb.routeId === requestItem.routeId && item.ctb.dir === requestItem.dir,
+                    );
+
+                    if (!jointRoute) continue;
+
+                    const jointStop = jointRoute.stopList.find((stop) => stop?.ctb === requestItem.stop);
+                    if (!jointStop) continue;
+
+                    const jointRequestItem = {
+                        company: COMPANY.KMB.CODE,
+                        routeId: jointRoute.kmb.routeId,
+                        stop: jointStop.kmb,
+                        dir: jointRoute.kmb.dir,
+                        routeType: jointRoute.kmb.serviceType,
+                    };
+
+                    const kmbEta = await ServiceProvider[COMPANY.KMB.CODE].fetchEta(jointRequestItem, env, request);
+                    if (kmbEta.length) {
+                        etaResult.map((eta) => (eta.remark = '城巴' + (eta.remark ? ` - ${eta.remark}` : '')));
+                        kmbEta.forEach((eta) => {
+                            eta.remark = '九巴' + (eta.remark ? ` - ${eta.remark}` : '');
+                            etaResult.push(eta);
+                        });
+                    }
+                    etaResult = etaResult
+                        .filter((eta) => eta.eta != null && !isNaN(eta.eta))
+                        .sort((a, b) => {
+                            if (isNaN(a.eta) || a.eta == null) {
+                                return 1;
+                            } else if (isNaN(b.eta) || b.eta == null) {
+                                return -1;
+                            } else {
+                                return a.eta - b.eta;
+                            }
+                        });
+                }
+            }
+            response.push(etaResult);
         } catch (e) {
             console.error(e);
             response.push(noETA);
@@ -58,5 +157,5 @@ export async function getEta(requestBody, env) {
 
 export async function onRequestPost({ request, env }) {
     const requestBody = JSON.parse(await request.text());
-    return await getEta(requestBody, env);
+    return await getEta(requestBody, env, request);
 }

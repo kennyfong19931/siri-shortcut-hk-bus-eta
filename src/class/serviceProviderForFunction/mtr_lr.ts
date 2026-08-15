@@ -1,5 +1,4 @@
 import { COMPANY, PLACEHOLDER, noETA } from '../../constant';
-import { getRouteJson } from '../../utils/requestUtil';
 import ValidationUtil from '../../utils/validateUtil';
 
 const company = COMPANY.MTR_LR;
@@ -17,14 +16,16 @@ export function validateEtaRequest(requestItem) {
     }
 }
 
-export async function fetchEta(requestItem, env) {
+export async function fetchEta(requestItem, env, request) {
     const api = company.ETA_API.replace(PLACEHOLDER.STOP, requestItem.stop);
 
     if (requestItem.route === undefined) {
         requestItem.route = requestItem.routeId;
     }
 
-    const mtrLrData = getRouteJson(requestItem.route);
+    const mtrLrData = await env.ASSETS.fetch(
+        new Request(new URL(`/api/route/${requestItem.route}.json`, request.url)),
+    ).then((r) => r.json());
     const filteredRoute = mtrLrData.filter(
         (route) =>
             route.company === company.CODE && route.routeId === requestItem.routeId && route.dir === requestItem.dir,

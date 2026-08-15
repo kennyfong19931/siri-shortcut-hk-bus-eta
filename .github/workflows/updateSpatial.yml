@@ -2,7 +2,7 @@ name: Update Spatial Data
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * 5'
+    - cron: '0 12 * * *'
 jobs:
   update:
     name: Update Spatial Data
@@ -17,6 +17,17 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: 24
+
+      - name: Install osmium-tool
+        run: sudo apt install -y osmium-tool jq curl
+
+      - name: Extract geojson from osm
+        working-directory: ./osm
+        shell: bash
+        run: |
+          curl -o hk.osm.pbf https://download.geofabrik.de/asia/china/hong-kong-latest.osm.pbf
+          chmod +x ./extract_relation.sh
+          ./extract_relation.sh hk.osm.pbf
 
       - name: Install dependencies
         run: |

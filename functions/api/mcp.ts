@@ -1,6 +1,5 @@
 import { jsonRpcResponse } from '../../src/utils/jsonResponse';
 import * as etaModule from './eta';
-import { getRouteJson } from '../../src/utils/requestUtil';
 
 function mcpHeaders(headers = {}) {
     return {
@@ -72,10 +71,12 @@ function getToolList() {
     ];
 }
 
-async function callTool(env, toolName, args) {
+async function callTool(request, env, toolName, args) {
     if (toolName === 'get-route') {
         try {
-            return getRouteJson(args.routeNo);
+            return env.ASSETS.fetch(new Request(new URL(`/api/route/${args.routeNo}.json`, request.url))).then((r) =>
+                r.json(),
+            );
         } catch (e) {
             console.error(e);
             throw new Error('route not found');
@@ -90,7 +91,7 @@ export async function onRequestOptions() {
     return new Response(null, { status: 204, headers: mcpHeaders() });
 }
 
-export async function onRequestPost({ request, env, ctx }) {
+export async function onRequestPost({ request, env }) {
     const requestBody = await request.json();
     const id = requestBody.id ?? null;
     const method = requestBody.method ?? null;
@@ -124,7 +125,7 @@ export async function onRequestPost({ request, env, ctx }) {
     if (method === 'tools/call') {
         const toolName = params.name ?? 'unknown_tool';
         try {
-            const responseJson = await callTool(env, toolName, params.arguments);
+            const responseJson = await callTool(request, env, toolName, params.arguments);
             return jsonRpcResponse(id, {
                 content: [
                     {

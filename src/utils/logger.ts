@@ -5,6 +5,13 @@ const getTime = () => {
 };
 
 export default class logger {
+    static debug(message: string, object?: any) {
+        console.debug(`[${getTime()}][DEBUG] ${message}`);
+        if (object) {
+            console.debug(object);
+        }
+    }
+
     static info(message: string) {
         console.info(`[${getTime()}][INFO] ${message}`);
     }
@@ -13,7 +20,7 @@ export default class logger {
         console.info(`[${getTime()}][WARN] ${message}`);
     }
 
-    static error(message: string, error: Error) {
+    static error(message: string, error: any) {
         console.error(`[${getTime()}][ERROR] ${message}`, error);
     }
 }

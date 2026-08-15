@@ -1,15 +1,16 @@
 import { COMPANY, noETA } from '../../constant';
-import { getRouteJson } from '../../utils/requestUtil';
 
 const company = COMPANY.MTR;
 
-export async function fetchEta(requestItem, env) {
+export async function fetchEta(requestItem, env, request) {
     let routeType = null;
     if (requestItem.routeType) {
         routeType = requestItem.routeType;
     } else {
         // backward compatibility for call without routeType
-        const routeJson = getRouteJson(requestItem.routeId);
+        const routeJson = await env.ASSETS.fetch(
+            new Request(new URL(`/api/route/${requestItem.routeId}.json`, request.url)),
+        ).then((r) => r.json());
         const filteredRoute = routeJson.filter(
             (route) => route.company === requestItem.company && route.routeId === requestItem.routeId,
         );

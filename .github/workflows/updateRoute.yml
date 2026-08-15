@@ -30,6 +30,13 @@ jobs:
           key: stop-data-${{ steps.get-date.outputs.date }}
           restore-keys: stop-data
 
+      - name: Load cache - gtfs data
+        uses: actions/cache/restore@v6
+        with:
+          path: gtfs
+          key: gtfs-data-${{ steps.get-date.outputs.date }}
+          restore-keys: gtfs-data
+
       - name: Install dependencies
         run: |
           npm install
@@ -37,6 +44,7 @@ jobs:
       - name: Update Route Data
         run: |
           npm run update-route
+          npm run merge-route
 
       - name: Generate sitemap
         run: |

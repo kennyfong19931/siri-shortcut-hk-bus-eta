@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
 import { COMPANY, PLACEHOLDER, noETA } from '../../constant';
-import { getRouteJson } from '../../utils/requestUtil';
 import ValidationUtil from '../../utils/validateUtil';
 
 const company = COMPANY.MTR_HR;
@@ -11,13 +10,15 @@ export function validateEtaRequest(requestItem) {
     }
 }
 
-export async function fetchEta(requestItem, env) {
+export async function fetchEta(requestItem, env, request) {
     const api = company.ETA_API.replace(PLACEHOLDER.STOP, requestItem.stop).replace(
         PLACEHOLDER.ROUTE,
         requestItem.routeId,
     );
 
-    const mtrHrData = getRouteJson('mtr_hr');
+    const mtrHrData = await env.ASSETS.fetch(new Request(new URL('/api/route/mtr_hr.json', request.url))).then((r) =>
+        r.json(),
+    );
 
     const etaResponse = await fetch(api)
         .then((response) => response.json())
