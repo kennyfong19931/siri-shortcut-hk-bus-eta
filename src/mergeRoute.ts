@@ -247,7 +247,7 @@ function getBestMatchedStopIndex(
 
     // If the stop name contains any special keywords, try the per-keyword thresholds.
     const specialCandidates = Array.from(DISTANCE_THRESHOLD_STOP_SPECIAL.entries()).flatMap(([name, threshold]) => {
-        if (!stop.getName().includes(name)) return [];
+        if (!stop.getName()?.includes(name)) return [];
         return stopList.flatMap((stopB, index) => {
             if (ignoreIndex.has(index)) return [];
             const d = SpatialUtil.haversine(stop, stopB);
@@ -514,24 +514,26 @@ function createVirtualCircularRoute(routeA: Route, routeB: Route) {
                             if (matchedStop) {
                                 stop.setGtfsId(matchedStop.getGtfsId());
 
-                                let bestScore = 0;
-                                let stopName = stop
-                                    .getName()
-                                    .replace(/\(\w*\)/gm, '')
-                                    .trim(); // remove kmb stop platform number
-                                matchedStop
-                                    .getName()
-                                    .split('/')
-                                    .forEach((gtfsStopName: string) => {
-                                        const score = diceCoefficient(gtfsStopName, stopName);
-                                        if (score > bestScore) {
-                                            bestScore = score;
-                                        }
-                                    });
-                                if (bestScore < VERIFY_STOP_MIN_SCORE) {
-                                    stopVerifyMessage.push(
-                                        `[${route.getCompany()}|${route.getRoute()}|${route.getGtfsId()}|${stop.getGtfsId()}] Matched stop may be wrong: bestScroe = ${bestScore}, ${stop.getName()} vs ${matchedStop.getName()}`,
-                                    );
+                                if (stop.getName()) {
+                                    let bestScore = 0;
+                                    let stopName = stop
+                                        .getName()
+                                        .replace(/\(\w*\)/gm, '')
+                                        .trim(); // remove kmb stop platform number
+                                    matchedStop
+                                        .getName()
+                                        .split('/')
+                                        .forEach((gtfsStopName: string) => {
+                                            const score = diceCoefficient(gtfsStopName, stopName);
+                                            if (score > bestScore) {
+                                                bestScore = score;
+                                            }
+                                        });
+                                    if (bestScore < VERIFY_STOP_MIN_SCORE) {
+                                        stopVerifyMessage.push(
+                                            `[${route.getCompany()}|${route.getRoute()}|${route.getGtfsId()}|${stop.getGtfsId()}] Matched stop may be wrong: bestScroe = ${bestScore}, ${stop.getName()} vs ${matchedStop.getName()}`,
+                                        );
+                                    }
                                 }
                             } else {
                                 const duplicateStopList = route
