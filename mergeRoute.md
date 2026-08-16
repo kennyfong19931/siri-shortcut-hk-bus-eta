@@ -19,15 +19,19 @@ GTFS 沒有該車站，無法配對。
 | <img src="./public/img/ctb.svg" height="16"> 城巴 | 307 | 維園正門 |
 | <img src="./public/img/ctb.svg" height="16"> 城巴 | 33X | 薄扶林道墳場 |
 | <img src="./public/img/kmb.svg" height="16"> 九巴 | 40B | 麗瑤及祖堯 [^1] |
+| <img src="./public/img/kmb.svg" height="16"> 九巴 | 586, 587, 589 | 錦駿苑 [^1] |
 | <img src="./public/img/kmb.svg" height="16"> 九巴 | 6C, 6F, 11B, 61X, 85A, 115 | 九龍城碼頭巴士總站(落客站) [^1] |
 | <img src="./public/img/ctb.svg" height="16"> 城巴 | 606 | 康民街 |
 | <img src="./public/img/ctb.svg" height="16"> 城巴 | 7, 91, 307 | 香港站 |
 | <img src="./public/img/ctb.svg" height="16"> 城巴 | 8H, 8X, 682, 694 | 青年廣場 |
 | <img src="./public/img/kmb.svg" height="16"> 九巴 | 88K | 顯徑巴士總站 (TA930)(落客站) [^1] |
 | <img src="./public/img/ctb.svg" height="16"> 城巴 | 905 | 修頓球場 |
+| <img src="./public/img/ctb.svg" height="16"> 城巴 | A20 | 浪澄灣 [^1] |
 | <img src="./public/img/ctb.svg" height="16"> 城巴 | B3 | 翠寧花園 [^1] |
+| <img src="./public/img/ctb.svg" height="16"> 城巴 | E11A, E11B, E21A, E21D, E21X, E22S, E23A, N21A, S52A, S56 | 修改於東湧之行車路線 [^1] |
 | <img src="./public/img/ctb.svg" height="16"> 城巴 | E22, E22A | 富東廣場 [^1] |
 | <img src="./public/img/ctb.svg" height="16"> 城巴 | E32A, E36A, N31 | 裕雅苑雅盛閣, 匯東街 [^1] |
+| <img src="./public/img/mtr.svg" height="16"> 港鐵巴士 | N216, N290 | 基順學校 > 利明樓 [^1] |
 | <img src="./public/img/mtr.svg" height="16"> 港鐵巴士 | K17 | 怡雅苑 [^1] |
 | <img src="./public/img/ctb.svg" height="16"> 城巴 | X15 | 中環 (香港摩天輪) |
 
@@ -47,7 +51,6 @@ GTFS 沒有該路線，為特殊走線或只於特定時間提供服務。
 | <img src="./public/img/kmb.svg" height="16"> 九巴 | 25R | 啟德郵輪碼頭有郵輪泊岸期間 |
 | <img src="./public/img/kmb.svg" height="16"> 九巴 | 28B | 經牛頭角總站缺少車站宏緻苑，路線配對錯誤 [^1]  |
 | <img src="./public/img/kmb.svg" height="16"> 九巴 | 268C | 觀塘定富街 - 朗屏站 |
-| <img src="./public/img/kmb.svg" height="16"> 九巴 | 273A | 所有班次延長至彩石邨 [^1] |
 | <img src="./public/img/kmb.svg" height="16"> 九巴 | 278K | 缺少聯和墟總站，路線配對錯誤 [^2] |
 | <img src="./public/img/kmb.svg" height="16"> 九巴 | 30 | 葵涌(麗瑤邨) - 荃灣(荃威花園) |
 | <img src="./public/img/kmb.svg" height="16"> 九巴 | 3S, 14S, 38S, 52S, 61S, 70S, 73S, 74S, 76S, 279S | 清明節、重陽節 |
@@ -67,7 +70,8 @@ GTFS 沒有該路線，為特殊走線或只於特定時間提供服務。
 | <img src="./public/img/kmb.svg" height="16"> 九巴 | 70K | 上水(清河) - 粉嶺(華明) |
 | <img src="./public/img/kmb.svg" height="16"> 九巴 | 71P | 農曆新年 |
 | <img src="./public/img/ctb.svg" height="16"> 城巴 | 73S | 端午節 |
-| <img src="./public/img/ctb.svg" height="16"> 城巴 | 770 | 新路線：2026年7月26日 |
+| <img src="./public/img/ctb.svg" height="16"> 九巴 | 77 | 新路線：2026年8月17日 [^1] |
+| <img src="./public/img/ctb.svg" height="16"> 城巴 | 770 | 新路線：2026年7月26日 [^1] |
 | <img src="./public/img/kmb.svg" height="16"> 九巴 | 78A | 皇后山 - 粉嶺名都 |
 | <img src="./public/img/kmb.svg" height="16"> 九巴 | 848, 868, 869, 872, 872X, 887, 888, 889, 891, 893 | 沙田馬場賽馬日進/散場 |
 | <img src="./public/img/kmb.svg" height="16"> 九巴 | 917 | 居民巴士NR917線 陽光巴士營辦 |
@@ -76,7 +80,6 @@ GTFS 沒有該路線，為特殊走線或只於特定時間提供服務。
 | <img src="./public/img/kmb.svg" height="16"> 九巴 | 945 | 居民巴士NR945線 陽光巴士營辦 |
 | <img src="./public/img/kmb.svg" height="16"> 九巴 | 968 | 菲林明道 - 元朗(西) |
 | <img src="./public/img/ctb.svg" height="16"> 城巴 | 976S | 元旦日 |
-| <img src="./public/img/ctb.svg" height="16"> 城巴 | A20 | 浪澄灣 [^1] |
 | <img src="./public/img/kmb.svg" height="16"> 九巴<br/><img src="./public/img/ctb.svg" height="16"> 城巴 | A25S, SP* | 啟德體育園散場 |
 | <img src="./public/img/kmb.svg" height="16"> 九巴 | A36 | 錦上路站 - 機場(地面運輸中心)(經機場博覽館) |
 | <img src="./public/img/kmb.svg" height="16"> 九巴 | B9 | 不經元朗路線 |

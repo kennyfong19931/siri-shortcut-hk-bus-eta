@@ -44,6 +44,9 @@ jobs:
       - name: Update Route Data
         run: |
           npm run update-route
+
+      - name: Merge Route Data with GTFS
+        run: |
           npm run merge-route
 
       - name: Generate sitemap

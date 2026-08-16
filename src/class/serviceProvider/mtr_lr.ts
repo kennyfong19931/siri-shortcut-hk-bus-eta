@@ -56,7 +56,7 @@ export async function crawlRoute(): Promise<Route[]> {
             return new Route(
                 company.CODE,
                 lineCode,
-                null,
+                undefined,
                 direction,
                 stopList.at(0).getName(),
                 stopList.at(-1).getName(),
@@ -80,7 +80,7 @@ export async function crawlRoute(): Promise<Route[]> {
             return new Route(
                 company.CODE,
                 route.displayCode.replaceAll('*', ''),
-                null,
+                undefined,
                 String(idx),
                 stopList.at(0).getName(),
                 stopList.at(-1).getName(),

@@ -56,7 +56,7 @@ export async function crawlRoute(): Promise<Route[]> {
                     }
                 })
                 .filter((s) => s !== undefined);
-            result.push(new Route(company.CODE, route.route, null, route.dir, route.orig, route.dest, stopList));
+            result.push(new Route(company.CODE, route.route, undefined, route.dir, route.orig, route.dest, stopList));
         }
     }
     return result;

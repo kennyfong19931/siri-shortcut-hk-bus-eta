@@ -30,8 +30,8 @@ export async function crawlRoute(): Promise<Route[]> {
         return new Route(
             company.CODE,
             route.routeNo,
-            null,
-            null,
+            undefined,
+            undefined,
             routeDest[0].trim(),
             routeDest[1].trim(),
             stopList,

@@ -182,10 +182,10 @@ const getFilename = (
         let json = JSON.parse(rawdata);
         let matchedRoute;
         if (gtfsId) {
-            matchedRoute = json.find((route) => route.company === company && route.gtfsId === gtfsId);
+            matchedRoute = json.filter((route) => route.company === company && route.gtfsId === gtfsId);
         }
         if (matchedRoute == null && routeType != null) {
-            matchedRoute = json.find((route) => route.company === company && route.routeType === routeType);
+            matchedRoute = json.filter((route) => route.company === company && route.routeType === routeType);
         }
         if (matchedRoute == null && startStop != null && endStop != null) {
             const regex = /[\s(（)）](?:循環線)*/g;
@@ -237,18 +237,20 @@ const getFilename = (
                     } else {
                         return 0;
                     }
-                })[0];
+                });
         }
         if (matchedRoute) {
-            if (COMPANY.KMB.CODE === company) {
-                filename = `${matchedRoute.dir}_${matchedRoute.routeType}.json`;
-            } else if (COMPANY.NLB.CODE === company) {
-                filename = `${matchedRoute.routeId}.json`;
-            } else if (COMPANY.MTR.CODE === company) {
-                filename = `${matchedRoute.routeType}.json`;
-            } else {
-                filename = `${matchedRoute.dir}.json`;
-            }
+            filename = matchedRoute.map((route) => {
+                if (COMPANY.KMB.CODE === company) {
+                    return `${route.dir}_${route.routeType}.json`;
+                } else if (COMPANY.NLB.CODE === company) {
+                    return `${route.routeId}.json`;
+                } else if (COMPANY.MTR.CODE === company) {
+                    return `${route.routeType}.json`;
+                } else {
+                    return `${route.dir}.json`;
+                }
+            });
         }
     }
     return filename;
@@ -329,15 +331,17 @@ async function getCompanyRoute(companyCode: string) {
                 const gtfsId = `${csdiRecord.routeId}_${csdiRecord.routeSeq}`;
                 const filename = getFilename(company, route, gtfsId, null, null, null);
                 if (filename) {
-                    const file = path.join(folder, filename);
-                    if (fs.existsSync(file)) {
-                        // skip route already created (e.g. route variation)
-                        logger.info(
-                            `Skipped [${company}] ${route} ${gtfsId} (${csdiRecord.startStop} - ${csdiRecord.endStop}), already created`,
-                        );
-                        return;
+                    for (const f of filename) {
+                        const file = path.join(folder, f);
+                        if (fs.existsSync(file)) {
+                            // skip route already created (e.g. route variation)
+                            logger.info(
+                                `Skipped [${company}] ${route} ${gtfsId} (${csdiRecord.startStop} - ${csdiRecord.endStop}), already created`,
+                            );
+                            return;
+                        }
+                        fs.writeFileSync(file, JSON.stringify(csdiRecord.geometry));
                     }
-                    fs.writeFileSync(file, JSON.stringify(csdiRecord.geometry));
                 } else {
                     logger.warn(
                         `Skipped [${company}] ${route} ${gtfsId} (${csdiRecord.startStop} - ${csdiRecord.endStop}), cannot match route`,
@@ -396,11 +400,13 @@ async function getCompanyRoute(companyCode: string) {
             const endStop = value.endStop;
             const folder = path.join(outputFolder, company, route);
             fs.mkdirSync(folder, { recursive: true });
-            let f = getFilename(company, route, null, null, startStop, endStop);
-            if (f) {
-                let filename = path.join(folder, f);
-                let data = JSON.stringify(value.geometry);
-                fs.writeFileSync(filename, data);
+            let filename = getFilename(company, route, null, null, startStop, endStop);
+            if (filename) {
+                for (const f of filename) {
+                    let filename = path.join(folder, f);
+                    let data = JSON.stringify(value.geometry);
+                    fs.writeFileSync(filename, data);
+                }
             } else {
                 logger.warn(`Skipped [${company}] ${route} (${startStop} - ${endStop}), cannot match route`);
             }
@@ -415,11 +421,13 @@ async function getCompanyRoute(companyCode: string) {
             const endStop = value.endStop;
             const folder = path.join(outputFolder, company, route);
             fs.mkdirSync(folder, { recursive: true });
-            let f = getFilename(company, route, null, value.routeType, startStop, endStop);
-            if (f) {
-                let filename = path.join(folder, f);
-                let data = JSON.stringify(value.geometry);
-                fs.writeFileSync(filename, data);
+            let filename = getFilename(company, route, null, value.routeType, startStop, endStop);
+            if (filename) {
+                for (const f of filename) {
+                    let filename = path.join(folder, f);
+                    let data = JSON.stringify(value.geometry);
+                    fs.writeFileSync(filename, data);
+                }
             } else {
                 logger.warn(`Skipped [${company}] ${route} (${startStop} - ${endStop}), cannot match route`);
             }
