@@ -20,6 +20,13 @@ jobs:
         run: |
           npm install
 
+      - name: Load cache - gtfs data
+        uses: actions/cache/restore@v6
+        with:
+          path: gtfs
+          key: gtfs-data-${{ steps.get-date.outputs.date }}
+          restore-keys: gtfs-data
+
       - name: Update GTFS Data
         run: |
           npm run update-gtfs
