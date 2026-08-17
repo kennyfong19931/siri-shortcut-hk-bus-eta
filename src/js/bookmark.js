@@ -50,12 +50,6 @@ const toggleEditButton = (toEdit) => {
     }
 };
 const addGroup = (name) => {
-    if (document.getElementById('groupNameInput').value.length > 0) {
-        name = document.getElementById('groupNameInput').value;
-        document.getElementById('groupNameInput').value = '';
-        addGroupModal.hide();
-    }
-
     const div = getHtmlTemplate('bookmarkGroup', {
         '{{name}}': name,
     });
@@ -105,7 +99,11 @@ const addBookmark = (groupName, json, fromWebpageClick = false) => {
     reloadRouter();
 };
 const removeBookmark = (event) => {
-    let routeRow = event.target.closest('div.list-group-item');
+    // Prevent Navigo from catching the click event on the parent <a> tag
+    event.stopPropagation();
+    // Prevent any default button behavior
+    event.preventDefault();
+    let routeRow = event.target.closest('a.list-group-item');
     routeRow.remove();
 };
 const editBookmark = () => {
@@ -214,12 +212,19 @@ const isBoomarked = (stop) => {
     }
     return false;
 };
+const handleBookmarkGroupAddBtn = () => {
+    if (document.getElementById('groupNameInput').reportValidity()) {
+        addGroup(document.getElementById('groupNameInput').value);
+        document.getElementById('groupNameInput').value = '';
+        addGroupModal.hide();
+    }
+};
 
 // events
 document.getElementById('btnBookmarkEdit').onclick = editBookmark;
 document.getElementById('btnBookmarkSave').onclick = saveBookmark;
 document.getElementById('btnBookmarkReset').onclick = resetBookmark;
-document.getElementById('btnBookmarkGroupAddSubmit').onclick = addGroup;
+document.getElementById('btnBookmarkGroupAddSubmit').onclick = handleBookmarkGroupAddBtn;
 document.getElementById('btnBookmarkDownload').onclick = downloadBookmark;
 document.getElementById('fileUploadInput').addEventListener('change', uploadBookmark, false);
 
