@@ -10,6 +10,7 @@
     "format": "prettier --write \"{functions,src}/**/*.{js,ts}\"",
     "generate-sitemap": "tsx src/generateSiteMap.ts",
     "merge-route": "tsx src/mergeRoute.ts",
+    "send-tg-noti": "tsx src/sendTgNoti.ts",
     "test": "concurrently -n wrangler,jest --success first --kill-others \"npm:dev\" \"wait-on -t 2m http://localhost:8788 && npm run test-local\"",
     "test-local": "jest --ci --runInBand",
     "update-gtfs": "tsx src/updateGtfs.ts",
