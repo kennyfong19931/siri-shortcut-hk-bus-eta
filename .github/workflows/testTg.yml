@@ -1,0 +1,26 @@
+name: Test Telegram Notifications
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'functions/**'
+jobs:
+  update:
+    name: Send Notification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup node env
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: |
+          npm install
+
+      - name: Send Notification
+        run: |
+          npm run send-tg-noti
