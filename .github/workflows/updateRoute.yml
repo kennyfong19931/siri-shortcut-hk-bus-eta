@@ -54,11 +54,20 @@ jobs:
           npm run generate-sitemap
 
       - name: Commit and Push data
+        id: auto-commit-action
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: Update Route data
           file_pattern: 'public/api/route/**'
           #commit_author: Actions <github-actions[bot]@users.noreply.github.com>
+
+      - name: Send Telegram Notification
+        if: steps.auto-commit-action.outputs.changes_detected == 'true'
+        run: npm run send-tg-noti
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_TOPIC_ID: ${{ secrets.TELEGRAM_TOPIC_ID }}
 
       - name: Update Stop Name on exception
         if: failure() && env.runUpdateStopName == 'true'
