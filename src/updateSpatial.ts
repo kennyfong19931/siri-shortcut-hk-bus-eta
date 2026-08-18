@@ -8,6 +8,7 @@ import xml2js from 'xml2js';
 import logger from './utils/logger';
 import { COMPANY, COORDINATE_DP } from './constant';
 import GeneralUtil from './utils/generalUtil';
+import { telegramPost } from './utils/requestUtil';
 import SpatialUtil from './utils/spatialUtil';
 import osmConfig from '../osm/osm_config.json';
 
@@ -48,6 +49,7 @@ const isCsdiUpdated = async (type: string) => {
         return false;
     } else {
         fs.writeFileSync(path.join(outputFolder, `lastUpdate_${type}.txt`), csdiLastUpdate);
+        telegramPost(`CSDI route updated: ${csdiLastUpdate}`);
         return true;
     }
 };

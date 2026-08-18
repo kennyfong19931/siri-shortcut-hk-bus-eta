@@ -1,13 +1,14 @@
 import { readFile } from 'fs/promises';
 import fs from 'fs';
 import path from 'path';
+import * as core from '@actions/core';
 import { COMPANY } from './constant';
 import { Route } from './class/Route';
 import { Stop } from './class/Stop';
 import logger from './utils/logger';
 import { parseCsvString } from './utils/csvUtil';
 import GeneralUtil from './utils/generalUtil';
-import { doRequest } from './utils/requestUtil';
+import { doRequest, telegramPost } from './utils/requestUtil';
 
 const outputFolder = path.join('gtfs');
 const LAST_UPDATE_URL = 'https://static.data.gov.hk/td/pt-headway-en/DATA_LAST_UPDATED_DATE.csv';
@@ -76,6 +77,7 @@ function normalizeTripId(tripId?: string): string {
     } else {
         runUpdate = true;
         fs.writeFileSync(path.join(outputFolder, 'lastUpdate.txt'), csvDate);
+        telegramPost(`GTFS updated: ${csvDate}`);
     }
     if (!runUpdate) {
         logger.info('End');
@@ -195,6 +197,7 @@ function normalizeTripId(tripId?: string): string {
             }
             logger.info(`total routes: ${routeObjects.length}`);
             fs.writeFileSync(path.join(outputFolder, 'gtfs.json'), JSON.stringify(routeObjects));
+            core.exportVariable('gtfsUpdated', true);
         });
     logger.info('End');
 })();

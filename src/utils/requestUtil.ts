@@ -61,19 +61,23 @@ export const doRequest = async (
 
 export const getJointJson = () => require(`../../public/api/joint.json`);
 
-export const telegramPost = async (body: any, commitHash: string) => {
+export const telegramPost = (body: any) => {
     const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-    const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
-    const TG_MESSAGE_LIMIT = 30000; // real limit of rich message is 32768 UTF-8 characters 
-
-    if (body.length > TG_MESSAGE_LIMIT) {
-        body = body.substring(0, body.length - 100) + `\n\n超出長度限制請到 🔗[Github](https://github.com/kennyfong19931/siri-shortcut-hk-bus-eta/commit/${commitHash}) 上查看`;
+    const CHAT_ID = isNaN(parseInt(process.env.TELEGRAM_CHAT_ID)) ? undefined : parseInt(process.env.TELEGRAM_CHAT_ID);
+    const TOPIC_ID = isNaN(parseInt(process.env.TELEGRAM_TOPIC_ID))
+        ? undefined
+        : parseInt(process.env.TELEGRAM_TOPIC_ID);
+    if (!BOT_TOKEN || !CHAT_ID) {
+        logger.error('Error: Telegram config is missing', undefined);
+        return;
     }
+
     const data = JSON.stringify({
         chat_id: CHAT_ID,
         rich_message: {
             markdown: body,
         },
+        message_thread_id: TOPIC_ID,
     });
 
     const req = https.request(

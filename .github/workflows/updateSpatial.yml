@@ -37,10 +37,23 @@ jobs:
       - name: Update Route Data
         run: |
           npm run update-spatial
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_TOPIC_ID: ${{ secrets.TELEGRAM_TOPIC_ID }}
 
       - name: Commit and Push data
+        id: auto-commit-action
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: Update Spatial data
           file_pattern: 'public/api/spatial/**'
           #commit_author: kennyfong19931 <kennyfong19931@users.noreply.github.com>
+
+      - name: Send Telegram Notification
+        if: steps.auto-commit-action.outputs.changes_detected == 'true'
+        run: npm run send-tg-noti
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_TOPIC_ID: ${{ secrets.TELEGRAM_TOPIC_ID }}

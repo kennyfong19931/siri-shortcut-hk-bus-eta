@@ -2,15 +2,18 @@ import { execSync } from 'node:child_process';
 import path from 'path';
 import { Route } from './class/Route';
 import { Stop } from './class/Stop';
+import logger from './utils/logger';
 import { telegramPost } from './utils/requestUtil';
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+const TG_RICH_MESSAGE_LIMIT = 32768;
 
 (async function () {
     if (!BOT_TOKEN || !CHAT_ID) {
-        console.error('Error: Telegram config is missing');
-        process.exit(1);
+        const error = new Error('Telegram config is missing');
+        logger.error('Error', error);
+        throw error;
     }
 
     try {
@@ -18,8 +21,8 @@ const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
         const gitDiffOutput = execSync('git diff-tree --no-commit-id --name-only -r HEAD', { encoding: 'utf8' }).trim();
 
         if (!gitDiffOutput) {
-            console.log('No file change in last commit');
-            process.exit(0);
+            logger.info('No file change in last commit');
+            return;
         }
 
         const jsonFiles = gitDiffOutput
@@ -28,20 +31,36 @@ const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
             .filter((file) => file.endsWith('.json'));
 
         if (jsonFiles.length === 0) {
-            console.log('No json change in last commit');
-            process.exit(0);
+            logger.info('No json change in last commit');
+            return;
         }
 
         const commitHash = execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim();
 
         const summaryRoutes: string[] = [];
         const allUpdates: { company: string; route: string; changes: string }[] = [];
+        const summarySpatials: Set<string> = new Set<string>();
 
         // 2. 逐一處理每個修改過的 .json 檔案
         for (const filePath of jsonFiles) {
+            if (filePath.includes('spatial')) {
+                let m;
+                const regex = /\/spatial\/[\w]*\/([\w]*)\//gm;
+                while ((m = regex.exec(filePath)) !== null) {
+                    // This is necessary to avoid infinite loops with zero-width matches
+                    if (m.index === regex.lastIndex) {
+                        regex.lastIndex++;
+                    }
+                    summarySpatials.add(m[1]);
+                }
+            }
+            if (!filePath.includes('route')) {
+                continue;
+            }
+
             let beforeJson: Route[] = [];
             let afterJson: Route[] = [];
-            const routeNo = path.parse(filePath.replace(/\\/g, '/')).name;
+            const routeNo = path.parse(filePath).name;
 
             // 取得最新版本 (HEAD) 內容
             try {
@@ -67,26 +86,37 @@ const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
             }
         }
 
-        if (allUpdates.length === 0) {
-            console.log('No difference in json files');
-            process.exit(0);
-        }
-
         if (summaryRoutes.length > 0) {
-            const message = `<b>🚌 巴士路線更新通知</b> (<code>${commitHash.substring(0, 8)}</code>)
-
-<b>路線:</b> ${summaryRoutes.join(', ')}
+            logger.info(`route updated, count: ${summaryRoutes.length}`);
+            const routeMessageTitle = '**🚌 巴士路線更新通知**';
+            const routeMessageBody = `**路線:** ${summaryRoutes.join(', ')}
 
 <details><summary>詳情</summary>
 ${buildTableString(allUpdates)}
 </details>`;
+            const routeMessage =
+                routeMessageTitle.length + routeMessageBody.length > TG_RICH_MESSAGE_LIMIT
+                    ? `${routeMessageTitle}
+> 超出 Telegram 長度限制，請到 🔗[Github](https://github.com/kennyfong19931/siri-shortcut-hk-bus-eta/commit/${commitHash}) 上查看完整更新
 
-            telegramPost(message, commitHash);
+${routeMessageBody}`
+                    : `${routeMessageTitle}
+${routeMessageBody}`;
+            telegramPost(routeMessage);
+        }
+
+        if (summarySpatials.size > 0) {
+            logger.info(`spatial updated, count: ${summarySpatials.size}`);
+            const spatialMessage = `**🗺️ 地圖走線更新通知**
+            
+**路線:** ${Array.from(summarySpatials).join(', ')}
+
+🔗到[網站](https://siri-shortcut-hk-bus-eta.pages.dev/)觀看`;
+            telegramPost(spatialMessage);
         }
     } catch (err: unknown) {
-        const errorMessage = err instanceof Error ? err.message : String(err);
-        console.error('執行失敗:', errorMessage);
-        process.exit(1);
+        logger.error('執行失敗', err);
+        throw err;
     }
 })();
 
@@ -148,17 +178,19 @@ function compareRouteData(beforeJson: Route[], afterJson: Route[]) {
 
             const changes: string[] = [];
 
-            // 比對起點 (orig)
+            // 總站
+            const temrinusChange: string[] = [];
             if (beforeRoute.getOrig() !== afterRoute.getOrig()) {
-                changes.push(`🚩 起點: ${beforeRoute.getOrig()} ➡️ ${afterRoute.getOrig()}`);
+                temrinusChange.push(`${beforeRoute.getOrig()} ➡️ ${afterRoute.getOrig()}`);
             }
-
-            // 比對終點 (dest)
             if (beforeRoute.getDest() !== afterRoute.getDest()) {
-                changes.push(`🏁 終點: ${beforeRoute.getDest()} ➡️ ${afterRoute.getDest()}`);
+                temrinusChange.push(`${beforeRoute.getDest()} ➡️ ${afterRoute.getDest()}`);
+            }
+            if (temrinusChange.length > 0) {
+                changes.push(`🚩 總站更改: ${temrinusChange.join(', ')}`);
             }
 
-            // 比對車站 (stopList)
+            // 車站
             const beforeStops = beforeRoute.getStopList() || [];
             const afterStops = afterRoute.getStopList() || [];
 
@@ -203,7 +235,7 @@ function compareRouteData(beforeJson: Route[], afterJson: Route[]) {
 }
 
 /**
- * 產生等寬表格 (Monospace Text Table)
+ * 產生 Markdown 表格
  */
 function buildTableString(rows: { company: string; route: string; changes: string }[]): string {
     const header = '|公司|路線|改動|';
