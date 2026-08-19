@@ -1,5 +1,6 @@
 import { execSync } from 'node:child_process';
 import path from 'path';
+import * as core from '@actions/core';
 import { Route } from './class/Route';
 import { Stop } from './class/Stop';
 import logger from './utils/logger';
@@ -35,7 +36,7 @@ const TG_RICH_MESSAGE_LIMIT = 32768;
             return;
         }
 
-        const commitHash = execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim();
+        const commitHash = execSync('git rev-parse --short HEAD', { encoding: 'utf8' }).trim();
 
         const summaryRoutes: string[] = [];
         const allUpdates: { company: string; route: string; changes: string }[] = [];
@@ -87,8 +88,11 @@ const TG_RICH_MESSAGE_LIMIT = 32768;
         }
 
         if (summaryRoutes.length > 0) {
+            // write to github summary
+            await core.summary.addHeading('🚌 巴士路線更新詳情').addEOL().addRaw(buildTableString(allUpdates)).write();
+
             logger.info(`route updated, count: ${summaryRoutes.length}`);
-            const routeMessageTitle = '**🚌 巴士路線更新通知**';
+            const routeMessageTitle = '**🚌 巴士路線更新通知** <code>${commitHash}</code>';
             const routeMessageBody = `**路線:** ${summaryRoutes.join(', ')}
 
 <details><summary>詳情</summary>
@@ -97,7 +101,7 @@ ${buildTableString(allUpdates)}
             const routeMessage =
                 routeMessageTitle.length + routeMessageBody.length > TG_RICH_MESSAGE_LIMIT
                     ? `${routeMessageTitle}
-> 超出 Telegram 長度限制，請到 🔗[Github](https://github.com/kennyfong19931/siri-shortcut-hk-bus-eta/commit/${commitHash}) 上查看完整更新
+> 超出 Telegram 長度限制，請到 🔗[Github](https://github.com/kennyfong19931/siri-shortcut-hk-bus-eta/actions/runs/${process.env.GITHUB_RUN_ID}) 上查看完整更新
 
 ${routeMessageBody}`
                     : `${routeMessageTitle}
@@ -107,7 +111,7 @@ ${routeMessageBody}`;
 
         if (summarySpatials.size > 0) {
             logger.info(`spatial updated, count: ${summarySpatials.size}`);
-            const spatialMessage = `**🗺️ 地圖走線更新通知**
+            const spatialMessage = `**🗺️ 地圖走線更新通知** <code>${commitHash}</code>
             
 **路線:** ${Array.from(summarySpatials).join(', ')}
 
