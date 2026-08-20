@@ -1,42 +1,9 @@
 import { COMPANY, PLACEHOLDER } from './constant';
 import logger from './utils/logger';
 import CacheUtil from './utils/cacheUtil';
+import { doRequest } from './utils/requestUtil';
 
 const timeout = 50;
-
-const doRequest = async (method: string, url: string, body?: {}, toString = false) => {
-    let result;
-    while (true) {
-        let request;
-        if (method == 'POST' && body != null) {
-            request = fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(body),
-            });
-        } else {
-            request = fetch(url, { method: method });
-        }
-
-        await Promise.all([request])
-            .then(([response]) => {
-                if (!response.ok) {
-                    throw new Error('HTTP status code: ' + response.status);
-                } else {
-                    result = toString ? response.text() : response.json();
-                }
-            })
-            .catch((err) => {
-                logger.error(`Fail to call ${url} `, err.message);
-            });
-
-        if (result !== null && result !== undefined) return result;
-
-        await new Promise((r) => setTimeout(r, 300000));
-    }
-};
 
 const updateStopNameCache = async (companyCode: string) => {
     logger.info(`Start update stop name cache, company: ${companyCode}`);
@@ -99,9 +66,19 @@ const updateStopNameCache = async (companyCode: string) => {
                     (response) => response.data,
                 );
                 for (const i of stopLastUpdateDate) {
+                    const cacheKey = `${company.CODE}_stop_${i.stop_id}`;
+                    const cacheLastUpdateDate = CacheUtil.getCache(`${cacheKey}`)?.data_timestamp;
+                    const lastUpdateDate = i.last_update_date.replace('+00:00', '+08:00');
+                    if (
+                        lastUpdateDate == null ||
+                        cacheLastUpdateDate == null ||
+                        new Date(cacheLastUpdateDate) > new Date(lastUpdateDate)
+                    ) {
+                        continue;
+                    }
                     const stopApi = company.STOP_API.replace(PLACEHOLDER.STOP, i.stop_id);
                     let json = await doRequest('GET', stopApi).then((response) => response.data);
-                    CacheUtil.setCache(`${company.CODE}_stop_${i.stop_id}`, json);
+                    CacheUtil.setCache(cacheKey, json);
                     await new Promise((resolve) => setTimeout(resolve, timeout));
                 }
             }

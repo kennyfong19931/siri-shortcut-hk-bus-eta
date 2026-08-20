@@ -70,6 +70,13 @@ jobs:
           TELEGRAM_TOPIC_ID: ${{ secrets.TELEGRAM_TOPIC_ID }}
           GITHUB_RUN_ID: $GITHUB_RUN_ID
 
+      - name: Cache GMB Route data
+        if: always() && !cancelled() && env.updateCache == 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: cache
+          key: stop-data-${{ steps.get-date.outputs.date }}
+
       - name: Update Stop Name on exception
         if: failure() && env.runUpdateStopName == 'true'
         env:

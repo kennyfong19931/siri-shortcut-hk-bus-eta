@@ -43,6 +43,7 @@ export const COMPANY = {
         STOP_API: `https://data.etagmb.gov.hk/stop/${PLACEHOLDER.STOP}`,
         ROUTE_STOP_API: `https://data.etagmb.gov.hk/route-stop/${PLACEHOLDER.ROUTE}/${PLACEHOLDER.ROUTE_TYPE}`,
         STOP_LAST_UPDATE_API: 'https://data.etagmb.gov.hk/last-update/stop',
+        ROUTE_STOP_LAST_UPDATE_API: 'https://data.etagmb.gov.hk/last-update/route-stop',
     },
     MTR: {
         CODE: 'mtr',
