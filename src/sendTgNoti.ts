@@ -92,7 +92,7 @@ const TG_RICH_MESSAGE_LIMIT = 32768;
             await core.summary.addHeading('🚌 巴士路線更新詳情').addEOL().addRaw(buildTableString(allUpdates)).write();
 
             logger.info(`route updated, count: ${summaryRoutes.length}`);
-            const routeMessageTitle = '**🚌 巴士路線更新通知** <code>${commitHash}</code>';
+            const routeMessageTitle = `**🚌 巴士路線更新通知** <code>${commitHash}</code>`;
             const routeMessageBody = `**路線:** ${summaryRoutes.join(', ')}
 
 <details><summary>詳情</summary>
@@ -101,10 +101,12 @@ ${buildTableString(allUpdates)}
             const routeMessage =
                 routeMessageTitle.length + routeMessageBody.length > TG_RICH_MESSAGE_LIMIT
                     ? `${routeMessageTitle}
+
 > 超出 Telegram 長度限制，請到 🔗[Github](https://github.com/kennyfong19931/siri-shortcut-hk-bus-eta/actions/runs/${process.env.GITHUB_RUN_ID}) 上查看完整更新
 
 ${routeMessageBody}`
                     : `${routeMessageTitle}
+
 ${routeMessageBody}`;
             telegramPost(routeMessage);
         }
