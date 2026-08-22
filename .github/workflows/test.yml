@@ -1,4 +1,4 @@
-name: Test Cloudflare Functions
+name: Test
 on:
   workflow_dispatch:
   push:
@@ -24,4 +24,6 @@ jobs:
       - name: Run test
         run: |
           echo "FORCE_COLOR=true" >> $GITHUB_ENV
-          npm run test
+          npm run send-tg-noti
+        env:
+          TELEGRAM_TOPIC_ID: ${{ vars.TELEGRAM_TOPIC_ID }}

@@ -11,6 +11,7 @@ const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 const TG_RICH_MESSAGE_LIMIT = 32768;
 
 (async function () {
+    logger.info(`TELEGRAM_TOPIC_ID = ${process.env.TELEGRAM_TOPIC_ID}`);
     if (!BOT_TOKEN || !CHAT_ID) {
         const error = new Error('Telegram config is missing');
         logger.error('Error', error);
