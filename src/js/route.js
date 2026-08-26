@@ -14,7 +14,6 @@ window.addEventListener('load', () => {
         .on('/:company/:route/:param1', function ({ data }) {
             /*
                 Possible routes:
-                /kmb/:route/:dir
                 /ctb/:route/:dir
                 /nlb/:route/:routeId
                 /mtr_hr/:routeId/:stop
@@ -38,7 +37,7 @@ window.addEventListener('load', () => {
         .on('/:company/:route/:param1/:stop', function ({ data }) {
             /*
                 Possible routes:
-                /kmb/:route/:dir/:stop
+                /kmb/:route/:routeType/:dir
                 /ctb/:route/:dir/:stop
                 /nlb/:route/:routeId/:stop
                 /gmb/:route/:routeId/:routeType
@@ -49,6 +48,9 @@ window.addEventListener('load', () => {
             if ('nlb' === data.company) {
                 param.routeId = data.param1;
                 param.stop = data.stop;
+            } else if ('kmb' === data.company) {
+                param.routeType = data.param1;
+                param.dir = data.stop;
             } else if ('gmb' === data.company || 'mtr' === data.company) {
                 param.routeId = data.param1;
                 param.routeType = data.stop;
@@ -68,6 +70,7 @@ window.addEventListener('load', () => {
         .on('/:company/:route/:routeId/:param1/:stop', function ({ data }) {
             /*
                 Possible routes:
+                /kmb/:route/:routeType/:dir/:stop
                 /gmb/:route/:routeId/:routeType/:stop
                 /mtr/:route/:routeId/:routeType/:stop
                 /mtr_lr/:route/:routeId/:dir/:stop
@@ -75,13 +78,17 @@ window.addEventListener('load', () => {
             let param = {};
             if ('mtr_lr' === data.company) {
                 param.dir = data.param1;
+                param.routeId = data.routeId;
+            } else if ('kmb' === data.company) {
+                param.routeType = data.routeId;
+                param.dir = data.param1;
             } else {
                 param.routeType = data.param1;
+                param.routeId = data.routeId;
             }
             handleRoute({
                 company: data.company,
                 route: data.route,
-                routeId: data.routeId,
                 stop: data.stop,
                 ...param,
             });
@@ -134,6 +141,8 @@ function getRouteUrl(data, withStop = false) {
         return `/${data.company}/${data.route}/${data.routeId}/${data.routeType}${withStop ? '/' + data.stop : ''}`;
     } else if ('mtr_lr' === data.company) {
         return `/${data.company}/${data.route}/${data.routeId}/${data.dir}${withStop ? '/' + data.stop : ''}`;
+    } else if ('kmb' === data.company) {
+        return `/${data.company}/${data.route}/${data.routeType}/${data.dir}${withStop ? '/' + data.stop : ''}`;
     } else {
         return `/${data.company}/${data.route}/${data.dir}${withStop ? '/' + data.stop : ''}`;
     }
