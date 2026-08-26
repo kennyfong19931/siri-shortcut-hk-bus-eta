@@ -44,7 +44,24 @@ const TG_RICH_MESSAGE_LIMIT = 32768;
 
         // 2. 逐一處理每個修改過的 .json 檔案
         for (const filePath of jsonFiles) {
-            if (filePath.includes('spatial')) {
+            let beforeRaw = null;
+            let afterRaw = null;
+
+            // 取得最新版本 (HEAD) 內容
+            try {
+                afterRaw = execSync(`git show HEAD:"${filePath}"`, { encoding: 'utf8' });
+            } catch (e) {
+                // 若檔案被刪除，afterJson 為空
+            }
+
+            // 取得修改前 (HEAD~1) 內容
+            try {
+                beforeRaw = execSync(`git show HEAD~1:"${filePath}"`, { encoding: 'utf8' });
+            } catch (e) {
+                // 若為全新檔案，beforeJson 為空
+            }
+
+            if (filePath.includes('spatial') && afterRaw != null) {
                 let m;
                 const regex = /\/spatial\/[\w]*\/([\w]*)\//gm;
                 while ((m = regex.exec(filePath)) !== null) {
@@ -55,36 +72,19 @@ const TG_RICH_MESSAGE_LIMIT = 32768;
                     summarySpatials.add(m[1]);
                 }
             }
-            if (!filePath.includes('route')) {
-                continue;
+            if (filePath.includes('route')) {
+                let beforeJson: Route[] = beforeRaw ? loadRoute(beforeRaw) : [];
+                let afterJson: Route[] = afterRaw ? loadRoute(afterRaw) : [];
+                const routeNo = path.parse(filePath).name;
+
+                // 進行路線與站點差異比對
+                const fileDiffs = compareRouteData(beforeJson, afterJson);
+                if (fileDiffs.length > 0) {
+                    summaryRoutes.push(routeNo);
+                    allUpdates.push(...fileDiffs);
+                }
             }
 
-            let beforeJson: Route[] = [];
-            let afterJson: Route[] = [];
-            const routeNo = path.parse(filePath).name;
-
-            // 取得最新版本 (HEAD) 內容
-            try {
-                const afterRaw = execSync(`git show HEAD:"${filePath}"`, { encoding: 'utf8' });
-                afterJson = loadRoute(afterRaw);
-            } catch (e) {
-                // 若檔案被刪除，afterJson 為空
-            }
-
-            // 取得修改前 (HEAD~1) 內容
-            try {
-                const beforeRaw = execSync(`git show HEAD~1:"${filePath}"`, { encoding: 'utf8' });
-                beforeJson = loadRoute(beforeRaw);
-            } catch (e) {
-                // 若為全新檔案，beforeJson 為空
-            }
-
-            // 進行路線與站點差異比對
-            const fileDiffs = compareRouteData(beforeJson, afterJson);
-            if (fileDiffs.length > 0) {
-                summaryRoutes.push(routeNo);
-                allUpdates.push(...fileDiffs);
-            }
         }
 
         if (summaryRoutes.length > 0) {
