@@ -49,7 +49,9 @@ const isCsdiUpdated = async (type: string) => {
         return false;
     } else {
         fs.writeFileSync(path.join(outputFolder, `lastUpdate_${type}.txt`), csdiLastUpdate);
-        telegramPost(`CSDI route updated: ${csdiLastUpdate}`);
+        if (process.env.FORCE_UPDATE === 'false') {
+            telegramPost(`${type} CSDI route updated: ${csdiLastUpdate}`);
+        }
         return true;
     }
 };
@@ -305,7 +307,7 @@ async function getCompanyRoute(companyCode: string) {
 (async function () {
     logger.info('Start');
     const [busUpdate, minibusUpdate] = await Promise.all([isCsdiUpdated('BUS'), isCsdiUpdated('MINIBUS')]);
-    if (busUpdate === false && minibusUpdate === false) {
+    if (process.env.FORCE_UPDATE === 'false' && busUpdate === false && minibusUpdate === false) {
         logger.info('End');
         return;
     }

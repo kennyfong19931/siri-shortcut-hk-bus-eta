@@ -78,7 +78,6 @@ function normalizeTripId(tripId?: string): string {
         runUpdate = true;
         fs.writeFileSync(path.join(outputFolder, 'lastUpdate.txt'), csvDate);
         telegramPost(`GTFS updated: ${csvDate}`);
-        fs.writeFileSync(path.join('public', 'api', 'spatial', `lastUpdate_BUS.txt`), '');    // trigger spatial update
     }
     if (!runUpdate) {
         logger.info('End');
