@@ -90,9 +90,7 @@ const getCsdiRoute = async (type: string) => {
         // after download completed close filestream
         zipFileWriteStream.on('finish', () => {
             zipFileWriteStream.close();
-            resolve('finish');
             logger.info('Download success');
-
             fs.stat(zipPath, (err, stats) => {
                 if (err) {
                     logger.error('Cannot read zip file', err);
@@ -100,6 +98,7 @@ const getCsdiRoute = async (type: string) => {
                     logger.info(`Filesize for ${type} = ${stats.size / 1024 / 1024} MB`);
                 }
             });
+            resolve('finish');
         });
 
         zipFileWriteStream.on('error', (err) => {
@@ -120,7 +119,8 @@ const getCsdiRoute = async (type: string) => {
                 .toObject()
                 .coordinates.map((a) => {
                     if (Array.isArray(a[0])) {
-                        return a.map((b) => SpatialUtil.fromHK80ToWGS84(b));
+                        // remove duplicate points after convert to WGS84
+                        return removeDuplicateSubArrays(a.map((b) => SpatialUtil.fromHK80ToWGS84(b)));
                     } else {
                         return SpatialUtil.fromHK80ToWGS84(a);
                     }
@@ -262,6 +262,18 @@ const getFilename = (
 
 const isStringOverlap = (str1: string, str2: string) => {
     return str1.includes(str2) || str2.includes(str1);
+};
+
+const removeDuplicateSubArrays = <T>(items: T[]): T[] => {
+    const seen = new Set<string>();
+    return items.filter((item) => {
+        const key = JSON.stringify(item);
+        if (seen.has(key)) {
+            return false;
+        }
+        seen.add(key);
+        return true;
+    });
 };
 
 async function getCompanyRoute(companyCode: string) {
