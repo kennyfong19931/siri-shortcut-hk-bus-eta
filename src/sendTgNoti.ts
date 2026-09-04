@@ -8,7 +8,8 @@ import { telegramPost } from './utils/requestUtil';
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
-const TG_RICH_MESSAGE_LIMIT = 32768;
+// const TG_RICH_MESSAGE_LIMIT = 32768;
+const TG_WARNING_MESSAGE_COUNT = 20000;
 
 (async function () {
     if (!BOT_TOKEN || !CHAT_ID) {
@@ -99,10 +100,10 @@ const TG_RICH_MESSAGE_LIMIT = 32768;
 ${buildTableString(allUpdates)}
 </details>`;
             const routeMessage =
-                routeMessageTitle.length + routeMessageBody.length > TG_RICH_MESSAGE_LIMIT
+                routeMessageTitle.length + routeMessageBody.length > TG_WARNING_MESSAGE_COUNT
                     ? `${routeMessageTitle}
 
-> 超出 Telegram 長度限制，請到 🔗[Github](https://github.com/kennyfong19931/siri-shortcut-hk-bus-eta/actions/runs/${process.env.GITHUB_RUN_ID}) 上查看完整更新
+> ⚠️ 可能超出 Telegram 長度限制，請到 🔗[Github](https://github.com/kennyfong19931/siri-shortcut-hk-bus-eta/actions/runs/${process.env.GITHUB_RUN_ID}) 上查看完整更新
 
 ${routeMessageBody}`
                     : `${routeMessageTitle}
