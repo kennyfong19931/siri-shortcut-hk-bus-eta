@@ -47,7 +47,7 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TELEGRAM_TOPIC_ID: ${{ vars.TELEGRAM_TOPIC_ID }}
-          FORCE_UPDATE: ${{ inputs.forceUpdate }}
+          FORCE_UPDATE: ${{ inputs.forceUpdate || 'false' }}
 
       - name: Commit and Push data
         id: auto-commit-action
