@@ -44,7 +44,7 @@ const DISTANCE_THRESHOLD_STOP_SPECIAL = new Map<string, number>([
     ['香港科學園 (PA112)', 150], // added for KMB 272A
 ]);
 const RETURN_FIRST_STOP_MATCH = [
-    { company: COMPANY.KMB.CODE, stop: '城門隧道轉車站 (B6) (TW300)' },
+    { company: COMPANY.KMB.CODE, stop: '城門隧道轉車站 (TW300)' },
     { company: COMPANY.KMB.CODE, stop: '屯門公路轉車站 (TM750)' },
     { company: COMPANY.KMB.CODE, stop: '機場地面運輸中心 (CL900)' },
     { company: COMPANY.KMB.CODE, stop: '機場地面運輸中心 (落客站)' },
@@ -54,6 +54,7 @@ const RETURN_FIRST_STOP_MATCH = [
     { company: COMPANY.CTB.CODE, route: '14', stop: '大潭水塘 (北), 大潭道' },
     { company: COMPANY.CTB.CODE, route: '260', stop: '聖士提反書院, 東頭灣道' },
     { company: COMPANY.KMB.CODE, route: '269B', stop: '天晴邨晴雲樓 (TN252)' },
+    { company: COMPANY.KMB.CODE, route: '26M', stop: '和樂邨 (KT535)' },
     { company: COMPANY.KMB.CODE, route: '69C', stop: '天晴邨晴雲樓 (TN252)' },
     { company: COMPANY.KMB.CODE, route: '273S', stop: '粉嶺站轉車站-蓬瀛仙館 (ND398)' },
     { company: COMPANY.KMB.CODE, route: '297', stop: '新都城二期 (TK925)' },
