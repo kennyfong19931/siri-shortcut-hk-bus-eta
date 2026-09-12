@@ -1,5 +1,5 @@
 import '../scss/styles.scss';
-import Offcanvas from 'bootstrap/js/src/offcanvas';
+import { Collapse, Tab } from 'bootstrap';
 import {
     getCompanyColor,
     getCompanyImage,
@@ -9,11 +9,16 @@ import {
     getMtrTextColor,
     getPageWidth,
     utf8_to_b64,
+    processFullGeometry,
 } from './util.js';
 
 const searchAlert = document.getElementById('searchAlert');
 const searchResult = document.getElementById('searchResult');
-const searchDrawer = new Offcanvas('#searchDrawer');
+const stopTab = document.getElementById('stopTab');
+const stopList = document.getElementById('stopList');
+const mainMenuHeaderDiv = document.getElementById('mainMenuHeaderDiv');
+const settingStraightenLine = document.getElementById('settingStraightenLine');
+const collapseOne = Collapse.getOrCreateInstance('#collapseOne');
 const topographicMapAPI = 'https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/basemap/wgs84/{z}/{x}/{y}.png';
 const imageryMapAPI = 'https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/imagery/wgs84/{z}/{x}/{y}.png';
 const labelAPI = 'https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/label/hk/tc/wgs84/{z}/{x}/{y}.png';
@@ -78,6 +83,58 @@ const searchRoute = () => {
         });
 };
 const renderRoute = (json, withStop) => {
+    // update stopList
+    stopList.innerHTML = json.stopList
+        .map((stop, index) => {
+            return getHtmlTemplate('stopListRow', {
+                '{{index}}': index + 1,
+                '{{stopId}}': stop.id,
+                '{{text}}': stop.name,
+            }).outerHTML;
+        })
+        .join('');
+    reloadRouter();
+
+    // un select all tab
+    stopTab.disabled = false;
+    const activeTab = document.querySelector('#mainTab .active');
+    const activeTabPane = document.querySelector('#mainTabContent .tab-pane.active');
+    if (activeTab) {
+        activeTab.classList.remove('active');
+        activeTab.setAttribute('aria-selected', 'false');
+    }
+    if (activeTabPane) {
+        activeTabPane.classList.remove('active');
+    }
+
+    // update header
+    if ('mtr_hr' === json.company) {
+        const options = {
+            '{{companyLogo}}': getCompanyImage(json.company),
+            '{{route}}': json.route,
+            '{{titleCss}}': `background-color: ${getMtrColor('route-hr', json.routeId)}; min-width: 250px;`,
+        };
+        mainMenuHeaderDiv.innerHTML = getHtmlTemplate('mainMenuHeaderRailway', options).outerHTML;
+    } else {
+        let titleCss = `background-color: ${getCompanyColor(json.company)}`;
+        let routeNoCss = '',
+            routeNoClass = '';
+        if ('mtr_lr' === json.company) {
+            titleCss = `background-color: ${getMtrColor('lr')}; color: ${getMtrTextColor('lr')};`;
+            routeNoCss = `--border-color: ${getMtrColor('route-lr', json.routeId)};`;
+            routeNoClass = 'mtrLrRoute';
+        }
+        const options = {
+            '{{companyLogo}}': getCompanyImage(json.company),
+            '{{routeNo}}': json.route,
+            '{{routeNoClass}}': routeNoClass,
+            '{{routeNoCss}}': routeNoCss,
+            '{{title}}': `${json.orig}➡️${json.dest}`,
+            '{{titleCss}}': titleCss,
+        };
+        mainMenuHeaderDiv.innerHTML = getHtmlTemplate('mainMenuHeader', options).outerHTML;
+    }
+
     // remove all markers
     markersLayer.clearLayers();
 
@@ -142,6 +199,21 @@ const renderRoute = (json, withStop) => {
     fetch(SPATIAL_API.replace('{path}', `${path}`))
         .then((response) => response.json())
         .then((data) => {
+            const straightenLine = 'N' !== localStorage.getItem('straightenLine');
+            if (straightenLine) {
+                const result = processFullGeometry(data);
+                data = result.newLines;
+            }
+
+            if (json.company === 'ctb') {
+                const borderLine = L.polyline(data, {
+                    color: '#5c5c5c',
+                    weight: 9,
+                    opacity: 0.2,
+                });
+                markersLayer.addLayer(borderLine);
+            }
+
             let polyline = isAntPath
                 ? L.polyline.antPath(data, {
                       color: lineColor,
@@ -152,9 +224,19 @@ const renderRoute = (json, withStop) => {
             markersLayer.addLayer(polyline);
         })
         .catch(function (error) {
+            console.log(error);
             // no geometry data, show default line by join all stops
             let data = json.stopList.map((stop) => [stop.lat, stop.long]);
             data = [data];
+            if (json.company === 'ctb') {
+                const borderLine = L.polyline(data, {
+                    color: '#5c5c5c',
+                    weight: 9,
+                    opacity: 0.3,
+                });
+                markersLayer.addLayer(borderLine);
+            }
+
             let polyline = isAntPath
                 ? L.polyline.antPath(data, {
                       color: lineColor,
@@ -168,11 +250,7 @@ const renderRoute = (json, withStop) => {
     // add layer to map
     markersLayer.addTo(map);
     if (!withStop) {
-        map.fitBounds(markersLayer.getBounds(), { animate: true });
-    }
-
-    if (window.innerWidth < 768) {
-        searchDrawer.hide();
+        map.fitBounds(markersLayer.getBounds(), { animate: true, padding: [20, 20] });
     }
 
     updateSEO('route', json);
@@ -481,6 +559,20 @@ document.getElementById('routeInput').addEventListener('keypress', function (eve
         document.getElementById('btnSearch').click();
     }
 });
+document.getElementById('collapseOne').addEventListener('show.bs.collapse', () => {
+    const activeTab = document.querySelector('#mainTab .active');
+    if (activeTab == null) {
+        Tab.getOrCreateInstance('#homeTab').show();
+    }
+});
+document.querySelectorAll('#mainTab button').forEach((triggerEl) => {
+    triggerEl.addEventListener('click', (event) => {
+        collapseOne.show();
+    });
+});
+settingStraightenLine.addEventListener('input', (event) => {
+    localStorage.setItem('straightenLine', event.target.checked ? 'Y' : 'N');
+});;
 
 // leaflet
 var markersLayer = new L.FeatureGroup();
@@ -506,9 +598,11 @@ const overlays = {
 const map = L.map('map', {
     center: [22.322005998683245, 114.17846497109828],
     zoom: 13,
+    zoomControl: false,
     layers: [topographicMapTiles, label],
 });
 const layerControl = L.control.layers(baseMaps, overlays, { hideSingleBase: true }).addTo(map);
+L.control.zoom({position: 'bottomright'}).addTo(map);
 map.on('popupopen', openPopup);
 
 // page init
@@ -519,6 +613,7 @@ fetch(SIRI_SHORTCUT_UPDATE_API)
         document.getElementById('siriShortcutVersion').innerHTML = `(v${data.version})`;
     });
 mtrHrData = await fetch(ROUTE_API.replace('{route}', 'mtr_hr')).then((response) => response.json());
+settingStraightenLine.checked = localStorage.getItem('straightenLine') !== 'N';
 
 // export
 window.renderRoute = renderRoute;

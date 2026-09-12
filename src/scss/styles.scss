@@ -33,6 +33,9 @@ $offcanvas-box-shadow: 0 1rem 3rem rgba(0, 0, 0, .175);
 // Customize some defaults
 $border-radius: .4rem;
 
+$accordion-button-active-bg: var(--accordion-button-bg);
+$accordion-button-active-color: var(--accordion-button-color);
+
 // Required
 @import "~bootstrap/scss/functions";
 @import "~bootstrap/scss/variables";
@@ -48,16 +51,16 @@ $border-radius: .4rem;
 @import "~bootstrap/scss/containers";
 @import "~bootstrap/scss/grid";
 // @import "~bootstrap/scss/tables";
-// @import "~bootstrap/scss/forms";
+@import "~bootstrap/scss/forms";
 @import "~bootstrap/scss/buttons";
 @import "~bootstrap/scss/transitions";
 // @import "~bootstrap/scss/dropdown";
 @import "~bootstrap/scss/button-group";
-// @import "~bootstrap/scss/nav";
+@import "~bootstrap/scss/nav";
 // @import "~bootstrap/scss/navbar"; // Requires nav
 @import "~bootstrap/scss/card";
 // @import "~bootstrap/scss/breadcrumb";
-// @import "~bootstrap/scss/accordion";
+@import "~bootstrap/scss/accordion";
 // @import "~bootstrap/scss/pagination";
 @import "~bootstrap/scss/badge";
 @import "~bootstrap/scss/alert";
@@ -70,7 +73,7 @@ $border-radius: .4rem;
 // @import "~bootstrap/scss/popover";
 // @import "~bootstrap/scss/carousel";
 // @import "~bootstrap/scss/spinners";
-@import "~bootstrap/scss/offcanvas"; // Requires transitions
+// @import "~bootstrap/scss/offcanvas"; // Requires transitions
 @import "~bootstrap/scss/placeholders";
 
 // Helpers
@@ -99,7 +102,6 @@ $border-radius: .4rem;
 // Utilities
 @import "~bootstrap/scss/utilities/api";
 
-
 //
 // Custom styles
 //
@@ -108,11 +110,29 @@ html, body {
   --bs-body-color: var(--bs-white);
 }
 
-#btnToggleSearch {
-  position: fixed;
-  top: 5rem;
-  left: 0.5rem;
-  z-index: 500;
+#mainMenu {
+  position: absolute;
+  z-index: 1010;
+  width: 30vw;
+}
+
+@media screen and (max-width: 768px) {
+  #mainMenu {
+    width: 100vw;
+  }
+
+  .container-fluid{
+    padding: 0;
+  }
+}
+
+#mainMenu .accordion-body {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+#mainMenuHeaderDiv{
+  width: 90%;
 }
 
 #map {
@@ -123,10 +143,6 @@ html, body {
 .logo {
   height: 20px;
   width: 20px;
-}
-
-.list-group-item {
-  cursor: pointer;
 }
 
 .btnBookmarkReorder {
