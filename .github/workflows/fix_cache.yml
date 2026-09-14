@@ -1,0 +1,31 @@
+name: Fix cache
+on:
+  workflow_dispatch:
+jobs:
+  update:
+    name: Fix cache
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Load cache - stop data
+        uses: actions/cache/restore@v6
+        with:
+          path: cache
+          key: stop-data-20260911
+
+      - run: |
+          cp ./gmb_stop_20023428.json ./cache/gmb_stop_20023428.json
+          cp ./gmb_stop_20023429.json ./cache/gmb_stop_20023429.json
+          cp ./gmb_stop_20023430.json ./cache/gmb_stop_20023430.json
+          cp ./gmb_stop_20023431.json ./cache/gmb_stop_20023431.json
+          cp ./gmb_stop_20023432.json ./cache/gmb_stop_20023432.json
+          cp ./gmb_stop_20023433.json ./cache/gmb_stop_20023433.json
+
+      - name: Cache Stop data
+        uses: actions/cache/save@v6
+        with:
+          path: cache
+          key: stop-data-20260914
+
