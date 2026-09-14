@@ -75,7 +75,7 @@ jobs:
         uses: actions/cache/save@v6
         with:
           path: cache
-          key: stop-data-${{ steps.get-date.outputs.date }}
+          key: stop-data-${{ steps.get-date.outputs.date }}-2
 
       - name: Update Stop Name on exception
         if: failure() && env.runUpdateStopName == 'true'

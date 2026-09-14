@@ -51,6 +51,7 @@ export async function crawlRoute(): Promise<Route[]> {
                     try {
                         return new Stop(json.stop, json.name_tc, json.lat, json.long);
                     } catch (e) {
+                        console.log(`Error when running ${route.route} ${route.dir} ${route.orig} ${route.dest}`);
                         core.exportVariable('runUpdateStopName', true);
                         throw e;
                     }

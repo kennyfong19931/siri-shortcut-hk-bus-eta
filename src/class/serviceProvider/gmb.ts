@@ -33,7 +33,7 @@ export async function crawlRoute(): Promise<Route[]> {
                                 const cacheKey = `${company.CODE}_route_stop_${routeObj.route_id}_${dir.route_seq}`;
                                 const lastUpdateDate = allRouteStopLastUpdateDate
                                     .find((o) => o.route_id === routeObj.route_id && o.route_seq === dir.route_seq)
-                                    ?.last_update_date?.replace('+00:00', '+08:00');
+                                    ?.last_update_date;
                                 const cacheLastUpdateDate = CacheUtil.getCache(cacheKey)?.data_timestamp;
                                 const updateCache =
                                     lastUpdateDate == null ||
@@ -67,6 +67,9 @@ export async function crawlRoute(): Promise<Route[]> {
                                         );
                                     });
                                 } catch (e) {
+                                    console.log(
+                                        `Error when running ${routeObj.route_code} ${routeObj.route_id} ${dir.route_seq} ${dir.orig_tc} ${dir.dest_tc}`,
+                                    );
                                     core.exportVariable('runUpdateStopName', true);
                                     throw e;
                                 }
