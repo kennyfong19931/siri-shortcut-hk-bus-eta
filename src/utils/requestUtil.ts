@@ -55,7 +55,7 @@ export const doRequest = async (
 
         if (result !== null && result !== undefined) return result;
 
-        await new Promise((r) => setTimeout(r, timeout));
+        await new Promise((r) => setTimeout(r, timeout + 60000));
     }
 };
 
