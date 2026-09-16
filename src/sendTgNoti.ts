@@ -1,6 +1,7 @@
 import { execSync } from 'node:child_process';
 import path from 'path';
 import * as core from '@actions/core';
+import { COMPANY } from './constant';
 import { Route } from './class/Route';
 import { Stop } from './class/Stop';
 import logger from './utils/logger';
@@ -145,7 +146,13 @@ function compareRouteData(beforeJson: Route[], afterJson: Route[]) {
     if (!Array.isArray(beforeJson)) beforeJson = [];
     if (!Array.isArray(afterJson)) afterJson = [];
 
-    const makeKey = (r: Route) => `${r.getCompany()}_${r.getRoute()}_${r.getRouteType()}_${r.getDir()}`;
+    const makeKey = (r: Route) => {
+        if (COMPANY.MTR_LR.CODE === r.getCompany()) {
+            return `${r.getCompany()}_${r.getRoute()}_${r.getRouteId()}_${r.getDir()}`;
+        } else {
+            return `${r.getCompany()}_${r.getRoute()}_${r.getRouteType()}_${r.getDir()}`;
+        }
+    };
 
     const beforeMap = new Map<string, Route>(beforeJson.map((r) => [makeKey(r), r]));
     const afterMap = new Map<string, Route>(afterJson.map((r) => [makeKey(r), r]));
