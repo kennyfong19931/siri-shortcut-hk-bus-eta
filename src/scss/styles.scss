@@ -145,8 +145,12 @@ html, body {
   width: 20px;
 }
 
-.btnBookmarkReorder {
+.drag-handle {
   cursor: grab;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
 }
 
 .loader {

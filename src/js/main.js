@@ -1,5 +1,6 @@
 import '../scss/styles.scss';
 import { Collapse, Tab } from 'bootstrap';
+import Sortable from 'sortablejs';
 import {
     getCompanyColor,
     getCompanyImage,
@@ -18,6 +19,7 @@ const stopTab = document.getElementById('stopTab');
 const stopList = document.getElementById('stopList');
 const mainMenuHeaderDiv = document.getElementById('mainMenuHeaderDiv');
 const settingStraightenLine = document.getElementById('settingStraightenLine');
+const settingStopListRow = document.getElementById('settingStopListRow');
 const collapseOne = Collapse.getOrCreateInstance('#collapseOne');
 const topographicMapAPI = 'https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/basemap/wgs84/{z}/{x}/{y}.png';
 const imageryMapAPI = 'https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/imagery/wgs84/{z}/{x}/{y}.png';
@@ -36,6 +38,7 @@ const defaultPopupContent = '<span class="loader m-3"></span>';
 const defaultPopupOption = { className: 'etaPopup', maxWidth: getPageWidth() };
 const stopZoomLevel = 17;
 let mtrHrData;
+let stopListData;
 
 // functions
 const alert = (message, type) => {
@@ -83,18 +86,6 @@ const searchRoute = () => {
         });
 };
 const renderRoute = (json, withStop) => {
-    // update stopList
-    stopList.innerHTML = json.stopList
-        .map((stop, index) => {
-            return getHtmlTemplate('stopListRow', {
-                '{{index}}': index + 1,
-                '{{stopId}}': stop.id,
-                '{{text}}': stop.name,
-            }).outerHTML;
-        })
-        .join('');
-    reloadRouter();
-
     // un select all tab
     stopTab.disabled = false;
     const activeTab = document.querySelector('#mainTab .active');
@@ -106,6 +97,7 @@ const renderRoute = (json, withStop) => {
     if (activeTabPane) {
         activeTabPane.classList.remove('active');
     }
+    renderStopList(json.stopList);
 
     // update header
     if ('mtr_hr' === json.company) {
@@ -216,10 +208,10 @@ const renderRoute = (json, withStop) => {
 
             let polyline = isAntPath
                 ? L.polyline.antPath(data, {
-                      color: lineColor,
-                      pluseColor: lineColorPluse,
-                      ...antPathOption,
-                  })
+                    color: lineColor,
+                    pluseColor: lineColorPluse,
+                    ...antPathOption,
+                })
                 : L.polyline(data, { color: lineColor });
             markersLayer.addLayer(polyline);
         })
@@ -239,10 +231,10 @@ const renderRoute = (json, withStop) => {
 
             let polyline = isAntPath
                 ? L.polyline.antPath(data, {
-                      color: lineColor,
-                      pluseColor: lineColorPluse,
-                      ...antPathOption,
-                  })
+                    color: lineColor,
+                    pluseColor: lineColorPluse,
+                    ...antPathOption,
+                })
                 : L.polyline(data, { color: lineColor });
             markersLayer.addLayer(polyline);
         });
@@ -255,6 +247,43 @@ const renderRoute = (json, withStop) => {
 
     updateSEO('route', json);
 };
+const renderStopList = (inputData) => {
+    if (inputData) {
+        stopListData = inputData;
+    }
+    if (stopListData) {
+        const setting = JSON.parse(localStorage.getItem('stopListRow'));
+        const activeColumns = setting.filter(col => col.visible);
+        stopList.innerHTML = stopListData
+            .map((stop, index) => {
+                let rowHtml = `<div class="d-flex align-items-center list-group-item list-group-item-action" onclick="triggerStopClick('${stop.id}')">`;
+                activeColumns.forEach(col => {
+                    switch (col.id) {
+                        case "index":
+                            rowHtml += `<span class="badge bg-secondary rounded-pill">${index + 1}</span>`;
+                            break;
+                        case "name":
+                            rowHtml += `<div class="flex-grow-1"><span class="m-1">${stop.name}</span></div>`;
+                            break;
+                        case "travelTime":
+                            rowHtml += `<div class="stopListTravelTime" data-stop-id="${stop.id}"></div>`;
+                            break;
+                        case "accumTime":
+                            rowHtml += `<div class="stopListAccuTime" data-stop-id="${stop.id}"></div>`;
+                            break;
+                        case "interchange":
+                            rowHtml += stop.hasInterchange
+                                ? '<div class="stopListInterchange">可轉乘</div>'
+                                : '';
+                            break;
+                    }
+                });
+                rowHtml += '</div>';
+                return rowHtml;
+            })
+            .join('');
+    }
+}
 const getEta = async (stop) => {
     return fetch(ETA_API, {
         method: 'POST',
@@ -550,6 +579,84 @@ const updateSEO = (type, json) => {
     document.querySelector('link[rel="canonical"]').content = url;
     document.querySelector('script[type="application/ld+json"]').innerHTML = JSON.stringify(ldjson);
 };
+const loadSettings = () => {
+    const defaultSetting = {
+        'straightenLine': 'Y',
+        'stopListRow': JSON.stringify([
+            { id: 'index', label: '序號', visible: true },
+            { id: 'name', label: '站名', visible: true },
+            { id: 'travelTime', label: '各站車程 (分)', visible: false },
+            { id: 'accumTime', label: '累計車程 (分)', visible: true },
+            { id: 'interchange', label: '轉乘圖示', visible: true }
+        ]),
+    };
+
+    for (let [key, value] of Object.entries(defaultSetting)) {
+        const saved = localStorage.getItem(key);
+        if (saved) {
+            if ('stopListRow' === key) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    // 驗證並合併設定（確保預設欄位定義存在）
+                    const restored = [];
+                    parsed.forEach(savedSetting => {
+                        const matched = JSON.parse(value).find(c => c.id === savedSetting.id);
+                        if (matched) {
+                            restored.push({ ...matched, visible: savedSetting.visible });
+                        }
+                    });
+
+                    // 補齊任何後續新增但 local 未記錄的欄位
+                    JSON.parse(value).forEach(defaultSetting => {
+                        if (!restored.some(c => c.id === defaultSetting.id)) {
+                            restored.push({ ...defaultSetting });
+                        }
+                    });
+
+                    value = JSON.stringify(restored);
+                } catch (e) {
+                    console.error("無法解析儲存的設定，將使用預設值", e);
+                }
+            }
+        }
+        localStorage.setItem(key, value);
+
+        // update settings UI
+        if ('straightenLine' === key) {
+            settingStraightenLine.checked = value !== 'N';
+        } else {
+            settingStopListRow.innerHTML = '';
+            JSON.parse(value).forEach(setting => {
+                settingStopListRow.insertAdjacentHTML('beforeend', `<li class="list-group-item d-flex align-items-center">
+                    <div class="drag-handle text-muted px-2 py-1"><i class="bi bi-list"></i></div>
+                    <label class="form-check-label ms-2 flex-grow-1" for="settingStopList_${setting.id}">${setting.label}</label>
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" id="settingStopList_${setting.id}" ${setting.visible ? 'checked' : ''} data-id="${setting.id}">
+                    </div>
+                </li>`);
+            });
+            settingStopListRow.querySelectorAll('input[data-id]').forEach((inputEl) => {
+                inputEl.addEventListener('change', saveStopListRowSetting);
+            });
+        }
+    }
+}
+const saveStopListRowSetting = () => {
+    const saved = JSON.parse(localStorage.getItem('stopListRow'));
+    const inputElList = [...settingStopListRow.querySelectorAll('input[data-id]')];
+    inputElList.forEach((inputEl) => {
+        const settingObject = saved.find((item) => item.id === inputEl.dataset.id);
+        if (settingObject) {
+            settingObject.visible = inputEl.checked;
+        }
+    });
+
+    const newOrderIds = inputElList.map((item) => item.dataset.id);
+    saved.sort((a, b) => newOrderIds.indexOf(a.id) - newOrderIds.indexOf(b.id));
+    localStorage.setItem('stopListRow', JSON.stringify(saved));
+
+    renderStopList();
+}
 
 // events
 document.getElementById('btnSearch').onclick = searchRoute;
@@ -602,7 +709,7 @@ const map = L.map('map', {
     layers: [topographicMapTiles, label],
 });
 const layerControl = L.control.layers(baseMaps, overlays, { hideSingleBase: true }).addTo(map);
-L.control.zoom({position: 'bottomright'}).addTo(map);
+L.control.zoom({ position: 'bottomright' }).addTo(map);
 map.on('popupopen', openPopup);
 
 // page init
@@ -613,7 +720,13 @@ fetch(SIRI_SHORTCUT_UPDATE_API)
         document.getElementById('siriShortcutVersion').innerHTML = `(v${data.version})`;
     });
 mtrHrData = await fetch(ROUTE_API.replace('{route}', 'mtr_hr')).then((response) => response.json());
-settingStraightenLine.checked = localStorage.getItem('straightenLine') !== 'N';
+loadSettings();
+new Sortable(settingStopListRow, {
+    handle: '.drag-handle',
+    group: 'settingStopList',
+    animation: 150,
+    onEnd: saveStopListRowSetting,
+});
 
 // export
 window.renderRoute = renderRoute;
