@@ -11,16 +11,17 @@ import {
     getPageWidth,
     utf8_to_b64,
     processFullGeometry,
+    getJourneyTime,
 } from './util.js';
 
 const searchAlert = document.getElementById('searchAlert');
 const searchResult = document.getElementById('searchResult');
 const stopTab = document.getElementById('stopTab');
+const stopListHeader = document.getElementById('stopListHeader');
 const stopList = document.getElementById('stopList');
 const mainMenuHeaderDiv = document.getElementById('mainMenuHeaderDiv');
 const settingStraightenLine = document.getElementById('settingStraightenLine');
 const settingStopListRow = document.getElementById('settingStopListRow');
-const collapseOne = Collapse.getOrCreateInstance('#collapseOne');
 const topographicMapAPI = 'https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/basemap/wgs84/{z}/{x}/{y}.png';
 const imageryMapAPI = 'https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/imagery/wgs84/{z}/{x}/{y}.png';
 const labelAPI = 'https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/label/hk/tc/wgs84/{z}/{x}/{y}.png';
@@ -208,10 +209,10 @@ const renderRoute = (json, withStop) => {
 
             let polyline = isAntPath
                 ? L.polyline.antPath(data, {
-                    color: lineColor,
-                    pluseColor: lineColorPluse,
-                    ...antPathOption,
-                })
+                      color: lineColor,
+                      pluseColor: lineColorPluse,
+                      ...antPathOption,
+                  })
                 : L.polyline(data, { color: lineColor });
             markersLayer.addLayer(polyline);
         })
@@ -231,10 +232,10 @@ const renderRoute = (json, withStop) => {
 
             let polyline = isAntPath
                 ? L.polyline.antPath(data, {
-                    color: lineColor,
-                    pluseColor: lineColorPluse,
-                    ...antPathOption,
-                })
+                      color: lineColor,
+                      pluseColor: lineColorPluse,
+                      ...antPathOption,
+                  })
                 : L.polyline(data, { color: lineColor });
             markersLayer.addLayer(polyline);
         });
@@ -253,28 +254,52 @@ const renderStopList = (inputData) => {
     }
     if (stopListData) {
         const setting = JSON.parse(localStorage.getItem('stopListRow'));
-        const activeColumns = setting.filter(col => col.visible);
+        const activeColumns = setting.filter((col) => col.visible);
+
+        let headerHtml = '<div class="d-flex align-items-center stopListRow header border-bottom">';
+        activeColumns.forEach((col) => {
+            switch (col.id) {
+                case 'index':
+                    headerHtml += `<span class="index"> </span>`;
+                    break;
+                case 'name':
+                    headerHtml += `<div class="flex-grow-1"><span class="m-1">${col.label}</span></div>`;
+                    break;
+                case 'journeyTime':
+                    headerHtml += `<div class="stopListJourneyTime">${col.label}</div>`;
+                    break;
+                case 'journeyTimeAcc':
+                    headerHtml += `<div class="stopListJourneyTimeAcc">${col.label}</div>`;
+                    break;
+                case 'interchange':
+                    headerHtml += `<div class="stopListInterchange">${col.label}</div>`;
+                    break;
+            }
+        });
+        headerHtml += '</div>';
+        stopListHeader.innerHTML = headerHtml;
+
         stopList.innerHTML = stopListData
             .map((stop, index) => {
-                let rowHtml = `<div class="d-flex align-items-center list-group-item list-group-item-action" onclick="triggerStopClick('${stop.id}')">`;
-                activeColumns.forEach(col => {
+                let rowHtml = `<div class="d-flex align-items-center stopListRow border-bottom" onclick="triggerStopClick('${stop.id}')">`;
+                activeColumns.forEach((col) => {
                     switch (col.id) {
-                        case "index":
-                            rowHtml += `<span class="badge bg-secondary rounded-pill">${index + 1}</span>`;
+                        case 'index':
+                            rowHtml += `<span class="badge bg-secondary rounded-pill index">${index + 1}</span>`;
                             break;
-                        case "name":
+                        case 'name':
                             rowHtml += `<div class="flex-grow-1"><span class="m-1">${stop.name}</span></div>`;
                             break;
-                        case "travelTime":
-                            rowHtml += `<div class="stopListTravelTime" data-stop-id="${stop.id}"></div>`;
+                        case 'journeyTime':
+                            rowHtml += `<div class="stopListJourneyTime" data-stop-id="${stop.id}"></div>`;
                             break;
-                        case "accumTime":
-                            rowHtml += `<div class="stopListAccuTime" data-stop-id="${stop.id}"></div>`;
+                        case 'journeyTimeAcc':
+                            rowHtml += `<div class="stopListJourneyTimeAcc" data-stop-id="${stop.id}"></div>`;
                             break;
-                        case "interchange":
+                        case 'interchange':
                             rowHtml += stop.hasInterchange
                                 ? '<div class="stopListInterchange">可轉乘</div>'
-                                : '';
+                                : '<div class="stopListInterchange"></div>';
                             break;
                     }
                 });
@@ -282,8 +307,17 @@ const renderStopList = (inputData) => {
                 return rowHtml;
             })
             .join('');
+
+        // journey time
+        const activeJourneyTime = setting.filter(
+            (col) => col.visible && (col.id === 'journeyTime' || col.id === 'journeyTimeAcc'),
+        );
+        if (activeJourneyTime) {
+            // preload journeyTime
+            stopListData.forEach((stop) => getJourneyTime(stop.id));
+        }
     }
-}
+};
 const getEta = async (stop) => {
     return fetch(ETA_API, {
         method: 'POST',
@@ -500,11 +534,59 @@ const routeTypeClick = (type) => {
         reloadRouter();
     }
 };
-const triggerStopClick = (stopId) => {
+const triggerStopClick = async (stopId) => {
     markersLayer.eachLayer(function (layer) {
         if (layer.options.stop === stopId) {
             map.flyTo(layer.getLatLng(), stopZoomLevel);
             layer.openPopup();
+        }
+    });
+
+    const setting = JSON.parse(localStorage.getItem('stopListRow'));
+    const activeJourneyTime = setting.filter(
+        (col) => col.visible && (col.id === 'journeyTime' || col.id === 'journeyTimeAcc'),
+    );
+    if (activeJourneyTime.length === 0 || !Array.isArray(stopListData) || stopListData.length === 0) {
+        return;
+    }
+
+    const currentIndex = stopListData.findIndex((stop) => stop.id === stopId);
+    if (currentIndex < 0) {
+        return;
+    }
+
+    [
+        ...document.querySelectorAll('.stopListRow:not(.header) .stopListJourneyTime'),
+        ...document.querySelectorAll('.stopListRow:not(.header) .stopListJourneyTimeAcc'),
+    ].forEach((el) => {
+        el.textContent = '';
+    });
+
+    const routeSegments = stopListData.slice(currentIndex);
+    const segmentTimes = await Promise.all(
+        routeSegments.slice(0, -1).map(async (currentStop, index) => {
+            const nextStop = routeSegments[index + 1];
+            const seconds = Number((await getJourneyTime(currentStop.id, nextStop.id)) || 0);
+            return { nextStop, seconds };
+        }),
+    );
+
+    let cumulativeSeconds = 0;
+    segmentTimes.forEach(({ nextStop, seconds }) => {
+        const timeText = seconds > 0 ? `${Math.round(seconds / 60)}<small>分</small>` : '';
+        const journeyTimeEl = stopList.querySelector(`.stopListJourneyTime[data-stop-id="${nextStop.id}"]`);
+        if (journeyTimeEl) {
+            journeyTimeEl.innerHTML = timeText;
+        }
+
+        if (cumulativeSeconds > 0) {
+            cumulativeSeconds += 20; // estimates stop time per stop
+        }
+        cumulativeSeconds += seconds;
+        const cumulativeText = cumulativeSeconds > 0 ? `${Math.round(cumulativeSeconds / 60)}<small>分</small>` : '';
+        const journeyTimeAccEl = stopList.querySelector(`.stopListJourneyTimeAcc[data-stop-id="${nextStop.id}"]`);
+        if (journeyTimeAccEl) {
+            journeyTimeAccEl.innerHTML = cumulativeText;
         }
     });
 };
@@ -581,13 +663,13 @@ const updateSEO = (type, json) => {
 };
 const loadSettings = () => {
     const defaultSetting = {
-        'straightenLine': 'Y',
-        'stopListRow': JSON.stringify([
+        straightenLine: 'Y',
+        stopListRow: JSON.stringify([
             { id: 'index', label: '序號', visible: true },
             { id: 'name', label: '站名', visible: true },
-            { id: 'travelTime', label: '各站車程 (分)', visible: false },
-            { id: 'accumTime', label: '累計車程 (分)', visible: true },
-            { id: 'interchange', label: '轉乘圖示', visible: true }
+            { id: 'journeyTime', label: '各站車程', visible: false },
+            { id: 'journeyTimeAcc', label: '累計車程', visible: true },
+            { id: 'interchange', label: '轉乘', visible: true },
         ]),
     };
 
@@ -599,23 +681,23 @@ const loadSettings = () => {
                     const parsed = JSON.parse(saved);
                     // 驗證並合併設定（確保預設欄位定義存在）
                     const restored = [];
-                    parsed.forEach(savedSetting => {
-                        const matched = JSON.parse(value).find(c => c.id === savedSetting.id);
+                    parsed.forEach((savedSetting) => {
+                        const matched = JSON.parse(value).find((c) => c.id === savedSetting.id);
                         if (matched) {
                             restored.push({ ...matched, visible: savedSetting.visible });
                         }
                     });
 
                     // 補齊任何後續新增但 local 未記錄的欄位
-                    JSON.parse(value).forEach(defaultSetting => {
-                        if (!restored.some(c => c.id === defaultSetting.id)) {
+                    JSON.parse(value).forEach((defaultSetting) => {
+                        if (!restored.some((c) => c.id === defaultSetting.id)) {
                             restored.push({ ...defaultSetting });
                         }
                     });
 
                     value = JSON.stringify(restored);
                 } catch (e) {
-                    console.error("無法解析儲存的設定，將使用預設值", e);
+                    console.error('無法解析儲存的設定，將使用預設值', e);
                 }
             }
         }
@@ -626,21 +708,24 @@ const loadSettings = () => {
             settingStraightenLine.checked = value !== 'N';
         } else {
             settingStopListRow.innerHTML = '';
-            JSON.parse(value).forEach(setting => {
-                settingStopListRow.insertAdjacentHTML('beforeend', `<li class="list-group-item d-flex align-items-center">
+            JSON.parse(value).forEach((setting) => {
+                settingStopListRow.insertAdjacentHTML(
+                    'beforeend',
+                    `<li class="list-group-item d-flex align-items-center">
                     <div class="drag-handle text-muted px-2 py-1"><i class="bi bi-list"></i></div>
                     <label class="form-check-label ms-2 flex-grow-1" for="settingStopList_${setting.id}">${setting.label}</label>
                     <div class="form-check form-switch mb-0">
                         <input class="form-check-input" type="checkbox" id="settingStopList_${setting.id}" ${setting.visible ? 'checked' : ''} data-id="${setting.id}">
                     </div>
-                </li>`);
+                </li>`,
+                );
             });
             settingStopListRow.querySelectorAll('input[data-id]').forEach((inputEl) => {
                 inputEl.addEventListener('change', saveStopListRowSetting);
             });
         }
     }
-}
+};
 const saveStopListRowSetting = () => {
     const saved = JSON.parse(localStorage.getItem('stopListRow'));
     const inputElList = [...settingStopListRow.querySelectorAll('input[data-id]')];
@@ -656,7 +741,7 @@ const saveStopListRowSetting = () => {
     localStorage.setItem('stopListRow', JSON.stringify(saved));
 
     renderStopList();
-}
+};
 
 // events
 document.getElementById('btnSearch').onclick = searchRoute;
@@ -674,12 +759,12 @@ document.getElementById('collapseOne').addEventListener('show.bs.collapse', () =
 });
 document.querySelectorAll('#mainTab button').forEach((triggerEl) => {
     triggerEl.addEventListener('click', (event) => {
-        collapseOne.show();
+        Collapse.getInstance('#collapseOne').show();
     });
 });
 settingStraightenLine.addEventListener('input', (event) => {
     localStorage.setItem('straightenLine', event.target.checked ? 'Y' : 'N');
-});;
+});
 
 // leaflet
 var markersLayer = new L.FeatureGroup();

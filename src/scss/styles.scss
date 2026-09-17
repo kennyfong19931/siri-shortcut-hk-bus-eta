@@ -135,6 +135,24 @@ html, body {
   width: 90%;
 }
 
+.stopListRow {
+  padding: 0.5rem;
+}
+
+.stopListRow:not(.header):hover {
+  cursor: pointer;
+  background-color: var(--bs-dark-bg-subtle) !important;
+}
+
+.stopListRow .index {
+  min-width: 2.5em;
+}
+
+.stopListJourneyTime, .stopListJourneyTimeAcc, .stopListInterchange {
+  width: 2.5em;
+  text-align: center;
+}
+
 #map {
   height: 100dvh;
   width: 100vw;
