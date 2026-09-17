@@ -11,6 +11,7 @@ import {
     getPageWidth,
     utf8_to_b64,
     processFullGeometry,
+    getJourneyTime,
 } from './util.js';
 
 const searchAlert = document.getElementById('searchAlert');
@@ -20,7 +21,6 @@ const stopList = document.getElementById('stopList');
 const mainMenuHeaderDiv = document.getElementById('mainMenuHeaderDiv');
 const settingStraightenLine = document.getElementById('settingStraightenLine');
 const settingStopListRow = document.getElementById('settingStopListRow');
-const collapseOne = Collapse.getOrCreateInstance('#collapseOne');
 const topographicMapAPI = 'https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/basemap/wgs84/{z}/{x}/{y}.png';
 const imageryMapAPI = 'https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/imagery/wgs84/{z}/{x}/{y}.png';
 const labelAPI = 'https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/label/hk/tc/wgs84/{z}/{x}/{y}.png';
@@ -256,22 +256,22 @@ const renderStopList = (inputData) => {
         const activeColumns = setting.filter(col => col.visible);
         stopList.innerHTML = stopListData
             .map((stop, index) => {
-                let rowHtml = `<div class="d-flex align-items-center list-group-item list-group-item-action" onclick="triggerStopClick('${stop.id}')">`;
+                let rowHtml = `<div class="d-flex align-items-center stopListRow border-bottom" onclick="triggerStopClick('${stop.id}')">`;
                 activeColumns.forEach(col => {
                     switch (col.id) {
-                        case "index":
+                        case 'index':
                             rowHtml += `<span class="badge bg-secondary rounded-pill">${index + 1}</span>`;
                             break;
-                        case "name":
+                        case 'name':
                             rowHtml += `<div class="flex-grow-1"><span class="m-1">${stop.name}</span></div>`;
                             break;
-                        case "travelTime":
-                            rowHtml += `<div class="stopListTravelTime" data-stop-id="${stop.id}"></div>`;
+                        case 'journeyTime':
+                            rowHtml += `<div class="stopListJourneyTime px-1" data-stop-id="${stop.id}"></div>`;
                             break;
-                        case "accumTime":
-                            rowHtml += `<div class="stopListAccuTime" data-stop-id="${stop.id}"></div>`;
+                        case 'journeyTimeAcc':
+                            rowHtml += `<div class="stopListJourneyTimeAcc px-1" data-stop-id="${stop.id}"></div>`;
                             break;
-                        case "interchange":
+                        case 'interchange':
                             rowHtml += stop.hasInterchange
                                 ? '<div class="stopListInterchange">可轉乘</div>'
                                 : '';
@@ -282,6 +282,13 @@ const renderStopList = (inputData) => {
                 return rowHtml;
             })
             .join('');
+
+        // journey time
+        const activeJourneyTime = setting.filter(col => col.visible && (col.id === 'journeyTime' || col.id === 'journeyTimeAcc'));
+        if (activeJourneyTime) {
+            // preload journeyTime
+            stopListData.forEach((stop) => getJourneyTime(stop.id));
+        }
     }
 }
 const getEta = async (stop) => {
@@ -500,11 +507,50 @@ const routeTypeClick = (type) => {
         reloadRouter();
     }
 };
-const triggerStopClick = (stopId) => {
+const triggerStopClick = async (stopId) => {
     markersLayer.eachLayer(function (layer) {
         if (layer.options.stop === stopId) {
             map.flyTo(layer.getLatLng(), stopZoomLevel);
             layer.openPopup();
+        }
+    });
+
+    const setting = JSON.parse(localStorage.getItem('stopListRow'));
+    const activeJourneyTime = setting.filter(col => col.visible && (col.id === 'journeyTime' || col.id === 'journeyTimeAcc'));
+    if (activeJourneyTime.length === 0 || !Array.isArray(stopListData) || stopListData.length === 0) {
+        return;
+    }
+
+    const currentIndex = stopListData.findIndex(stop => stop.id === stopId);
+    if (currentIndex < 0) {
+        return;
+    }
+
+    const routeSegments = stopListData.slice(currentIndex);
+    const segmentTimes = await Promise.all(
+        routeSegments.slice(0, -1).map(async (currentStop, index) => {
+            const nextStop = routeSegments[index + 1];
+            const seconds = Number(await getJourneyTime(currentStop.id, nextStop.id) || 0);
+            return { nextStop, seconds };
+        }),
+    );
+
+    let cumulativeSeconds = 0;
+    segmentTimes.forEach(({ nextStop, seconds }) => {
+        const timeText = seconds > 0 ? `${Math.round(seconds / 60)}分` : '';
+        const journeyTimeEl = stopList.querySelector(`.stopListJourneyTime[data-stop-id="${nextStop.id}"]`);
+        if (journeyTimeEl) {
+            journeyTimeEl.textContent = timeText;
+        }
+
+        if (cumulativeSeconds > 0) {
+            cumulativeSeconds += 20;    // estimates stop time per stop
+        }
+        cumulativeSeconds += seconds;
+        const cumulativeText = cumulativeSeconds > 0 ? `${Math.round(cumulativeSeconds / 60)}分` : '';
+        const journeyTimeAccEl = stopList.querySelector(`.stopListJourneyTimeAcc[data-stop-id="${nextStop.id}"]`);
+        if (journeyTimeAccEl) {
+            journeyTimeAccEl.textContent = cumulativeText;
         }
     });
 };
@@ -585,8 +631,8 @@ const loadSettings = () => {
         'stopListRow': JSON.stringify([
             { id: 'index', label: '序號', visible: true },
             { id: 'name', label: '站名', visible: true },
-            { id: 'travelTime', label: '各站車程 (分)', visible: false },
-            { id: 'accumTime', label: '累計車程 (分)', visible: true },
+            { id: 'journeyTime', label: '各站車程 (分)', visible: false },
+            { id: 'journeyTimeAcc', label: '累計車程 (分)', visible: true },
             { id: 'interchange', label: '轉乘圖示', visible: true }
         ]),
     };
@@ -674,7 +720,7 @@ document.getElementById('collapseOne').addEventListener('show.bs.collapse', () =
 });
 document.querySelectorAll('#mainTab button').forEach((triggerEl) => {
     triggerEl.addEventListener('click', (event) => {
-        collapseOne.show();
+        Collapse.getInstance('#collapseOne').show();
     });
 });
 settingStraightenLine.addEventListener('input', (event) => {

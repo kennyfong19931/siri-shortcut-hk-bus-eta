@@ -1,3 +1,8 @@
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+dayjs.extend(utc);
+import holiday from './holiday.json';
+
 export function utf8_to_b64(str) {
     return window.btoa(encodeURIComponent(str));
 }
@@ -670,4 +675,55 @@ export function processFullGeometry(coordinates) {
         stats: { totalOrig, totalClean, totalProjected, totalRemoved },
         modifications: allModifications,
     };
+}
+
+/**
+ * Get currnet day of week
+ * return: 0 (Sunday) to 6 (Saturday), Public Holiday will return 0
+ */
+async function getDayInWeek() {
+    const currentTime = dayjs().utc().add(8, 'hour');
+    return holiday.some((day) => currentTime.isSame(day, 'day')) ? 0 : currentTime.day();
+}
+
+const HK_BUS_TIME_BETWEEN_STOPS_BASE_URL = 'https://raw.githubusercontent.com/HK-Bus-ETA/hk-bus-time-between-stops/refs/heads/pages';
+let journeyTimeCache = {};
+let journeyTimeCacheTime;
+export async function getJourneyTime(stopId, endStopId) {
+    if (journeyTimeCacheTime == null || journeyTimeCacheTime.isBefore(dayjs(), 'hour')) {
+        // clear cache every hour
+        journeyTimeCacheTime = dayjs();
+        journeyTimeCache = {};
+    }
+
+    if (journeyTimeCache.hasOwnProperty(stopId)) {
+        return journeyTimeCache[stopId][endStopId];
+    }
+
+    const weekday = await getDayInWeek();
+    const hour = dayjs().utc().add(8, 'hour').hour();
+    const timesHourlyUrl = `${HK_BUS_TIME_BETWEEN_STOPS_BASE_URL}/times_hourly/${weekday}/${String(hour).padStart(2, '0')}/${stopId.substr(0, 2)}.json`;
+    const timesUrl = `${HK_BUS_TIME_BETWEEN_STOPS_BASE_URL}/times/${stopId.substr(0, 2)}.json`;
+
+    try {
+        const [timesHourly, times] = await Promise.all([
+            fetch(timesHourlyUrl)
+                .then((response) => (response.ok ? response.json() : {}))
+                .catch(() => ({})),
+            fetch(timesUrl)
+                .then((response) => (response.ok ? response.json() : {}))
+                .catch(() => ({})),
+        ]);
+
+        const merged = {
+            ...(times[stopId] || {}),
+            ...(timesHourly[stopId] || {}),
+        };
+
+        journeyTimeCache[stopId] = merged;
+        return merged[endStopId];
+    } catch (error) {
+        console.error(error);
+        return journeyTimeCache[stopId] || {};
+    }
 }

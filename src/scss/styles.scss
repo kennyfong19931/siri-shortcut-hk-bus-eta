@@ -135,6 +135,19 @@ html, body {
   width: 90%;
 }
 
+.stopListRow {
+  padding: 0.5rem;
+}
+
+.stopListRow:hover {
+  cursor: pointer;
+  background-color: var(--bs-dark-bg-subtle) !important;
+}
+
+.stopListRow .badge {
+  min-width: 30px;
+}
+
 #map {
   height: 100dvh;
   width: 100vw;
