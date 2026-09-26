@@ -120,7 +120,7 @@ const getCsdiRoute = async (type: string) => {
                 .coordinates.map((a) => {
                     if (Array.isArray(a[0])) {
                         // remove duplicate points after convert to WGS84
-                        return removeDuplicateSubArrays(a.map((b) => SpatialUtil.fromHK80ToWGS84(b)));
+                        return SpatialUtil.removeDuplicateSubArrays(a.map((b) => SpatialUtil.fromHK80ToWGS84(b)));
                     } else {
                         return SpatialUtil.fromHK80ToWGS84(a);
                     }
@@ -262,18 +262,6 @@ const getFilename = (
 
 const isStringOverlap = (str1: string, str2: string) => {
     return str1.includes(str2) || str2.includes(str1);
-};
-
-const removeDuplicateSubArrays = <T>(items: T[]): T[] => {
-    const seen = new Set<string>();
-    return items.filter((item) => {
-        const key = JSON.stringify(item);
-        if (seen.has(key)) {
-            return false;
-        }
-        seen.add(key);
-        return true;
-    });
 };
 
 async function getCompanyRoute(companyCode: string) {

@@ -6,6 +6,7 @@
   },
   "type": "module",
   "scripts": {
+    "add-highway-data": "tsx src/addHighwayData.ts",
     "dev": "npx wrangler pages dev ./public --port 8788 --binding ENVIRONMENT=DEV --compatibility-date=2026-08-04",
     "format": "prettier --write \"{functions,src}/**/*.{js,ts}\"",
     "generate-sitemap": "tsx src/generateSiteMap.ts",
@@ -22,6 +23,7 @@
     "web-build": "vite build"
   },
   "dependencies": {
+    "@turf/turf": "^7.4.0",
     "bootstrap": "^5.3.8",
     "dayjs": "^1.11.21",
     "sass": "^1.102.0",
