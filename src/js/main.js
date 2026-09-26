@@ -12,6 +12,7 @@ import {
     utf8_to_b64,
     processFullGeometry,
     getJourneyTime,
+    analyzeMultiHighwayRoute,
 } from './util.js';
 
 const searchAlert = document.getElementById('searchAlert');
@@ -40,6 +41,7 @@ const defaultPopupOption = { className: 'etaPopup', maxWidth: getPageWidth() };
 const stopZoomLevel = 17;
 let mtrHrData;
 let stopListData;
+let highwayAnalysis = [];
 
 // functions
 const alert = (message, type) => {
@@ -215,6 +217,7 @@ const renderRoute = (json, withStop) => {
                   })
                 : L.polyline(data, { color: lineColor });
             markersLayer.addLayer(polyline);
+            renderStopList(json.stopList, data);
         })
         .catch(function (error) {
             console.log(error);
@@ -248,11 +251,15 @@ const renderRoute = (json, withStop) => {
 
     updateSEO('route', json);
 };
-const renderStopList = (inputData) => {
+const renderStopList = (inputData, spatialData) => {
     if (inputData) {
         stopListData = inputData;
+        highwayAnalysis = [];
     }
     if (stopListData) {
+        if (spatialData) {
+            highwayAnalysis = analyzeMultiHighwayRoute(spatialData, stopListData);
+        }
         const setting = JSON.parse(localStorage.getItem('stopListRow'));
         const activeColumns = setting.filter((col) => col.visible);
 
@@ -279,34 +286,49 @@ const renderStopList = (inputData) => {
         headerHtml += '</div>';
         stopListHeader.innerHTML = headerHtml;
 
-        stopList.innerHTML = stopListData
-            .map((stop, index) => {
-                let rowHtml = `<div class="d-flex align-items-center stopListRow border-bottom" onclick="triggerStopClick('${stop.id}')">`;
-                activeColumns.forEach((col) => {
-                    switch (col.id) {
-                        case 'index':
-                            rowHtml += `<span class="badge bg-secondary rounded-pill index">${index + 1}</span>`;
-                            break;
-                        case 'name':
-                            rowHtml += `<div class="flex-grow-1"><span class="m-1">${stop.name}</span></div>`;
-                            break;
-                        case 'journeyTime':
-                            rowHtml += `<div class="stopListJourneyTime" data-stop-id="${stop.id}"></div>`;
-                            break;
-                        case 'journeyTimeAcc':
-                            rowHtml += `<div class="stopListJourneyTimeAcc" data-stop-id="${stop.id}"></div>`;
-                            break;
-                        case 'interchange':
-                            rowHtml += stop.hasInterchange
-                                ? '<div class="stopListInterchange">可轉乘</div>'
-                                : '<div class="stopListInterchange"></div>';
-                            break;
-                    }
-                });
-                rowHtml += '</div>';
-                return rowHtml;
-            })
-            .join('');
+        const highwaysByStopIndex = new Map();
+        highwayAnalysis.forEach(({ highway, stopBeforeIndex }) => {
+            const highwayNames = highwaysByStopIndex.get(stopBeforeIndex) || [];
+            highwayNames.push(highway);
+            highwaysByStopIndex.set(stopBeforeIndex, highwayNames);
+        });
+        const renderHighwayLabel = (stopIndex) => {
+            const highwayNames = highwaysByStopIndex.get(stopIndex);
+            return highwayNames
+                ? `<div class="stopListHighway bg-secondary text-center small border-bottom px-3 py-1">${highwayNames.join('、')}</div>`
+                : '';
+        };
+
+        stopList.innerHTML =
+            renderHighwayLabel(-1) +
+            stopListData
+                .map((stop, index) => {
+                    let rowHtml = `<div class="d-flex align-items-center stopListRow border-bottom" onclick="triggerStopClick('${stop.id}')">`;
+                    activeColumns.forEach((col) => {
+                        switch (col.id) {
+                            case 'index':
+                                rowHtml += `<span class="badge bg-secondary rounded-pill index">${index + 1}</span>`;
+                                break;
+                            case 'name':
+                                rowHtml += `<div class="flex-grow-1"><span class="m-1">${stop.name}</span></div>`;
+                                break;
+                            case 'journeyTime':
+                                rowHtml += `<div class="stopListJourneyTime" data-stop-id="${stop.id}"></div>`;
+                                break;
+                            case 'journeyTimeAcc':
+                                rowHtml += `<div class="stopListJourneyTimeAcc" data-stop-id="${stop.id}"></div>`;
+                                break;
+                            case 'interchange':
+                                rowHtml += stop.hasInterchange
+                                    ? '<div class="stopListInterchange">可轉乘</div>'
+                                    : '<div class="stopListInterchange"></div>';
+                                break;
+                        }
+                    });
+                    rowHtml += '</div>';
+                    return rowHtml + renderHighwayLabel(index);
+                })
+                .join('');
 
         // journey time
         const activeJourneyTime = setting.filter(
