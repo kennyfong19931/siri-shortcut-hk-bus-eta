@@ -58,7 +58,7 @@ export function getCompanyColor(company, isPluse = false) {
         case 'kmb':
             return isPluse ? '#FFFFFF' : '#FF0000';
         case 'ctb':
-            return isPluse ? '#0080FF' : '#F9BF00';
+            return isPluse ? '#F9BF00' : '#0059BD';
         case 'nwfb':
             return isPluse ? '#7000CC' : '#EF7925';
         case 'nlb':

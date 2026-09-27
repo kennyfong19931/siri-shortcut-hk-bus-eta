@@ -199,16 +199,6 @@ const renderRoute = (json, withStop) => {
                 const result = processFullGeometry(data);
                 data = result.newLines;
             }
-
-            if (json.company === 'ctb') {
-                const borderLine = L.polyline(data, {
-                    color: '#5c5c5c',
-                    weight: 9,
-                    opacity: 0.2,
-                });
-                markersLayer.addLayer(borderLine);
-            }
-
             let polyline = isAntPath
                 ? L.polyline.antPath(data, {
                       color: lineColor,
@@ -224,15 +214,6 @@ const renderRoute = (json, withStop) => {
             // no geometry data, show default line by join all stops
             let data = json.stopList.map((stop) => [stop.lat, stop.long]);
             data = [data];
-            if (json.company === 'ctb') {
-                const borderLine = L.polyline(data, {
-                    color: '#5c5c5c',
-                    weight: 9,
-                    opacity: 0.3,
-                });
-                markersLayer.addLayer(borderLine);
-            }
-
             let polyline = isAntPath
                 ? L.polyline.antPath(data, {
                       color: lineColor,
