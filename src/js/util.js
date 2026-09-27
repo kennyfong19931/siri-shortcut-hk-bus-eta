@@ -736,7 +736,7 @@ export async function getJourneyTime(stopId, endStopId) {
  * 偵測路線行經的多條高速公路，並依巴士站分組為連續高速行駛區間
  * @param {Object} busSpatial - 巴士線 spatial json
  * @param {Array<{name: string, lat: number, long: number}>} stopPoints - 循序排列的巴士站
- * @param {number} thresholdMeters - 判定行經長度閾值 (預設 500 公尺)
+ * @param {number} thresholdMeters - 判定行經長度閾值 (預設 250 公尺)
  */
 export function analyzeMultiHighwayRoute(busSpatial, stopPoints, thresholdMeters = 500) {
     const busLine = turf.lineString(busSpatial.flat(1).map((point) => [point[1], point[0]]));
@@ -760,7 +760,6 @@ export function analyzeMultiHighwayRoute(busSpatial, stopPoints, thresholdMeters
     for (const { name: hwName, type, spatial: coords } of highwayData) {
         if (!coords || coords.length < 2) continue;
         const highwayCoords = coords.map(([lat, long]) => [long, lat]);
-        const minimumOverlapMeters = type === 'bridge' || type === 'tunnel' ? 250 : thresholdMeters;
 
         // BBox 粗篩
         let minX = Infinity,
@@ -776,7 +775,8 @@ export function analyzeMultiHighwayRoute(busSpatial, stopPoints, thresholdMeters
         if (bMaxX < minX || bMinX > maxX || bMaxY < minY || bMinY > maxY) continue;
 
         const highwayLine = turf.lineString(highwayCoords);
-        const hwBuffer = turf.buffer(highwayLine, 15, { units: 'meters' });
+        const minimumOverlapMeters = type === 'bridge' || type === 'tunnel' ? 250 : thresholdMeters;
+        const hwBuffer = turf.buffer(highwayLine, 10, { units: 'meters' });
         if (!hwBuffer) continue;
 
         const splitResult = turf.lineSplit(busLine, turf.polygonToLine(hwBuffer));

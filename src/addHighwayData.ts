@@ -15,12 +15,14 @@ const input = {};
 (async function () {
     logger.info('Start');
     const highwayData = JSON.parse(fs.readFileSync(highwayPath, 'utf8'));
-    const inputSpatial = input.features.flatMap(({ geometry }) =>
-      geometry.coordinates.map(([longitude, latitude]) => [
-        parseFloat(latitude.toFixed(COORDINATE_DP)),
-        parseFloat(longitude.toFixed(COORDINATE_DP)),
-      ]),
-    );
+    const inputSpatial = input.features
+        .filter(({ geometry }) => geometry.type === 'LineString')
+        .flatMap(({ geometry }) =>
+            geometry.coordinates.map(([longitude, latitude]) => [
+                parseFloat(latitude.toFixed(COORDINATE_DP)),
+                parseFloat(longitude.toFixed(COORDINATE_DP)),
+            ]),
+        );
     const roadData = SpatialUtil.removeDuplicateSubArrays(inputSpatial);
     highwayData.push({
       name,
