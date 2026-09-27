@@ -4,6 +4,7 @@ dayjs.extend(utc);
 import * as turf from '@turf/turf';
 import holiday from './holiday.json';
 import highwayData from './highwayData.json';
+import interchangeData from './interchangeData.json';
 
 export function utf8_to_b64(str) {
     return window.btoa(encodeURIComponent(str));
@@ -834,5 +835,27 @@ export function analyzeMultiHighwayRoute(busSpatial, stopPoints, thresholdMeters
 
     return distinctMatches.map(({ highway, stopBeforeIndex, overlapMeters }) => {
         return { highway, stopBeforeIndex, overlapMeters };
+    });
+}
+
+export function analyzeInterchangeData(stopPoints, thresholdMeters = 50) {
+    const interchangeAreas = interchangeData
+        .map(({ type, spatial }) => ({
+            type,
+            area: turf.buffer(turf.polygon(spatial), thresholdMeters, { units: 'meters' }),
+        }))
+        .filter(({ area }) => area);
+
+    return stopPoints.map((stop) => {
+        const point = turf.point([parseFloat(stop.long), parseFloat(stop.lat)]);
+        const types = new Set();
+
+        interchangeAreas.forEach(({ type, area }) => {
+            if (turf.booleanPointInPolygon(point, area)) {
+                type.forEach((interchangeType) => types.add(interchangeType));
+            }
+        });
+
+        return [...types];
     });
 }

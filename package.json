@@ -7,6 +7,7 @@
   "type": "module",
   "scripts": {
     "add-highway-data": "tsx src/addHighwayData.ts",
+    "add-interchange-data": "tsx src/addInterchangeData.ts",
     "dev": "npx wrangler pages dev ./public --port 8788 --binding ENVIRONMENT=DEV --compatibility-date=2026-08-04",
     "format": "prettier --write \"{functions,src}/**/*.{js,ts}\"",
     "generate-sitemap": "tsx src/generateSiteMap.ts",

@@ -13,6 +13,7 @@ import {
     processFullGeometry,
     getJourneyTime,
     analyzeMultiHighwayRoute,
+    analyzeInterchangeData,
 } from './util.js';
 
 const searchAlert = document.getElementById('searchAlert');
@@ -42,6 +43,7 @@ const stopZoomLevel = 17;
 let mtrHrData;
 let stopListData;
 let highwayAnalysis = [];
+let interchangeAnalysis = [];
 
 // functions
 const alert = (message, type) => {
@@ -236,6 +238,7 @@ const renderStopList = (inputData, spatialData) => {
     if (inputData) {
         stopListData = inputData;
         highwayAnalysis = [];
+        interchangeAnalysis = analyzeInterchangeData(stopListData);
     }
     if (stopListData) {
         if (spatialData) {
@@ -300,9 +303,18 @@ const renderStopList = (inputData, spatialData) => {
                                 rowHtml += `<div class="stopListJourneyTimeAcc" data-stop-id="${stop.id}"></div>`;
                                 break;
                             case 'interchange':
-                                rowHtml += stop.hasInterchange
-                                    ? '<div class="stopListInterchange">可轉乘</div>'
-                                    : '<div class="stopListInterchange"></div>';
+                                rowHtml += `<div class="stopListInterchange">${(interchangeAnalysis[index] || [])
+                                    .map((type) => {
+                                        const icon = {
+                                            mtr: ['/img/mtr.svg', '港鐵'],
+                                            lrt: ['/img/mtr_lr.svg', '輕鐵'],
+                                            bus: ['/img/bbi.svg', '巴士'],
+                                        }[type];
+                                        return icon
+                                            ? `<img src="${icon[0]}" width="16" height="16" alt="${icon[1]}">`
+                                            : '';
+                                    })
+                                    .join('')}</div>`;
                                 break;
                         }
                     });
