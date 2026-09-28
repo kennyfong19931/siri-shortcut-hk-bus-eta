@@ -690,8 +690,10 @@ const loadSettings = () => {
 
     for (let [key, value] of Object.entries(defaultSetting)) {
         const saved = localStorage.getItem(key);
-        if (saved) {
-            if ('stopListRow' === key) {
+        if (saved !== null) {
+            if ('straightenLine' === key) {
+                value = saved;
+            } else if ('stopListRow' === key) {
                 try {
                     const parsed = JSON.parse(saved);
                     // 驗證並合併設定（確保預設欄位定義存在）
