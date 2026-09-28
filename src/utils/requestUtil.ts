@@ -9,8 +9,10 @@ export const doRequest = async (
     bodyType = 'json',
     toString = false,
     timeout = 60000,
+    maxRetry: number | undefined = undefined,
 ) => {
     let result;
+    let retryCount = 0;
     while (true) {
         let request;
         if (bodyType === 'json') {
@@ -55,6 +57,13 @@ export const doRequest = async (
 
         if (result !== null && result !== undefined) return result;
 
+        retryCount++;
+        if (maxRetry) {
+            if (retryCount > maxRetry) {
+                logger.error(`Failed to get response from ${url}`, null);
+                return null;
+            }
+        }
         await new Promise((r) => setTimeout(r, timeout + 60000));
     }
 };

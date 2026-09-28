@@ -19,9 +19,16 @@ export async function crawlRoute(): Promise<Route[]> {
         });
     }
 
-    const allRouteStopLastUpdateDate = await doRequest('GET', COMPANY.GMB.ROUTE_STOP_LAST_UPDATE_API).then(
-        (response) => response.data,
-    );
+    const allRouteStopLastUpdateDate = await doRequest(
+        'GET',
+        COMPANY.GMB.ROUTE_STOP_LAST_UPDATE_API,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        3,
+    ).then((response: { data?: any[] } | null) => response?.data ?? []);
 
     let result = await Promise.all(routeList).then((routeResponse) =>
         routeResponse
@@ -31,14 +38,14 @@ export async function crawlRoute(): Promise<Route[]> {
                         await Promise.all(
                             routeObj.directions.map(async (dir) => {
                                 const cacheKey = `${company.CODE}_route_stop_${routeObj.route_id}_${dir.route_seq}`;
-                                const lastUpdateDate = allRouteStopLastUpdateDate
-                                    .find((o) => o.route_id === routeObj.route_id && o.route_seq === dir.route_seq)
-                                    ?.last_update_date;
+                                const lastUpdateDate = allRouteStopLastUpdateDate.find(
+                                    (o) => o.route_id === routeObj.route_id && o.route_seq === dir.route_seq,
+                                )?.last_update_date;
                                 const cacheLastUpdateDate = CacheUtil.getCache(cacheKey)?.data_timestamp;
                                 const updateCache =
                                     lastUpdateDate == null ||
                                     cacheLastUpdateDate == null ||
-                                    new Date(cacheLastUpdateDate) > new Date(lastUpdateDate);
+                                    new Date(lastUpdateDate) > new Date(cacheLastUpdateDate);
 
                                 let routeStopData;
                                 let stopList;
