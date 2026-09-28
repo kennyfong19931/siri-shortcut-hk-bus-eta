@@ -7,7 +7,7 @@ import SpatialUtil from './utils/spatialUtil';
 const highwayPath = path.join('src', 'js', 'highwayData.json');
 import { COORDINATE_DP } from './constant';
 const name = '';
-const type = ''; // road, tunnel, bridge
+const threshold = undefined;
 const input = {};
 // get input as GeoJson from https://overpass-turbo.eu/ 
 // query = "[out:json][timeout:25];nw["name:zh"="Road Name"]({{bbox}});out geom;"
@@ -25,9 +25,9 @@ const input = {};
         );
     const roadData = SpatialUtil.removeDuplicateSubArrays(inputSpatial);
     highwayData.push({
-      name,
-      type,
-      spatial: roadData,
+        name,
+        threshold,
+        spatial: roadData,
     });
     logger.info(`Added to ${name} to highwayData.json`);
     fs.writeFileSync(highwayPath, JSON.stringify(highwayData));

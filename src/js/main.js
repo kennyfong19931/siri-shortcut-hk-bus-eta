@@ -12,9 +12,9 @@ import {
     utf8_to_b64,
     processFullGeometry,
     getJourneyTime,
-    analyzeMultiHighwayRoute,
     analyzeInterchangeData,
 } from './util.js';
+import { analyzeMultiHighwayRoute } from './highwayAnalysisWorkerClient.js';
 
 const searchAlert = document.getElementById('searchAlert');
 const searchResult = document.getElementById('searchResult');
@@ -43,6 +43,7 @@ const stopZoomLevel = 17;
 let mtrHrData;
 let stopListData;
 let highwayAnalysis = [];
+let highwayAnalysisRequest = 0;
 let interchangeAnalysis = [];
 
 // functions
@@ -236,13 +237,22 @@ const renderRoute = (json, withStop) => {
 };
 const renderStopList = (inputData, spatialData) => {
     if (inputData) {
+        highwayAnalysisRequest++;
         stopListData = inputData;
         highwayAnalysis = [];
         interchangeAnalysis = analyzeInterchangeData(stopListData);
     }
     if (stopListData) {
         if (spatialData) {
-            highwayAnalysis = analyzeMultiHighwayRoute(spatialData, stopListData);
+            const requestId = ++highwayAnalysisRequest;
+            const requestedStopList = stopListData;
+            analyzeMultiHighwayRoute(spatialData, requestedStopList)
+                .then((result) => {
+                    if (requestId !== highwayAnalysisRequest || requestedStopList !== stopListData) return;
+                    highwayAnalysis = result;
+                    renderStopList();
+                })
+                .catch((error) => console.error(error));
         }
         const setting = JSON.parse(localStorage.getItem('stopListRow'));
         const activeColumns = setting.filter((col) => col.visible);
