@@ -12,16 +12,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Setup node env
-        uses: actions/setup-node@v7
+      - name: Load cache - stop data
+        uses: actions/cache/restore@v6
         with:
-          node-version: 24
+          path: cache
+          key: stop-data-20260929-2
+          restore-keys: stop-data
 
-      - name: Install dependencies
+      - name: Copy file
         run: |
-          npm install
+          cp gmb_stop_20023329.json cache/gmb_stop_20023329.json
+          cp gmb_stop_20023330.json cache/gmb_stop_20023330.json
+          cp gmb_stop_20023331.json cache/gmb_stop_20023331.json
+          cp gmb_stop_20023332.json cache/gmb_stop_20023332.json
+          cp gmb_stop_20023333.json cache/gmb_stop_20023333.json
+          cp gmb_stop_20023334.json cache/gmb_stop_20023334.json
+          cp gmb_stop_20023362.json cache/gmb_stop_20023362.json
+          cp gmb_stop_20023395.json cache/gmb_stop_20023395.json
 
-      - name: Run test
-        run: |
-          echo "FORCE_COLOR=true" >> $GITHUB_ENV
-          npm run test
+      - name: Update Cache
+        uses: actions/cache/save@v6
+        with:
+          path: cache
+          key: stop-data-20260929-3
