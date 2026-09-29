@@ -12,16 +12,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Setup node env
-        uses: actions/setup-node@v7
+      # http://man7.org/linux/man-pages/man1/date.1.html
+      - name: Get Date
+        id: get-date
+        run: |
+          echo "date=$(/bin/date -u "+%Y%m%d")" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Load cache - stop data
+        uses: actions/cache/restore@v6
         with:
-          node-version: 24
+          path: cache
+          key: stop-data-${{ steps.get-date.outputs.date }}
+          restore-keys: stop-data
 
-      - name: Install dependencies
-        run: |
-          npm install
-
-      - name: Run test
-        run: |
-          echo "FORCE_COLOR=true" >> $GITHUB_ENV
-          npm run test
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          path: cache
+        
