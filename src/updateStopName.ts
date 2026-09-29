@@ -68,11 +68,10 @@ const updateStopNameCache = async (companyCode: string) => {
                 for (const i of stopLastUpdateDate) {
                     const cacheKey = `${company.CODE}_stop_${i.stop_id}`;
                     const cacheLastUpdateDate = CacheUtil.getCache(`${cacheKey}`)?.data_timestamp;
-                    const lastUpdateDate = i.last_update_date.replace('+00:00', '+08:00');
+                    const lastUpdateDate = i.last_update_date;
                     if (
                         lastUpdateDate == null ||
-                        cacheLastUpdateDate == null ||
-                        new Date(cacheLastUpdateDate) > new Date(lastUpdateDate)
+                        (cacheLastUpdateDate != null && new Date(cacheLastUpdateDate) >= new Date(lastUpdateDate))
                     ) {
                         continue;
                     }

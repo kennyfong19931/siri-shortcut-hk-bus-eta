@@ -43,9 +43,9 @@ export async function crawlRoute(): Promise<Route[]> {
                                 )?.last_update_date;
                                 const cacheLastUpdateDate = CacheUtil.getCache(cacheKey)?.data_timestamp;
                                 const updateCache =
-                                    lastUpdateDate == null ||
                                     cacheLastUpdateDate == null ||
-                                    new Date(lastUpdateDate) > new Date(cacheLastUpdateDate);
+                                    (lastUpdateDate != null &&
+                                        new Date(lastUpdateDate) > new Date(cacheLastUpdateDate));
 
                                 let routeStopData;
                                 let stopList;
