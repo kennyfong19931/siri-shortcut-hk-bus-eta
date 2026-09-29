@@ -12,9 +12,9 @@ import {
     utf8_to_b64,
     processFullGeometry,
     getJourneyTime,
-    analyzeInterchangeData,
 } from './util.js';
 import { analyzeMultiHighwayRoute } from './highwayAnalysisWorkerClient.js';
+import { analyzeInterchangeData } from './interchangeAnalysisWorkerClient.js';
 
 const searchAlert = document.getElementById('searchAlert');
 const searchResult = document.getElementById('searchResult');
@@ -45,6 +45,7 @@ let stopListData;
 let highwayAnalysis = [];
 let highwayAnalysisRequest = 0;
 let interchangeAnalysis = [];
+let interchangeAnalysisRequest = 0;
 
 // functions
 const alert = (message, type) => {
@@ -240,7 +241,16 @@ const renderStopList = (inputData, spatialData) => {
         highwayAnalysisRequest++;
         stopListData = inputData;
         highwayAnalysis = [];
-        interchangeAnalysis = analyzeInterchangeData(stopListData);
+        interchangeAnalysis = [];
+        const requestId = ++interchangeAnalysisRequest;
+        const requestedStopList = stopListData;
+        analyzeInterchangeData(requestedStopList)
+            .then((result) => {
+                if (requestId !== interchangeAnalysisRequest || requestedStopList !== stopListData) return;
+                interchangeAnalysis = result;
+                renderStopList();
+            })
+            .catch((error) => console.error(error));
     }
     if (stopListData) {
         if (spatialData) {
