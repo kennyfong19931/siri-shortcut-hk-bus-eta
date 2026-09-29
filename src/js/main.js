@@ -260,7 +260,7 @@ const renderStopList = (inputData, spatialData, company) => {
             .catch((error) => console.error(error));
     }
     if (stopListData) {
-        if (spatialData) {
+        if (spatialData && stopListCompany !== 'mtr_lr' && stopListCompany !== 'mtr_hr') {
             const requestId = ++highwayAnalysisRequest;
             const requestedStopList = stopListData;
             analyzeMultiHighwayRoute(spatialData, requestedStopList)
@@ -310,10 +310,8 @@ const renderStopList = (inputData, spatialData, company) => {
                 : '';
         };
 
-        stopList.innerHTML =
-            renderHighwayLabel(-1) +
-            stopListData
-                .map((stop, index) => {
+        stopList.innerHTML = stopListData
+            .map((stop, index) => {
                     let rowHtml = `<div class="d-flex align-items-center stopListRow border-bottom" onclick="triggerStopClick('${stop.id}')">`;
                     activeColumns.forEach((col) => {
                         switch (col.id) {
@@ -346,7 +344,7 @@ const renderStopList = (inputData, spatialData, company) => {
                         }
                     });
                     rowHtml += '</div>';
-                    return rowHtml + renderHighwayLabel(index);
+                    return rowHtml + (index < stopListData.length - 1 ? renderHighwayLabel(index) : '');
                 })
                 .join('');
 
