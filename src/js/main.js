@@ -42,6 +42,7 @@ const defaultPopupOption = { className: 'etaPopup', maxWidth: getPageWidth() };
 const stopZoomLevel = 17;
 let mtrHrData;
 let stopListData;
+let stopListCompany;
 let highwayAnalysis = [];
 let highwayAnalysisRequest = 0;
 let interchangeAnalysis = [];
@@ -104,7 +105,7 @@ const renderRoute = (json, withStop) => {
     if (activeTabPane) {
         activeTabPane.classList.remove('active');
     }
-    renderStopList(json.stopList);
+    renderStopList(json.stopList, undefined, json.company);
 
     // update header
     let headerBackgroundColor;
@@ -216,7 +217,7 @@ const renderRoute = (json, withStop) => {
                   })
                 : L.polyline(data, { color: lineColor });
             markersLayer.addLayer(polyline);
-            renderStopList(json.stopList, data);
+            renderStopList(json.stopList, data, json.company);
         })
         .catch(function (error) {
             console.log(error);
@@ -241,15 +242,16 @@ const renderRoute = (json, withStop) => {
 
     updateSEO('route', json);
 };
-const renderStopList = (inputData, spatialData) => {
+const renderStopList = (inputData, spatialData, company) => {
     if (inputData) {
         highwayAnalysisRequest++;
         stopListData = inputData;
+        stopListCompany = company;
         highwayAnalysis = [];
         interchangeAnalysis = [];
         const requestId = ++interchangeAnalysisRequest;
         const requestedStopList = stopListData;
-        analyzeInterchangeData(requestedStopList)
+        analyzeInterchangeData(requestedStopList, stopListCompany)
             .then((result) => {
                 if (requestId !== interchangeAnalysisRequest || requestedStopList !== stopListData) return;
                 interchangeAnalysis = result;

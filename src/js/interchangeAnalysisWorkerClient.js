@@ -20,10 +20,10 @@ worker.addEventListener('error', (event) => {
     pendingRequests.clear();
 });
 
-export function analyzeInterchangeData(stopPoints, thresholdMeters) {
+export function analyzeInterchangeData(stopPoints, company, thresholdMeters) {
     const id = ++nextRequestId;
     return new Promise((resolve, reject) => {
         pendingRequests.set(id, { resolve, reject });
-        worker.postMessage({ id, stopPoints, thresholdMeters });
+        worker.postMessage({ id, stopPoints, company, thresholdMeters });
     });
 }
