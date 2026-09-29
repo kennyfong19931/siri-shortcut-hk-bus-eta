@@ -107,19 +107,23 @@ const renderRoute = (json, withStop) => {
     renderStopList(json.stopList);
 
     // update header
+    let headerBackgroundColor;
     if ('mtr_hr' === json.company) {
+        headerBackgroundColor = getMtrColor('route-hr', json.routeId);
         const options = {
             '{{companyLogo}}': getCompanyImage(json.company),
             '{{route}}': json.route,
-            '{{titleCss}}': `background-color: ${getMtrColor('route-hr', json.routeId)}; min-width: 250px;`,
+            '{{titleCss}}': `background-color: ${headerBackgroundColor}; min-width: 250px;`,
         };
         mainMenuHeaderDiv.innerHTML = getHtmlTemplate('mainMenuHeaderRailway', options).outerHTML;
     } else {
-        let titleCss = `background-color: ${getCompanyColor(json.company)}`;
+        headerBackgroundColor = getCompanyColor(json.company);
+        let titleCss = `background-color: ${headerBackgroundColor}`;
         let routeNoCss = '',
             routeNoClass = '';
         if ('mtr_lr' === json.company) {
-            titleCss = `background-color: ${getMtrColor('lr')}; color: ${getMtrTextColor('lr')};`;
+            headerBackgroundColor = getMtrColor('lr');
+            titleCss = `background-color: ${headerBackgroundColor}; color: ${getMtrTextColor('lr')};`;
             routeNoCss = `--border-color: ${getMtrColor('route-lr', json.routeId)};`;
             routeNoClass = 'mtrLrRoute';
         }
@@ -133,6 +137,7 @@ const renderRoute = (json, withStop) => {
         };
         mainMenuHeaderDiv.innerHTML = getHtmlTemplate('mainMenuHeader', options).outerHTML;
     }
+    document.getElementById('mainMenu').style.setProperty('--stop-index-color', headerBackgroundColor);
 
     // remove all markers
     markersLayer.clearLayers();
@@ -311,7 +316,7 @@ const renderStopList = (inputData, spatialData) => {
                     activeColumns.forEach((col) => {
                         switch (col.id) {
                             case 'index':
-                                rowHtml += `<span class="badge bg-secondary rounded-pill index">${index + 1}</span>`;
+                                rowHtml += `<span class="index${index === 0 ? ' first' : ''}${index === stopListData.length - 1 ? ' last' : ''}">${index + 1}</span>`;
                                 break;
                             case 'name':
                                 rowHtml += `<div class="flex-grow-1"><span class="m-1">${stop.name}</span></div>`;

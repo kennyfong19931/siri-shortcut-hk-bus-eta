@@ -145,7 +145,49 @@ html, body {
 }
 
 .stopListRow .index {
-  min-width: 2.5em;
+  flex: 0 0 2.5rem;
+}
+
+#stopList .stopListRow:not(.header) .index {
+  position: relative;
+  z-index: 0;
+  display: inline-flex;
+  width: 2.5rem;
+  height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: var(--stop-index-color, var(--bs-secondary));
+  color: var(--bs-white);
+}
+
+#stopList .stopListRow:not(.header) .index::before,
+#stopList .stopListRow:not(.header) .index::after {
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  width: 2px;
+  background-color: var(--stop-index-color, var(--bs-secondary));
+  content: '';
+  transform: translateX(-50%);
+}
+
+#stopList .stopListRow:not(.header) .index::before {
+  top: -0.5rem;
+  bottom: 100%;
+}
+
+#stopList .stopListRow:not(.header) .index::after {
+  top: 100%;
+  bottom: -0.5rem;
+}
+
+#stopList .index.first::before {
+  display: none;
+}
+
+#stopList .index.last::after {
+  display: none;
 }
 
 .stopListJourneyTime, .stopListJourneyTimeAcc, .stopListInterchange {
