@@ -42,6 +42,7 @@
         const SPATIAL_API = `${BASE_API}/api/spatial/{path}.json`;
         const ETA_API = `${BASE_API}/api/eta`;
         const SIRI_SHORTCUT_UPDATE_API = `${BASE_API}/update.json`;
+        const FARE_API = `${BASE_API}/api/fare.json`;
     </script>
     <link rel="stylesheet" href="scss/styles.scss">
     <script type="module" src="./js/route.js"></script>
@@ -66,7 +67,7 @@
                             <button class="nav-link active" id="homeTab" data-bs-toggle="tab" data-bs-target="#homeTabPane" type="button" role="tab" aria-controls="homeTabPane" aria-selected="true">🏠 主頁</button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="stopTab" data-bs-toggle="tab" data-bs-target="#stopTabPane" type="button" role="tab" aria-controls="stopTabPane" aria-selected="false" disabled>🚏 車站</button>
+                            <button class="nav-link" id="stopTab" data-bs-toggle="tab" data-bs-target="#stopTabPane" type="button" role="tab" aria-controls="stopTabPane" aria-selected="false" disabled>🚏 車站、車費及車程</button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="settingTab" data-bs-toggle="tab" data-bs-target="#settingTabPane" type="button" role="tab" aria-controls="settingTabPane" aria-selected="false">⚙️ 設定 / 幫助</button>
@@ -122,6 +123,7 @@
                                 <div class="list-group my-2" id="bookmarkList"></div>
                             </div>
                             <div class="tab-pane fade" id="stopTabPane" role="tabpanel" aria-labelledby="stopTab" tabindex="0">
+                                <div id="fareSection" class="mb-3"></div>
                                 <div id="stopListHeader"></div>
                                 <div class="list-group" id="stopList"></div>
                             </div>

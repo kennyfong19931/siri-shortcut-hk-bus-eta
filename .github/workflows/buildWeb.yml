@@ -7,6 +7,7 @@ on:
     paths:
       - 'src/index.html'
       - 'src/js/*.js'
+      - 'src/js/*.json'
       - 'src/scss/*.scss'
       - 'update.json'
       - 'vite.config.js'

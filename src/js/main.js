@@ -19,6 +19,7 @@ import { analyzeInterchangeData } from './interchangeAnalysisWorkerClient.js';
 const searchAlert = document.getElementById('searchAlert');
 const searchResult = document.getElementById('searchResult');
 const stopTab = document.getElementById('stopTab');
+const fareSection = document.getElementById('fareSection');
 const stopListHeader = document.getElementById('stopListHeader');
 const stopList = document.getElementById('stopList');
 const mainMenuHeaderDiv = document.getElementById('mainMenuHeaderDiv');
@@ -47,6 +48,7 @@ let highwayAnalysis = [];
 let highwayAnalysisRequest = 0;
 let interchangeAnalysis = [];
 let interchangeAnalysisRequest = 0;
+let fareData = [];
 
 // functions
 const alert = (message, type) => {
@@ -106,6 +108,7 @@ const renderRoute = (json, withStop) => {
         activeTabPane.classList.remove('active');
     }
     renderStopList(json.stopList, undefined, json.company);
+    renderFare(json);
 
     // update header
     let headerBackgroundColor;
@@ -241,6 +244,88 @@ const renderRoute = (json, withStop) => {
     }
 
     updateSEO('route', json);
+};
+const renderFare = async (route) => {
+    fareSection.innerHTML = '';
+    if (!route.gtfsId) return;
+
+    try {
+        if (fareData.length === 0) {
+            fareData = await fetch(FARE_API).then((response) => {
+                if (!response.ok) throw new Error(`Fare data request failed: ${response.status}`);
+                return response.json();
+            });
+        }
+        const fareRecords = fareData.filter((record) => record.gtfsId === route.gtfsId);
+        const stopIndexByGtfsId = new Map(
+            route.stopList.map((stop, index) => [stop.gtfsId, index]).filter(([gtfsId]) => !!gtfsId),
+        );
+        const stopLabel = (index) => `${route.stopList[index].name}`;
+        const simpleFareRecords = fareRecords.filter((record) => !record.twoWay);
+        const matrixFareRecords = fareRecords.filter((record) => record.twoWay);
+        let html = '';
+
+        if (simpleFareRecords.length > 0) {
+            html += '<h3 class="h6 mb-2">全程及分段收費</h3><ul class="list-group mb-3">';
+            simpleFareRecords.forEach((record) => {
+                record.stopList.forEach(({ fare, stopId: boardingStopId }, index) => {
+                    if (index === 0) {
+                        html += `<li class="list-group-item d-flex justify-content-between align-items-center"><span>全程收費</span><strong>$${fare.toFixed(2)}</strong></li>`;
+                        return;
+                    }
+                    const originIndex = stopIndexByGtfsId.get(boardingStopId);
+                    if (originIndex === undefined) return;
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center"><span>${stopLabel(originIndex)} 起</span><strong>$${fare.toFixed(2)}</strong></li>`;
+                });
+            });
+            html += '</ul>';
+        }
+
+        if (matrixFareRecords.length > 0) {
+            const faresByStopPair = new Map();
+            const boardingIndices = new Set();
+            const dropOffIndices = new Set();
+            matrixFareRecords.forEach((record) => {
+                const lastDropOffByBoardingIndex = new Map();
+                record.stopList.forEach(({ fare, boardingStopId, dropOffStopId }) => {
+                    const originIndex = stopIndexByGtfsId.get(boardingStopId);
+                    const lastDropOffIndex = stopIndexByGtfsId.get(dropOffStopId);
+                    if (originIndex === undefined || lastDropOffIndex === undefined) return;
+                    boardingIndices.add(originIndex);
+                    dropOffIndices.add(lastDropOffIndex);
+                    const firstDropOffIndex = lastDropOffByBoardingIndex.has(originIndex)
+                        ? lastDropOffByBoardingIndex.get(originIndex) + 1
+                        : originIndex + 1;
+                    for (let destinationIndex = firstDropOffIndex; destinationIndex <= lastDropOffIndex; destinationIndex++) {
+                        faresByStopPair.set(`${originIndex}:${destinationIndex}`, fare);
+                    }
+                    lastDropOffByBoardingIndex.set(originIndex, lastDropOffIndex);
+                });
+            });
+            const sortedBoardingIndices = [...boardingIndices].sort((a, b) => a - b);
+            const sortedDropOffIndices = [...dropOffIndices].sort((a, b) => a - b);
+            if (sortedBoardingIndices.length > 0 && sortedDropOffIndices.length > 0) {
+                html += '<h3 class="h6 mb-2">雙向分段收費</h3><div class="table-responsive"><table class="table table-sm table-bordered table-hover text-center align-middle mb-0"><thead><tr><th scope="col">上車 ↓ / <br/>落車 →</th>';
+                sortedDropOffIndices.forEach((index) => {
+                    html += `<th class="text-break" scope="col">${route.stopList[index].name}<br/><small class="float-end">或之前</small></th>`;
+                });
+                html += '</tr></thead><tbody>';
+                sortedBoardingIndices.forEach((originIndex) => {
+                    html += `<tr><th scope="row" class="text-start">${route.stopList[originIndex].name}<br/><small class="float-end">或之後</small></th>`;
+                    sortedDropOffIndices.forEach((destinationIndex) => {
+                        const fare = faresByStopPair.get(`${originIndex}:${destinationIndex}`);
+                        html += `<td>${fare === undefined ? '-' : `$${fare.toFixed(2)}`}</td>`;
+                    });
+                    html += '</tr>';
+                });
+                html += '</tbody></table></div>';
+            }
+        }
+
+        fareSection.innerHTML = html;
+    } catch (error) {
+        console.error('Cannot load route fare data', error);
+    }
 };
 const renderStopList = (inputData, spatialData, company) => {
     if (inputData) {

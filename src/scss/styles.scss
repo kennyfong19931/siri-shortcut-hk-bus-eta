@@ -50,7 +50,7 @@ $accordion-button-active-color: var(--accordion-button-color);
 // @import "~bootstrap/scss/images";
 @import "~bootstrap/scss/containers";
 @import "~bootstrap/scss/grid";
-// @import "~bootstrap/scss/tables";
+@import "~bootstrap/scss/tables";
 @import "~bootstrap/scss/forms";
 @import "~bootstrap/scss/buttons";
 @import "~bootstrap/scss/transitions";
@@ -113,7 +113,7 @@ html, body {
 #mainMenu {
   position: absolute;
   z-index: 1010;
-  width: 30vw;
+  width: 35vw;
 }
 
 @media screen and (max-width: 768px) {
@@ -145,15 +145,15 @@ html, body {
 }
 
 .stopListRow .index {
-  flex: 0 0 2.5rem;
+  flex: 0 0 2rem;
 }
 
 #stopList .stopListRow:not(.header) .index {
   position: relative;
   z-index: 0;
   display: inline-flex;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2rem;
+  height: 2rem;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
@@ -166,7 +166,7 @@ html, body {
   position: absolute;
   z-index: -1;
   left: 50%;
-  width: 2px;
+  width: 5px;
   background-color: var(--stop-index-color, var(--bs-secondary));
   content: '';
   transform: translateX(-50%);
