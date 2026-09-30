@@ -146,10 +146,8 @@ html, body {
   top: 0;
   bottom: 0;
   left: 1.5rem;
-  width: 10px;
-  background-color: var(--bs-white);
-  border-right: 3px solid var(--stop-index-color, var(--bs-secondary));
-  border-left: 3px solid var(--stop-index-color, var(--bs-secondary));
+  width: 5px;
+  background-color: var(--stop-index-color, var(--bs-secondary));
   content: '';
   transform: translateX(-50%);
 }
@@ -188,6 +186,10 @@ html, body {
 .stopListJourneyTime, .stopListJourneyTimeAcc, .stopListInterchange {
   width: 2.5em;
   text-align: center;
+}
+
+#fareTable th{
+  min-width: 6rem;
 }
 
 #map {

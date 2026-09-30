@@ -247,7 +247,8 @@ const renderRoute = (json, withStop) => {
 };
 const renderFare = async (route) => {
     fareSection.innerHTML = '';
-    if (!route.gtfsId) return;
+    const gtfsId = route.company === 'gmb' ? `${route.routeId}_${route.routeType}` : route.gtfsId;
+    if (!gtfsId) return;
 
     try {
         if (fareData.length === 0) {
@@ -256,9 +257,11 @@ const renderFare = async (route) => {
                 return response.json();
             });
         }
-        const fareRecords = fareData.filter((record) => record.gtfsId === route.gtfsId);
+        const fareRecords = fareData.filter((record) => record.gtfsId === gtfsId);
         const stopIndexByGtfsId = new Map(
-            route.stopList.map((stop, index) => [stop.gtfsId, index]).filter(([gtfsId]) => !!gtfsId),
+            route.stopList
+                .map((stop, index) => [route.company === 'gmb' ? stop.id : stop.gtfsId, index])
+                .filter(([stopGtfsId]) => !!stopGtfsId),
         );
         const stopLabel = (index) => `${route.stopList[index].name}`;
         const simpleFareRecords = fareRecords.filter((record) => !record.twoWay);
@@ -296,7 +299,11 @@ const renderFare = async (route) => {
                     const firstDropOffIndex = lastDropOffByBoardingIndex.has(originIndex)
                         ? lastDropOffByBoardingIndex.get(originIndex) + 1
                         : originIndex + 1;
-                    for (let destinationIndex = firstDropOffIndex; destinationIndex <= lastDropOffIndex; destinationIndex++) {
+                    for (
+                        let destinationIndex = firstDropOffIndex;
+                        destinationIndex <= lastDropOffIndex;
+                        destinationIndex++
+                    ) {
                         faresByStopPair.set(`${originIndex}:${destinationIndex}`, fare);
                     }
                     lastDropOffByBoardingIndex.set(originIndex, lastDropOffIndex);
@@ -305,7 +312,8 @@ const renderFare = async (route) => {
             const sortedBoardingIndices = [...boardingIndices].sort((a, b) => a - b);
             const sortedDropOffIndices = [...dropOffIndices].sort((a, b) => a - b);
             if (sortedBoardingIndices.length > 0 && sortedDropOffIndices.length > 0) {
-                html += '<h3 class="h6 mb-2">雙向分段收費</h3><div class="table-responsive"><table class="table table-sm table-bordered table-hover text-center align-middle mb-0"><thead><tr><th scope="col">上車 ↓ / <br/>落車 →</th>';
+                html +=
+                    '<h3 class="h6 mb-2">雙向分段收費</h3><div class="table-responsive"><table class="table table-sm table-bordered table-hover text-center align-middle mb-0" id="fareTable"><thead><tr><th scope="col">上車 ↓ / <br/>落車 →</th>';
                 sortedDropOffIndices.forEach((index) => {
                     html += `<th class="text-break" scope="col">${route.stopList[index].name}<br/><small class="float-end">或之前</small></th>`;
                 });
@@ -397,41 +405,39 @@ const renderStopList = (inputData, spatialData, company) => {
 
         stopList.innerHTML = stopListData
             .map((stop, index) => {
-                    let rowHtml = `<div class="d-flex align-items-center stopListRow border-bottom" onclick="triggerStopClick('${stop.id}')">`;
-                    activeColumns.forEach((col) => {
-                        switch (col.id) {
-                            case 'index':
-                                rowHtml += `<span class="index${index === 0 ? ' first' : ''}${index === stopListData.length - 1 ? ' last' : ''}">${index + 1}</span>`;
-                                break;
-                            case 'name':
-                                rowHtml += `<div class="flex-grow-1"><span class="m-1">${stop.name}</span></div>`;
-                                break;
-                            case 'journeyTime':
-                                rowHtml += `<div class="stopListJourneyTime" data-stop-id="${stop.id}"></div>`;
-                                break;
-                            case 'journeyTimeAcc':
-                                rowHtml += `<div class="stopListJourneyTimeAcc" data-stop-id="${stop.id}"></div>`;
-                                break;
-                            case 'interchange':
-                                rowHtml += `<div class="stopListInterchange">${(interchangeAnalysis[index] || [])
-                                    .map((type) => {
-                                        const icon = {
-                                            mtr: ['/img/mtr.svg', '港鐵'],
-                                            lrt: ['/img/mtr_lr.svg', '輕鐵'],
-                                            bus: ['/img/bbi.svg', '巴士'],
-                                        }[type];
-                                        return icon
-                                            ? `<img src="${icon[0]}" width="16" height="16" alt="${icon[1]}">`
-                                            : '';
-                                    })
-                                    .join('')}</div>`;
-                                break;
-                        }
-                    });
-                    rowHtml += '</div>';
-                    return rowHtml + (index < stopListData.length - 1 ? renderHighwayLabel(index) : '');
-                })
-                .join('');
+                let rowHtml = `<div class="d-flex align-items-center stopListRow border-bottom" onclick="triggerStopClick('${stop.id}')">`;
+                activeColumns.forEach((col) => {
+                    switch (col.id) {
+                        case 'index':
+                            rowHtml += `<span class="index${index === 0 ? ' first' : ''}${index === stopListData.length - 1 ? ' last' : ''}">${index + 1}</span>`;
+                            break;
+                        case 'name':
+                            rowHtml += `<div class="flex-grow-1"><span class="m-1">${stop.name}</span></div>`;
+                            break;
+                        case 'journeyTime':
+                            rowHtml += `<div class="stopListJourneyTime" data-stop-id="${stop.id}"></div>`;
+                            break;
+                        case 'journeyTimeAcc':
+                            rowHtml += `<div class="stopListJourneyTimeAcc" data-stop-id="${stop.id}"></div>`;
+                            break;
+                        case 'interchange':
+                            rowHtml += `<div class="stopListInterchange">${(interchangeAnalysis[index] || [])
+                                .map((type) => {
+                                    const icon = {
+                                        mtr: ['/img/mtr.svg', '港鐵'],
+                                        lrt: ['/img/mtr_lr.svg', '輕鐵'],
+                                        bus: ['/img/bbi.svg', '巴士'],
+                                    }[type];
+                                    return icon ? `<img src="${icon[0]}" width="16" height="16" alt="${icon[1]}">` : '';
+                                })
+                                .join('')}</div>`;
+                            break;
+                    }
+                });
+                rowHtml += '</div>';
+                return rowHtml + (index < stopListData.length - 1 ? renderHighwayLabel(index) : '');
+            })
+            .join('');
 
         // journey time
         const activeJourneyTime = setting.filter(
@@ -439,7 +445,7 @@ const renderStopList = (inputData, spatialData, company) => {
         );
         if (activeJourneyTime) {
             // preload journeyTime
-            stopListData.forEach((stop) => getJourneyTime(stop.id));
+            stopListData.forEach((stop) => getJourneyTime(String(stop.id)));
         }
     }
 };
@@ -675,7 +681,7 @@ const triggerStopClick = async (stopId) => {
         return;
     }
 
-    const currentIndex = stopListData.findIndex((stop) => stop.id === stopId);
+    const currentIndex = stopListData.findIndex((stop) => String(stop.id) === stopId);
     if (currentIndex < 0) {
         return;
     }
