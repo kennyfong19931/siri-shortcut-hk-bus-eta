@@ -136,7 +136,30 @@ html, body {
 }
 
 .stopListRow {
+  position: relative;
   padding: 0.5rem;
+}
+
+#stopList .stopListRow:not(.header)::before {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  bottom: 0;
+  left: 1.5rem;
+  width: 10px;
+  background-color: var(--bs-white);
+  border-right: 3px solid var(--stop-index-color, var(--bs-secondary));
+  border-left: 3px solid var(--stop-index-color, var(--bs-secondary));
+  content: '';
+  transform: translateX(-50%);
+}
+
+#stopList .stopListRow:not(.header):has(.index.first)::before {
+  top: 50%;
+}
+
+#stopList .stopListRow:not(.header):has(.index.last)::before {
+  bottom: 50%;
 }
 
 .stopListRow:not(.header):hover {
@@ -150,44 +173,16 @@ html, body {
 
 #stopList .stopListRow:not(.header) .index {
   position: relative;
-  z-index: 0;
+  z-index: 1;
   display: inline-flex;
   width: 2rem;
   height: 2rem;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background-color: var(--stop-index-color, var(--bs-secondary));
-  color: var(--bs-white);
-}
-
-#stopList .stopListRow:not(.header) .index::before,
-#stopList .stopListRow:not(.header) .index::after {
-  position: absolute;
-  z-index: -1;
-  left: 50%;
-  width: 5px;
-  background-color: var(--stop-index-color, var(--bs-secondary));
-  content: '';
-  transform: translateX(-50%);
-}
-
-#stopList .stopListRow:not(.header) .index::before {
-  top: -0.5rem;
-  bottom: 100%;
-}
-
-#stopList .stopListRow:not(.header) .index::after {
-  top: 100%;
-  bottom: -0.5rem;
-}
-
-#stopList .index.first::before {
-  display: none;
-}
-
-#stopList .index.last::after {
-  display: none;
+  background-color: var(--bs-white);
+  color: var(--bs-black);
+  border: 5px solid var(--stop-index-color, var(--bs-secondary));
 }
 
 .stopListJourneyTime, .stopListJourneyTimeAcc, .stopListInterchange {
