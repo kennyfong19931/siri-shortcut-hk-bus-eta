@@ -97,8 +97,8 @@ const getCsdiRoute = async (type: string) => {
                 } else {
                     logger.info(`Filesize for ${type} = ${stats.size / 1024 / 1024} MB`);
                 }
+                resolve('finish');
             });
-            resolve('finish');
         });
 
         zipFileWriteStream.on('error', (err) => {
@@ -119,8 +119,7 @@ const getCsdiRoute = async (type: string) => {
                 .toObject()
                 .coordinates.map((a) => {
                     if (Array.isArray(a[0])) {
-                        // remove duplicate points after convert to WGS84
-                        return removeDuplicateSubArrays(a.map((b) => SpatialUtil.fromHK80ToWGS84(b)));
+                        return a.map((b) => SpatialUtil.fromHK80ToWGS84(b));
                     } else {
                         return SpatialUtil.fromHK80ToWGS84(a);
                     }
