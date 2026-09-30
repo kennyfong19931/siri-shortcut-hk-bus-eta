@@ -111,24 +111,24 @@ const renderRoute = (json, withStop) => {
     renderFare(json);
 
     // update header
-    let headerBackgroundColor;
+    let stopIndexColor;
     if ('mtr_hr' === json.company) {
-        headerBackgroundColor = getMtrColor('route-hr', json.routeId);
+        stopIndexColor = getMtrColor('route-hr', json.routeId);
         const options = {
             '{{companyLogo}}': getCompanyImage(json.company),
             '{{route}}': json.route,
-            '{{titleCss}}': `background-color: ${headerBackgroundColor}; min-width: 250px;`,
+            '{{titleCss}}': `background-color: ${stopIndexColor}; min-width: 250px;`,
         };
         mainMenuHeaderDiv.innerHTML = getHtmlTemplate('mainMenuHeaderRailway', options).outerHTML;
     } else {
-        headerBackgroundColor = getCompanyColor(json.company);
-        let titleCss = `background-color: ${headerBackgroundColor}`;
+        stopIndexColor = getCompanyColor(json.company);
+        let titleCss = `background-color: ${stopIndexColor}`;
         let routeNoCss = '',
             routeNoClass = '';
         if ('mtr_lr' === json.company) {
-            headerBackgroundColor = getMtrColor('lr');
-            titleCss = `background-color: ${headerBackgroundColor}; color: ${getMtrTextColor('lr')};`;
-            routeNoCss = `--border-color: ${getMtrColor('route-lr', json.routeId)};`;
+            stopIndexColor = getMtrColor('route-lr', json.routeId);
+            titleCss = `background-color: ${getMtrColor('lr')}; color: ${getMtrTextColor('lr')};`;
+            routeNoCss = `--border-color: ${stopIndexColor};`;
             routeNoClass = 'mtrLrRoute';
         }
         const options = {
@@ -141,7 +141,7 @@ const renderRoute = (json, withStop) => {
         };
         mainMenuHeaderDiv.innerHTML = getHtmlTemplate('mainMenuHeader', options).outerHTML;
     }
-    document.getElementById('mainMenu').style.setProperty('--stop-index-color', headerBackgroundColor);
+    document.getElementById('mainMenu').style.setProperty('--stop-index-color', stopIndexColor);
 
     // remove all markers
     markersLayer.clearLayers();
