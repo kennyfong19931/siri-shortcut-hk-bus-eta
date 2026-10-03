@@ -313,7 +313,7 @@ const renderFare = async (route) => {
             const sortedDropOffIndices = [...dropOffIndices].sort((a, b) => a - b);
             if (sortedBoardingIndices.length > 0 && sortedDropOffIndices.length > 0) {
                 html +=
-                    '<h3 class="h6 mb-2">雙向分段收費</h3><div class="table-responsive"><table class="table table-sm table-bordered table-hover text-center align-middle mb-0" id="fareTable"><thead><tr><th scope="col">上車 ↓ / <br/>落車 →</th>';
+                    '<h3 class="h6 mb-2">雙向分段收費</h3><div class="table-responsive"><table class="table table-sm table-bordered table-hover text-center align-middle mb-0" id="fareTable"><thead><tr><th scope="col">上車 ↓ / 落車 →</th>';
                 sortedDropOffIndices.forEach((index) => {
                     html += `<th class="text-break" scope="col">${route.stopList[index].name}<br/><small class="float-end">或之前</small></th>`;
                 });
@@ -422,13 +422,15 @@ const renderStopList = (inputData, spatialData, company) => {
                             break;
                         case 'interchange':
                             rowHtml += `<div class="stopListInterchange">${(interchangeAnalysis[index] || [])
-                                .map((type) => {
+                                .map(({name, type}) => {
                                     const icon = {
                                         mtr: ['/img/mtr.svg', '港鐵'],
                                         lrt: ['/img/mtr_lr.svg', '輕鐵'],
                                         bus: ['/img/bbi.svg', '巴士'],
                                     }[type];
-                                    return icon ? `<img src="${icon[0]}" width="16" height="16" alt="${icon[1]}">` : '';
+                                    return icon
+                                        ? `<img src="${icon[0]}" width="16" height="16" title="${icon[1]} - ${name}">`
+                                        : '';
                                 })
                                 .join('')}</div>`;
                             break;

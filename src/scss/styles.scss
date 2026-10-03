@@ -183,9 +183,18 @@ html, body {
   border: 5px solid var(--stop-index-color, var(--bs-secondary));
 }
 
-.stopListJourneyTime, .stopListJourneyTimeAcc, .stopListInterchange {
+.stopListJourneyTime, .stopListJourneyTimeAcc {
   width: 2.5em;
   text-align: center;
+}
+
+.stopListInterchange {
+  width: 3em;
+  text-align: center;
+}
+
+.stopListInterchange img {
+  margin: 2px;
 }
 
 #fareTable th{

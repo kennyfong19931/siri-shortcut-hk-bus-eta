@@ -3,24 +3,33 @@ import interchangeData from './interchangeData.json';
 
 export function analyzeInterchangeData(stopPoints, company, thresholdMeters = 50) {
     const interchangeAreas = interchangeData
-        .map(({ type, spatial }) => ({
+        .map(({ name, type, spatial }) => ({
+            name,
             type,
-            area: turf.buffer(turf.polygon(spatial), thresholdMeters, { units: 'meters' }),
+            polygon: turf.polygon(spatial),
         }))
-        .filter(({ area }) => area);
+        .map((area) => ({
+            ...area,
+            boundaryLines: turf.flatten(turf.polygonToLine(area.polygon)).features,
+        }));
 
     return stopPoints.map((stop) => {
         const point = turf.point([parseFloat(stop.long), parseFloat(stop.lat)]);
         const types = new Set();
 
-        interchangeAreas.forEach(({ type, area }) => {
-            if (turf.booleanPointInPolygon(point, area)) {
+        interchangeAreas.forEach(({ name, type, polygon, boundaryLines }) => {
+            const withinThreshold = type.includes('bus')
+                ? false
+                : boundaryLines.some(
+                      (line) => turf.pointToLineDistance(point, line, { units: 'meters' }) <= thresholdMeters,
+                  );
+            if (turf.booleanPointInPolygon(point, polygon) || withinThreshold) {
                 type.forEach((interchangeType) => {
                     if (
                         !('mtr_hr' === company && 'mtr' === interchangeType) &&
                         !('mtr_lr' === company && 'lrt' === interchangeType)
                     ) {
-                        types.add(interchangeType);
+                        types.add({ name, type: interchangeType });
                     }
                 });
             }
@@ -35,6 +44,7 @@ self.addEventListener('message', ({ data }) => {
         const result = analyzeInterchangeData(data.stopPoints, data.company, data.thresholdMeters);
         self.postMessage({ id: data.id, result });
     } catch (error) {
+        console.error(error);
         self.postMessage({ id: data.id, error: error instanceof Error ? error.message : String(error) });
     }
 });
