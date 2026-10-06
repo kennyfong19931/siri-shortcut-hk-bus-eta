@@ -266,10 +266,32 @@ const renderFare = async (route) => {
         const stopLabel = (index) => `${route.stopList[index].name}`;
         const simpleFareRecords = fareRecords.filter((record) => !record.twoWay);
         const matrixFareRecords = fareRecords.filter((record) => record.twoWay);
+        const companyLinkInfo = {
+            kmb: {
+                name: '九巴',
+                url: `https://search.kmb.hk/KMBWebSite/?action=routesearch&route=${route.route}&lang=zh`,
+            },
+            ctb: {
+                name: '城巴',
+                url: `https://mobile.citybus.com.hk/nwp3/?f=1&ds=${route.route}&dsmode=1&l=0`,
+            },
+            nlb: { name: '嶼巴', url: `https://www.nlb.com.hk/route/detail/${route.routeId}` },
+            mtr: {
+                name: '港鐵巴士',
+                url: `https://www.mtr.com.hk/ch/customer/services/searchBusRouteDetails.php?routeID=${route.route}`,
+            },
+            gmb: {
+                name: '專線小巴',
+                url: `https://h2-app-rr.hkemobility.gov.hk/ris_page/get_gmb_detail.php?lang=TC&route_id=${route.routeId}`,
+            },
+        }[route.company];
+        const companyLink = companyLinkInfo
+            ? ` <a class="btn btn-sm btn-outline-info float-end" href="${companyLinkInfo.url}" target="_blank" rel="noopener noreferrer">${companyLinkInfo.name} <i class="bi bi-box-arrow-up-right"></i></a>`
+            : '';
         let html = '';
 
         if (simpleFareRecords.length > 0) {
-            html += '<h3 class="h6 mb-2">全程及分段收費</h3><ul class="list-group mb-3">';
+            html += `<h3 class="mb-2">全程及分段收費${companyLink}</h3><ul class="list-group mb-3">`;
             simpleFareRecords.forEach((record) => {
                 record.stopList.forEach(({ fare, stopId: boardingStopId }, index) => {
                     if (index === 0) {
@@ -313,13 +335,13 @@ const renderFare = async (route) => {
             const sortedDropOffIndices = [...dropOffIndices].sort((a, b) => a - b);
             if (sortedBoardingIndices.length > 0 && sortedDropOffIndices.length > 0) {
                 html +=
-                    '<h3 class="h6 mb-2">雙向分段收費</h3><div class="table-responsive"><table class="table table-sm table-bordered table-hover text-center align-middle mb-0" id="fareTable"><thead><tr><th scope="col">上車 ↓ / 落車 →</th>';
+                    `<h3 class="mb-2">雙向分段收費${companyLink}</h3><div class="table-responsive"><table class="table table-sm table-bordered table-hover text-center align-middle mb-0" id="fareTable"><thead><tr><th scope="col">上車 ↓ / 落車 →</th>`;
                 sortedDropOffIndices.forEach((index) => {
-                    html += `<th class="text-break" scope="col">${route.stopList[index].name}<br/><small class="float-end">或之前</small></th>`;
+                    html += `<th class="text-break table-primary" scope="col">${route.stopList[index].name}<br/><small class="float-end">或之前</small></th>`;
                 });
                 html += '</tr></thead><tbody>';
                 sortedBoardingIndices.forEach((originIndex) => {
-                    html += `<tr><th scope="row" class="text-start">${route.stopList[originIndex].name}<br/><small class="float-end">或之後</small></th>`;
+                    html += `<tr><th scope="row" class="text-start table-primary">${route.stopList[originIndex].name}<br/><small class="float-end">或之後</small></th>`;
                     sortedDropOffIndices.forEach((destinationIndex) => {
                         const fare = faresByStopPair.get(`${originIndex}:${destinationIndex}`);
                         html += `<td>${fare === undefined ? '-' : `$${fare.toFixed(2)}`}</td>`;
