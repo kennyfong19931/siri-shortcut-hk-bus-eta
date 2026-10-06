@@ -201,6 +201,25 @@ html, body {
   min-width: 6rem;
 }
 
+#fareTable .slashHeader {
+  height: 1px;
+  background: linear-gradient(to top right,transparent calc(50% - 0.5px),var(--bs-black) 50%,transparent calc(50% + 0.5px)) var(--bs-table-bg);
+}
+
+#fareTable tr:has(> td:hover) > * {
+  --bs-table-bg-state: var(--bs-yellow);
+  background-color: var(--bs-yellow);
+  color: var(--bs-black);
+}
+
+@for $column from 2 through 10 {
+  #fareTable:has(td:nth-child(#{$column}):hover) tr > :nth-child(#{$column}) {
+    --bs-table-bg-state: var(--bs-yellow);
+    background-color: var(--bs-yellow);
+    color: var(--bs-black);
+  }
+}
+
 #map {
   height: 100dvh;
   width: 100vw;

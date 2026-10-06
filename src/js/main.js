@@ -300,7 +300,7 @@ const renderFare = async (route) => {
                     }
                     const originIndex = stopIndexByGtfsId.get(boardingStopId);
                     if (originIndex === undefined) return;
-                    html += `<li class="list-group-item d-flex justify-content-between align-items-center"><span>${stopLabel(originIndex)} 起</span><strong>$${fare.toFixed(2)}</strong></li>`;
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center"><span>${stopLabel(originIndex)} <small>起</small></span><strong>$${fare.toFixed(2)}</strong></li>`;
                 });
             });
             html += '</ul>';
@@ -335,7 +335,7 @@ const renderFare = async (route) => {
             const sortedDropOffIndices = [...dropOffIndices].sort((a, b) => a - b);
             if (sortedBoardingIndices.length > 0 && sortedDropOffIndices.length > 0) {
                 html +=
-                    `<h3 class="mb-2">雙向分段收費${companyLink}</h3><div class="table-responsive"><table class="table table-sm table-bordered table-hover text-center align-middle mb-0" id="fareTable"><thead><tr><th scope="col">上車 ↓ / 落車 →</th>`;
+                    `<h3 class="mb-2">雙向分段收費${companyLink}</h3><div class="table-responsive"><table class="table table-sm table-bordered table-hover text-center align-middle mb-0" id="fareTable"><thead><tr><th scope="col" class="slashHeader table-primary"><div class="d-flex justify-content-between h-100 p-1"><div class="align-self-end">上車 ↓</div><div class="align-self-start">落車 →</div></div></th>`;
                 sortedDropOffIndices.forEach((index) => {
                     html += `<th class="text-break table-primary" scope="col">${route.stopList[index].name}<br/><small class="float-end">或之前</small></th>`;
                 });
