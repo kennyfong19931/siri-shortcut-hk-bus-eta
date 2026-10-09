@@ -247,6 +247,39 @@ const renderRoute = (json, withStop) => {
 };
 const renderFare = async (route) => {
     fareSection.innerHTML = '';
+    const companyLinkInfo = {
+        kmb: {
+            name: '九巴',
+            url: `https://search.kmb.hk/KMBWebSite/?action=routesearch&route=${route.route}&lang=zh`,
+        },
+        ctb: {
+            name: '城巴',
+            url: `https://mobile.citybus.com.hk/nwp3/?f=1&ds=${route.route}&dsmode=1&l=0`,
+        },
+        nlb: { name: '嶼巴', url: `https://www.nlb.com.hk/route/detail/${route.routeId}` },
+        mtr: {
+            name: '港鐵巴士',
+            url: `https://www.mtr.com.hk/ch/customer/services/searchBusRouteDetails.php?routeID=${route.route}`,
+        },
+        gmb: {
+            name: '專線小巴',
+            url: `https://h2-app-rr.hkemobility.gov.hk/ris_page/get_gmb_detail.php?lang=TC&route_id=${route.routeId}`,
+        },
+        mtr_hr: {
+            name: '港鐵',
+            url: `https://www.mtr.com.hk/ch/customer/tickets/index.php`,
+        },
+        mtr_lr: {
+            name: '輕鐵',
+            url: `https://www.mtr.com.hk/ch/customer/tickets/index.php`,
+        },
+    }[route.company];
+    const companyLink = companyLinkInfo
+        ? ` <a class="btn btn-sm btn-outline-info float-end" href="${companyLinkInfo.url}" target="_blank" rel="noopener noreferrer">${companyLinkInfo.name} <i class="bi bi-box-arrow-up-right"></i></a>`
+        : '';
+    if (route.company === 'mtr_hr' || route.company === 'mtr_lr') {
+        fareSection.innerHTML = `<div>收費: 請到港鐵網頁查看${companyLink}</div>`;
+    }
     const gtfsId = route.company === 'gmb' ? `${route.routeId}_${route.routeType}` : route.gtfsId;
     if (!gtfsId) return;
 
@@ -266,28 +299,6 @@ const renderFare = async (route) => {
         const stopLabel = (index) => `${route.stopList[index].name}`;
         const simpleFareRecords = fareRecords.filter((record) => !record.twoWay);
         const matrixFareRecords = fareRecords.filter((record) => record.twoWay);
-        const companyLinkInfo = {
-            kmb: {
-                name: '九巴',
-                url: `https://search.kmb.hk/KMBWebSite/?action=routesearch&route=${route.route}&lang=zh`,
-            },
-            ctb: {
-                name: '城巴',
-                url: `https://mobile.citybus.com.hk/nwp3/?f=1&ds=${route.route}&dsmode=1&l=0`,
-            },
-            nlb: { name: '嶼巴', url: `https://www.nlb.com.hk/route/detail/${route.routeId}` },
-            mtr: {
-                name: '港鐵巴士',
-                url: `https://www.mtr.com.hk/ch/customer/services/searchBusRouteDetails.php?routeID=${route.route}`,
-            },
-            gmb: {
-                name: '專線小巴',
-                url: `https://h2-app-rr.hkemobility.gov.hk/ris_page/get_gmb_detail.php?lang=TC&route_id=${route.routeId}`,
-            },
-        }[route.company];
-        const companyLink = companyLinkInfo
-            ? ` <a class="btn btn-sm btn-outline-info float-end" href="${companyLinkInfo.url}" target="_blank" rel="noopener noreferrer">${companyLinkInfo.name} <i class="bi bi-box-arrow-up-right"></i></a>`
-            : '';
         let html = '';
 
         if (simpleFareRecords.length > 0) {
