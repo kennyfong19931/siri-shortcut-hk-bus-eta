@@ -448,7 +448,7 @@ const renderStopList = (inputData, spatialData, company) => {
                                     const icon = {
                                         mtr: ['/img/mtr.svg', '港鐵'],
                                         lrt: ['/img/mtr_lr.svg', '輕鐵'],
-                                        bus: ['/img/bbi.svg', '巴士'],
+                                        bus: ['/img/bbi.png', '巴士'],
                                     }[type];
                                     return icon
                                         ? `<img src="${icon[0]}" width="16" height="16" title="${icon[1]} - ${name}">`
