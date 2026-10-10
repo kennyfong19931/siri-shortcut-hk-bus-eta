@@ -277,11 +277,11 @@ const renderFare = async (route) => {
     const companyLink = companyLinkInfo
         ? ` <a class="btn btn-sm btn-outline-info" href="${companyLinkInfo.url}" target="_blank" rel="noopener noreferrer">${companyLinkInfo.name} <i class="bi bi-box-arrow-up-right"></i></a>`
         : '';
-    if (route.company === 'mtr_hr' || route.company === 'mtr_lr') {
-        fareSection.innerHTML = `<div class="d-flex align-items-center justify-content-between gap-2"><span class="mb-0">收費: 請到港鐵網頁查看</span>${companyLink}</div>`;
-    }
     const gtfsId = route.company === 'gmb' ? `${route.routeId}_${route.routeType}` : route.gtfsId;
-    if (!gtfsId) return;
+    if (!gtfsId) {
+        fareSection.innerHTML = `<div class="d-flex align-items-center justify-content-between gap-2"><span class="mb-0">收費: 請到營運商網頁查看</span>${companyLink}</div>`;
+        return;
+    }
 
     try {
         if (fareData.length === 0) {
