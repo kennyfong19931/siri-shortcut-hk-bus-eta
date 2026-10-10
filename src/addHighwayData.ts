@@ -9,7 +9,7 @@ import { COORDINATE_DP } from './constant';
 const name = '';
 const threshold = undefined;
 const input = {};
-// get input as GeoJson from https://overpass-turbo.eu/ 
+// get input as GeoJson from https://overpass-turbo.eu/
 // query = "[out:json][timeout:25];nw["name:zh"="Road Name"]({{bbox}});out geom;"
 
 (async function () {

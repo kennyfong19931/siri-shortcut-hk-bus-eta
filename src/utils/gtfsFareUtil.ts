@@ -25,9 +25,7 @@ export function createGtfsFareData(
     }
 
     const stopIdsByGtfsId = new Map<string, Map<number, string>>();
-    const gtfsIdByTripId = new Map(
-        Array.from(representativeTripByGtfsId, ([gtfsId, tripId]) => [tripId, gtfsId]),
-    );
+    const gtfsIdByTripId = new Map(Array.from(representativeTripByGtfsId, ([gtfsId, tripId]) => [tripId, gtfsId]));
     for (const stopTime of stopTimes) {
         const gtfsId = gtfsIdByTripId.get(stopTime.trip_id);
         const sequence = Number(stopTime.stop_sequence);
@@ -97,7 +95,10 @@ export function createGtfsFareData(
             const fareRangeEnds: FarePair[] = [];
             let previousPair = boardingPairs[0];
             for (const pair of boardingPairs.slice(1)) {
-                if (pair.fare !== previousPair.fare || pair.destinationSequence !== previousPair.destinationSequence + 1) {
+                if (
+                    pair.fare !== previousPair.fare ||
+                    pair.destinationSequence !== previousPair.destinationSequence + 1
+                ) {
                     fareRangeEnds.push(previousPair);
                 }
                 previousPair = pair;
@@ -123,7 +124,5 @@ export function createGtfsFareData(
         }
     }
 
-    return fareData.sort(
-        (a, b) => a.gtfsId.localeCompare(b.gtfsId) || Number('twoWay' in a) - Number('twoWay' in b),
-    );
+    return fareData.sort((a, b) => a.gtfsId.localeCompare(b.gtfsId) || Number('twoWay' in a) - Number('twoWay' in b));
 }

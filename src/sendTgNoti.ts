@@ -86,7 +86,6 @@ const TG_WARNING_MESSAGE_COUNT = 20000;
                     allUpdates.push(...fileDiffs);
                 }
             }
-
         }
 
         if (summaryRoutes.length > 0) {

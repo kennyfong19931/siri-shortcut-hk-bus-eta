@@ -275,10 +275,10 @@ const renderFare = async (route) => {
         },
     }[route.company];
     const companyLink = companyLinkInfo
-        ? ` <a class="btn btn-sm btn-outline-info float-end" href="${companyLinkInfo.url}" target="_blank" rel="noopener noreferrer">${companyLinkInfo.name} <i class="bi bi-box-arrow-up-right"></i></a>`
+        ? ` <a class="btn btn-sm btn-outline-info" href="${companyLinkInfo.url}" target="_blank" rel="noopener noreferrer">${companyLinkInfo.name} <i class="bi bi-box-arrow-up-right"></i></a>`
         : '';
     if (route.company === 'mtr_hr' || route.company === 'mtr_lr') {
-        fareSection.innerHTML = `<div>收費: 請到港鐵網頁查看${companyLink}</div>`;
+        fareSection.innerHTML = `<div class="d-flex align-items-center justify-content-between gap-2"><span class="mb-0">收費: 請到港鐵網頁查看</span>${companyLink}</div>`;
     }
     const gtfsId = route.company === 'gmb' ? `${route.routeId}_${route.routeType}` : route.gtfsId;
     if (!gtfsId) return;
@@ -293,7 +293,7 @@ const renderFare = async (route) => {
         const fareRecords = fareData.filter((record) => record.gtfsId === gtfsId);
         const stopIndexByGtfsId = new Map(
             route.stopList
-                .map((stop, index) => [route.company === 'gmb' ? stop.id : stop.gtfsId, index])
+                .map((stop, index) => [route.company === 'gmb' ? String(stop.id) : stop.gtfsId, index])
                 .filter(([stopGtfsId]) => !!stopGtfsId),
         );
         const stopLabel = (index) => `${route.stopList[index].name}`;
@@ -302,7 +302,7 @@ const renderFare = async (route) => {
         let html = '';
 
         if (simpleFareRecords.length > 0) {
-            html += `<h3 class="mb-2">全程及分段收費${companyLink}</h3><ul class="list-group mb-3">`;
+            html += `<h3 class="mb-2 d-flex align-items-center justify-content-between gap-2"><span>全程及分段收費</span>${companyLink}</h3><ul class="list-group mb-3">`;
             simpleFareRecords.forEach((record) => {
                 record.stopList.forEach(({ fare, stopId: boardingStopId }, index) => {
                     if (index === 0) {
@@ -345,8 +345,7 @@ const renderFare = async (route) => {
             const sortedBoardingIndices = [...boardingIndices].sort((a, b) => a - b);
             const sortedDropOffIndices = [...dropOffIndices].sort((a, b) => a - b);
             if (sortedBoardingIndices.length > 0 && sortedDropOffIndices.length > 0) {
-                html +=
-                    `<h3 class="mb-2">雙向分段收費${companyLink}</h3><div class="table-responsive"><table class="table table-sm table-bordered table-hover text-center align-middle mb-0" id="fareTable"><thead><tr><th scope="col" class="slashHeader table-primary"><div class="d-flex justify-content-between h-100 p-1"><div class="align-self-end">上車 ↓</div><div class="align-self-start">落車 →</div></div></th>`;
+                html += `<h3 class="mb-2 d-flex align-items-center justify-content-between gap-2"><span>雙向分段收費</span>${companyLink}</h3><div class="table-responsive"><table class="table table-sm table-bordered table-hover text-center align-middle mb-0" id="fareTable"><thead><tr><th scope="col" class="slashHeader table-primary"><div class="d-flex justify-content-between h-100 p-1"><div class="align-self-end">上車 ↓</div><div class="align-self-start">落車 →</div></div></th>`;
                 sortedDropOffIndices.forEach((index) => {
                     html += `<th class="text-break table-primary" scope="col">${route.stopList[index].name}<br/><small class="float-end">或之前</small></th>`;
                 });
@@ -455,7 +454,7 @@ const renderStopList = (inputData, spatialData, company) => {
                             break;
                         case 'interchange':
                             rowHtml += `<div class="stopListInterchange">${(interchangeAnalysis[index] || [])
-                                .map(({name, type}) => {
+                                .map(({ name, type }) => {
                                     const icon = {
                                         mtr: ['/img/mtr.svg', '港鐵'],
                                         lrt: ['/img/mtr_lr.svg', '輕鐵'],
