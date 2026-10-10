@@ -48,6 +48,9 @@ export async function crawlRoute(): Promise<Route[]> {
             let stopList = response.data
                 .map((routeStop) => CacheUtil.getCache(`${company.CODE}_stop_${routeStop.stop}`))
                 .map((json) => {
+                    if (!json || Object.keys(json).length === 0) {
+                        return undefined;
+                    }
                     try {
                         return new Stop(json.stop, json.name_tc, json.lat, json.long);
                     } catch (e) {
