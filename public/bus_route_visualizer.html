@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hong Kong Bus Route GeoJSON Straightener & Visualizer</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    body { display: flex; height: 100vh; overflow: hidden; background: #1a1a24; color: #e2e8f0; }
+    #sidebar { width: 440px; min-width: 440px; height: 100%; overflow-y: auto; background: #1e202e; border-right: 1px solid #2d3248; display: flex; flex-direction: column; }
+    #map { flex-grow: 1; height: 100%; background: #0f111a; }
+    .header { padding: 18px 20px; background: #171926; border-bottom: 1px solid #2d3248; }
+    .header h1 { font-size: 1.15rem; font-weight: 700; color: #60a5fa; }
+    .header p { font-size: 0.8rem; color: #94a3b8; margin-top: 4px; }
+    .section { padding: 16px 20px; border-bottom: 1px solid #2d3248; }
+    .section-title { font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #38bdf8; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .input-group { display: flex; gap: 10px; margin-bottom: 10px; }
+    .input-field { flex: 1; }
+    .input-field label { display: block; font-size: 0.75rem; color: #94a3b8; margin-bottom: 4px; }
+    .input-field input, select { width: 100%; padding: 8px 10px; background: #0f111a; border: 1px solid #334155; border-radius: 6px; color: #f8fafc; font-size: 0.85rem; outline: none; }
+    .input-field input:focus { border-color: #38bdf8; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; padding: 8px 14px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer; border: none; transition: 0.15s; }
+    .btn-primary { background: #2563eb; color: #fff; width: 100%; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-secondary { background: #334155; color: #cbd5e1; font-size: 0.78rem; padding: 6px 10px; }
+    .btn-secondary:hover { background: #475569; }
+    .btn-success { background: #059669; color: #fff; width: 100%; margin-top: 10px; }
+    .btn-success:hover { background: #047857; }
+    .slider-row { margin-bottom: 12px; }
+    .slider-header { display: flex; justify-content: space-between; font-size: 0.78rem; margin-bottom: 4px; }
+    .slider-header span:first-child { color: #cbd5e1; }
+    .slider-header span:last-child { color: #38bdf8; font-weight: 600; }
+    .slider-row input[type=range] { width: 100%; height: 5px; background: #334155; border-radius: 5px; outline: none; accent-color: #38bdf8; }
+    .badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 0.72rem; font-weight: 600; }
+    .badge-blue { background: #1e3a8a; color: #93c5fd; }
+    .stats-card { background: #141724; border: 1px solid #2d3248; border-radius: 6px; padding: 12px; margin-top: 10px; font-size: 0.8rem; }
+    .stats-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
+    .stats-row:last-child { margin-bottom: 0; }
+    .legend { display: flex; gap: 14px; margin-top: 10px; font-size: 0.75rem; color: #cbd5e1; }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-color { width: 14px; height: 4px; border-radius: 2px; }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+    #status-msg { font-size: 0.78rem; margin-top: 8px; line-height: 1.3; }
+    .status-loading { color: #38bdf8; }
+    .status-error { color: #f87171; }
+    .status-success { color: #4ade80; }
+  </style>
+</head>
+<body>
+  <div id="sidebar">
+    <div class="header">
+      <h1>Route Straightener & Visualizer</h1>
+      <p>Removes curbside bus bays & straightens sharp intersection turns</p>
+    </div>
+
+    <!-- API & Data Load Section -->
+    <div class="section">
+      <div class="section-title">
+        <span>1. CSDI API Data Source</span>
+        <span class="badge badge-blue">CSDI WFS</span>
+      </div>
+      <div class="input-group">
+        <div class="input-field">
+          <label>ROUTE_ID</label>
+          <input type="number" id="routeId" value="1001" placeholder="1001" />
+        </div>
+        <div class="input-field">
+          <label>ROUTE_SEQ</label>
+          <input type="number" id="routeSeq" value="1" placeholder="1" />
+        </div>
+      </div>
+      <button class="btn btn-primary" id="fetchBtn">Fetch from CSDI & Process</button>
+      <div style="display: flex; gap: 8px; margin-top: 8px;">
+        <button class="btn btn-secondary" id="loadSampleBtn" style="flex: 1;">Load Preloaded 1001</button>
+        <label class="btn btn-secondary" style="flex: 1; text-align: center; cursor: pointer;">
+          Upload GeoJSON
+          <input type="file" id="fileInput" accept=".json,.geojson" style="display: none;" />
+        </label>
+      </div>
+      <div id="status-msg"></div>
+    </div>
+
+    <!-- Stage 2 Parameters -->
+    <div class="section">
+      <div class="section-title">
+        <span>2. Stage 1: Corridor Bus Bay Removal</span>
+        <label style="font-size: 0.72rem; text-transform: none; color: #94a3b8;">
+          <input type="checkbox" id="enableStage2" checked /> Enabled
+        </label>
+      </div>
+      <div class="slider-row">
+        <div class="slider-header">
+          <span>Bay Entry Turn Angle:</span>
+          <span id="entryTurnVal">14°</span>
+        </div>
+        <input type="range" id="entryTurnAngle" min="8" max="25" step="1" value="14" />
+      </div>
+      <div class="slider-row">
+        <div class="slider-header">
+          <span>Max Road Deflection Tolerance:</span>
+          <span id="bridgeAngleVal">8.0°</span>
+        </div>
+        <input type="range" id="bridgeAngle" min="3.0" max="15.0" step="0.5" value="8.0" />
+      </div>
+      <div class="slider-row">
+        <div class="slider-header">
+          <span>Max Bay Lateral Deviation:</span>
+          <span id="maxDevVal">8.5 m</span>
+        </div>
+        <input type="range" id="maxDeviation" min="4.0" max="15.0" step="0.5" value="8.5" />
+      </div>
+    </div>
+
+    <!-- Stage 1 Parameters -->
+    <div class="section">
+      <div class="section-title">
+        <span>3. Stage 2: Sharp Angle Straightening</span>
+        <label style="font-size: 0.72rem; text-transform: none; color: #94a3b8;">
+          <input type="checkbox" id="enableStage1" checked /> Enabled
+        </label>
+      </div>
+      <div class="slider-row">
+        <div class="slider-header">
+          <span>Min Corner Angle:</span>
+          <span id="minCornerVal">35°</span>
+        </div>
+        <input type="range" id="minCornerAngle" min="25" max="60" step="1" value="35" />
+      </div>
+      <div class="slider-row">
+        <div class="slider-header">
+          <span>Kink Wobble Threshold:</span>
+          <span id="kinkThreshVal">12°</span>
+        </div>
+        <input type="range" id="kinkThresh" min="8" max="25" step="1" value="12" />
+      </div>
+      <div class="slider-row">
+        <div class="slider-header">
+          <span>Max Jog Offset:</span>
+          <span id="maxJogVal">4.5 m</span>
+        </div>
+        <input type="range" id="maxJogOffset" min="1.0" max="8.0" step="0.5" value="4.5" />
+      </div>
+      <button class="btn btn-primary" id="reprocessBtn" style="background: #0284c7;">Re-Apply Algorithm</button>
+    </div>
+
+    <!-- Statistics & Export -->
+    <div class="section" style="flex-grow: 1;">
+      <div class="section-title">
+        <span>4. Comparison & Results</span>
+      </div>
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-color" style="background: #ef4444;"></div>
+          <span>Original (Red)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #38bdf8;"></div>
+          <span>Cleaned (Cyan)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background: #eab308;"></div>
+          <span>Projected</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background: #ef4444;"></div>
+          <span>Removed</span>
+        </div>
+      </div>
+      <div class="stats-card" id="statsCard">
+        <div class="stats-row">
+          <span style="color: #94a3b8;">Route Name:</span>
+          <span id="statRouteName" style="font-weight: 600;">--</span>
+        </div>
+        <div class="stats-row">
+          <span style="color: #94a3b8;">Original Vertices:</span>
+          <span id="statOrigCount">--</span>
+        </div>
+        <div class="stats-row">
+          <span style="color: #94a3b8;">Cleaned Vertices:</span>
+          <span id="statCleanCount" style="color: #38bdf8; font-weight: 600;">--</span>
+        </div>
+        <div class="stats-row">
+          <span style="color: #94a3b8;">Bus Bay Vertices Removed:</span>
+          <span id="statRemovedCount" style="color: #f87171;">--</span>
+        </div>
+        <div class="stats-row">
+          <span style="color: #94a3b8;">Angle Points Straightened:</span>
+          <span id="statProjectedCount" style="color: #eab308;">--</span>
+        </div>
+      </div>
+      <button class="btn btn-success" id="exportBtn" disabled>Export Cleaned GeoJSON</button>
+    </div>
+  </div>
+
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const topographicMapAPI = 'https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/basemap/wgs84/{z}/{x}/{y}.png';
+	const imageryMapAPI = 'https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/imagery/wgs84/{z}/{x}/{y}.png';
+	const labelAPI = 'https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/label/hk/tc/wgs84/{z}/{x}/{y}.png';
+	const attributionInfo =
+		'<a target="_blank" href="https://portal.csdi.gov.hk/">&copy; 地圖版權屬香港特區政府</a><img style="width:16px;height:16px;" src="https://api.hkmapservice.gov.hk/mapapi/landsdlogo.jpg" />';
+	const topographicMapTiles = L.tileLayer(topographicMapAPI, {
+		maxZoom: 20,
+		attribution: attributionInfo,
+	});
+	const imageryMapTiles = L.tileLayer(imageryMapAPI, {
+		maxZoom: 20,
+		attribution: attributionInfo,
+	});
+	const label = L.tileLayer(labelAPI, {
+		maxZoom: 20,
+		attribution: attributionInfo,
+	});
+	const baseMaps = {
+		地形圖: topographicMapTiles,
+		影像地圖: imageryMapTiles,
+	};
+	const overlays = {
+		地名標籤: label,
+	};
+	const map = L.map('map', {
+		center: [22.322005998683245, 114.17846497109828],
+		zoom: 13,
+		layers: [topographicMapTiles, label],
+	});
+	const layerControl = L.control.layers(baseMaps, overlays, { hideSingleBase: true }).addTo(map);
+
+    let originalGeoJson = null;
+    let cleanedGeoJson = null;
+    let originalLayerGroup = L.layerGroup().addTo(map);
+    let cleanedLayerGroup = L.layerGroup().addTo(map);
+    let markersLayerGroup = L.layerGroup().addTo(map);
+
+    const bindSlider = (id, valId, unit) => {
+      document.getElementById(id).addEventListener('input', (e) => {
+        document.getElementById(valId).textContent = e.target.value + unit;
+      });
+    };
+    bindSlider('minCornerAngle', 'minCornerVal', '°');
+    bindSlider('kinkThresh', 'kinkThreshVal', '°');
+    bindSlider('maxJogOffset', 'maxJogVal', ' m');
+    bindSlider('entryTurnAngle', 'entryTurnVal', '°');
+    bindSlider('bridgeAngle', 'bridgeAngleVal', '°');
+    bindSlider('maxDeviation', 'maxDevVal', ' m');
+
+    function computeDeflections(xy) {
+      const n = xy.length;
+      const segs = [];
+      const lens = [];
+      for (let i = 0; i < n - 1; i++) {
+        const dx = xy[i + 1][0] - xy[i][0];
+        const dy = xy[i + 1][1] - xy[i][1];
+        segs.push([dx, dy]);
+        lens.push(Math.hypot(dx, dy) || 1e-6);
+      }
+      const deflections = new Array(n).fill(0);
+      for (let i = 1; i < n - 1; i++) {
+        const v1 = segs[i - 1];
+        const v2 = segs[i];
+        const l1 = lens[i - 1];
+        const l2 = lens[i];
+        const dot = (v1[0] * v2[0] + v1[1] * v2[1]) / (l1 * l2);
+        const det = (v1[0] * v2[1] - v1[1] * v2[0]) / (l1 * l2);
+        deflections[i] = Math.atan2(det, Math.min(1.0, Math.max(-1.0, dot))) * (180 / Math.PI);
+      }
+      return { deflections, segs, lens };
+    }
+
+    function projectPointOntoSegment(p, a, b) {
+      const vx = b[0] - a[0];
+      const vy = b[1] - a[1];
+      const denom = vx * vx + vy * vy;
+      if (denom < 1e-12) return [p[0], p[1]];
+      const t = ((p[0] - a[0]) * vx + (p[1] - a[1]) * vy) / denom;
+      return [a[0] + t * vx, a[1] + t * vy];
+    }
+
+    function intersectLines(p1, p2, p3, p4) {
+      const x1 = p1[0], y1 = p1[1], x2 = p2[0], y2 = p2[1];
+      const x3 = p3[0], y3 = p3[1], x4 = p4[0], y4 = p4[1];
+      const denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+      if (Math.abs(denom) < 1e-12) return null;
+      const t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denom;
+      return [x1 + t * (x2 - x1), y1 + t * (y2 - y1)];
+    }
+
+    function straightenSharpTurns(coords, params) {
+      const pts = coords.map(p => [...p]);
+      const n = pts.length;
+      if (n < 4 || !params.enableStage1) return { pts, replaced: [] };
+
+      const lat0 = pts.reduce((acc, p) => acc + p[1], 0) / n;
+      const scale_x = 111320 * Math.cos(lat0 * Math.PI / 180);
+      const scale_y = 110574;
+      const xy = pts.map(p => [(p[0] - pts[0][0]) * scale_x, (p[1] - pts[0][1]) * scale_y]);
+      const { deflections, segs, lens } = computeDeflections(xy);
+      const replaced = [];
+
+      for (let c = 1; c < n - 1; c++) {
+        const ang_c = Math.abs(deflections[c]);
+        if (ang_c >= params.minCornerAngle && ang_c <= 165.0) {
+          // Check if temporary bus bay
+          let is_bus_bay = false;
+          const u_in = [segs[c - 1][0] / lens[c - 1], segs[c - 1][1] / lens[c - 1]];
+          for (let f = c + 2; f < Math.min(c + 7, segs.length); f++) {
+            const u_f = [segs[f][0] / lens[f], segs[f][1] / lens[f]];
+            if (u_in[0] * u_f[0] + u_in[1] * u_f[1] > 0.88) {
+              is_bus_bay = true;
+              break;
+            }
+          }
+          if (is_bus_bay) continue;
+
+          // Pre-turn kink
+          if (c >= 2) {
+            const chord = [xy[c][0] - xy[c - 2][0], xy[c][1] - xy[c - 2][1]];
+            const chord_len = Math.hypot(chord[0], chord[1]);
+            if (chord_len > 1.0) {
+              const u = [chord[0] / chord_len, chord[1] / chord_len];
+              const diff = [xy[c - 1][0] - xy[c - 2][0], xy[c - 1][1] - xy[c - 2][1]];
+              const cross = Math.abs(diff[0] * u[1] - diff[1] * u[0]);
+              if (cross >= 0.5 && cross <= params.maxJogOffset && Math.abs(deflections[c - 1]) >= params.kinkThresh) {
+                const old_p = [...pts[c - 1]];
+                pts[c - 1] = projectPointOntoSegment(pts[c - 1], pts[c - 2], pts[c]);
+                replaced.push({ idx: c - 1, oldPt: old_p, newPt: [...pts[c - 1]], reason: `Pre-turn kink before ${ang_c.toFixed(1)}° turn` });
+              }
+            }
+          }
+
+          // Post-turn kink
+          if (c <= n - 3) {
+            const chord = [xy[c + 2][0] - xy[c][0], xy[c + 2][1] - xy[c][1]];
+            const chord_len = Math.hypot(chord[0], chord[1]);
+            if (chord_len > 1.0) {
+              const u = [chord[0] / chord_len, chord[1] / chord_len];
+              const diff = [xy[c + 1][0] - xy[c][0], xy[c + 1][1] - xy[c][1]];
+              const cross = Math.abs(diff[0] * u[1] - diff[1] * u[0]);
+              if (cross >= 0.5 && cross <= params.maxJogOffset && Math.abs(deflections[c + 1]) >= params.kinkThresh) {
+                const old_p = [...pts[c + 1]];
+                pts[c + 1] = projectPointOntoSegment(pts[c + 1], pts[c], pts[c + 2]);
+                replaced.push({ idx: c + 1, oldPt: old_p, newPt: [...pts[c + 1]], reason: `Post-turn kink after ${ang_c.toFixed(1)}° turn` });
+              }
+            }
+          }
+        }
+      }
+      return { pts, replaced };
+    }
+
+    function removeRamps(coords, params) {
+      const pts = coords.map(p => [...p]);
+      const n = pts.length;
+      if (n < 5 || !params.enableStage2) return { pts, dropped: [] };
+
+      const lat0 = pts.reduce((acc, p) => acc + p[1], 0) / n;
+      const scale_x = 111320 * Math.cos(lat0 * Math.PI / 180);
+      const scale_y = 110574;
+      const xy = pts.map(p => [(p[0] - pts[0][0]) * scale_x, (p[1] - pts[0][1]) * scale_y]);
+      const { deflections, segs, lens } = computeDeflections(xy);
+      const droppedIndices = new Set();
+
+      let i = 1;
+      while (i < n - 2) {
+        if (Math.abs(deflections[i]) >= params.entryTurnAngle) {
+          const candidates = {};
+          for (let pts_drop of [2, 3, 4, 5, 6]) {
+            const j = i + pts_drop + 1;
+            if (j >= n) continue;
+            const chord = [xy[j][0] - xy[i][0], xy[j][1] - xy[i][1]];
+            const chord_len = Math.hypot(chord[0], chord[1]);
+            if (chord_len < 1.0) continue;
+            const u = [chord[0] / chord_len, chord[1] / chord_len];
+
+            const v_in = [segs[i - 1][0] / lens[i - 1], segs[i - 1][1] / lens[i - 1]];
+            const dot_in = Math.min(1.0, Math.max(-1.0, v_in[0] * u[0] + v_in[1] * u[1]));
+            const det_in = v_in[0] * u[1] - v_in[1] * u[0];
+            const ang_in = Math.abs(Math.atan2(det_in, dot_in) * (180 / Math.PI));
+
+            let ang_out = 0.0;
+            if (j < segs.length) {
+              const v_out = [segs[j][0] / lens[j], segs[j][1] / lens[j]];
+              const dot_out = Math.min(1.0, Math.max(-1.0, u[0] * v_out[0] + u[1] * v_out[1]));
+              const det_out = u[0] * v_out[1] - u[1] * v_out[0];
+              ang_out = Math.abs(Math.atan2(det_out, dot_out) * (180 / Math.PI));
+            }
+
+            let max_dev = 0;
+            for (let k = i + 1; k < j; k++) {
+              const diff = [xy[k][0] - xy[i][0], xy[k][1] - xy[i][1]];
+              const cross = Math.abs(diff[0] * u[1] - diff[1] * u[0]);
+              if (cross > max_dev) max_dev = cross;
+            }
+
+            if (ang_in <= params.bridgeAngle && ang_out <= params.bridgeAngle && max_dev >= 1.0 && max_dev <= params.maxDeviation) {
+              candidates[pts_drop] = { j, residual: ang_in + ang_out, max_dev };
+            }
+          }
+
+          let chosen_j = null;
+          if (Object.keys(candidates).length > 0) {
+            // Progressive collinearity matching for 3, 4, 5, 6 points:
+            if (candidates[3] && candidates[3].residual < 1.0) {
+              chosen_j = candidates[3].j;
+            } else if (candidates[4] && candidates[4].residual < 1.0 && (!candidates[3] || candidates[3].residual >= 1.2)) {
+              chosen_j = candidates[4].j;
+            } else if (candidates[5] && candidates[5].residual < 1.0 && (!candidates[4] || candidates[4].residual >= 1.2)) {
+              chosen_j = candidates[5].j;
+            } else if (candidates[6] && candidates[6].residual < 1.0 && (!candidates[5] || candidates[5].residual >= 1.2)) {
+              chosen_j = candidates[6].j;
+            } else if (candidates[4] && candidates[4].residual <= 2.5 && (!candidates[3] || candidates[3].residual > candidates[4].residual)) {
+              chosen_j = candidates[4].j;
+            } else if (candidates[3] && candidates[3].residual <= 2.5) {
+              chosen_j = candidates[3].j;
+            } else if (candidates[6] && candidates[6].residual <= 2.5) {
+              chosen_j = candidates[6].j;
+            } else {
+              const sorted = Object.values(candidates).sort((a, b) => a.residual - b.residual);
+              chosen_j = sorted[0].j;
+            }
+          }
+
+          if (chosen_j !== null) {
+            for (let k = i + 1; k < chosen_j; k++) droppedIndices.add(k);
+            i = chosen_j;
+          } else {
+            i++;
+          }
+        } else {
+          i++;
+        }
+      }
+
+      const cleaned = pts.filter((_, idx) => !droppedIndices.has(idx));
+      return { pts: cleaned, dropped: Array.from(droppedIndices) };
+    }
+
+    function processFullGeometry(featureCollection) {
+      const params = {
+        enableStage1: document.getElementById('enableStage1').checked,
+        minCornerAngle: parseFloat(document.getElementById('minCornerAngle').value),
+        kinkThresh: parseFloat(document.getElementById('kinkThresh').value),
+        maxJogOffset: parseFloat(document.getElementById('maxJogOffset').value),
+        enableStage2: document.getElementById('enableStage2').checked,
+        entryTurnAngle: parseFloat(document.getElementById('entryTurnAngle').value),
+        bridgeAngle: parseFloat(document.getElementById('bridgeAngle').value),
+        maxDeviation: parseFloat(document.getElementById('maxDeviation').value),
+      };
+
+      let totalOrig = 0;
+      let totalClean = 0;
+      let totalProjected = 0;
+      let totalRemoved = 0;
+
+      const outFC = JSON.parse(JSON.stringify(featureCollection));
+      const allModifications = [];
+
+      for (const feat of outFC.features) {
+        if (!feat.geometry) continue;
+        const gType = feat.geometry.type;
+
+        if (gType === 'LineString') {
+          const orig = feat.geometry.coordinates;
+          totalOrig += orig.length;
+          // Stage 1: Corridor Bus Bay Removal
+          const s2 = removeRamps(orig, params);
+          totalRemoved += s2.dropped.length;
+          // Stage 2: Sharp Angle Straightening
+          const s1 = straightenSharpTurns(s2.pts, params);
+          totalProjected += s1.replaced.length;
+          feat.geometry.coordinates = s1.pts;
+          totalClean += s1.pts.length;
+          allModifications.push({ replaced: s1.replaced, dropped: s2.dropped, orig });
+        } else if (gType === 'MultiLineString') {
+          const newLines = [];
+          for (let sIdx = 0; sIdx < feat.geometry.coordinates.length; sIdx++) {
+            const orig = feat.geometry.coordinates[sIdx];
+            totalOrig += orig.length;
+            // Stage 1: Corridor Bus Bay Removal
+            const s2 = removeRamps(orig, params);
+            totalRemoved += s2.dropped.length;
+            // Stage 2: Sharp Angle Straightening
+            const s1 = straightenSharpTurns(s2.pts, params);
+            totalProjected += s1.replaced.length;
+            newLines.push(s1.pts);
+            totalClean += s1.pts.length;
+            allModifications.push({ segIdx: sIdx + 1, replaced: s1.replaced, dropped: s2.dropped, orig });
+          }
+          feat.geometry.coordinates = newLines;
+        }
+      }
+
+      return {
+        cleanedGeoJson: outFC,
+        stats: { totalOrig, totalClean, totalProjected, totalRemoved },
+        modifications: allModifications
+      };
+    }
+
+    function renderMap(origFC, cleanFC, mods) {
+      originalLayerGroup.clearLayers();
+      cleanedLayerGroup.clearLayers();
+      markersLayerGroup.clearLayers();
+
+      L.geoJSON(origFC, {
+        style: { color: '#ef4444', weight: 3, opacity: 0.45, dashArray: '5, 5' }
+      }).addTo(originalLayerGroup);
+
+      const cleanLayer = L.geoJSON(cleanFC, {
+        style: { color: '#38bdf8', weight: 4, opacity: 0.95 }
+      }).addTo(cleanedLayerGroup);
+
+      mods.forEach(mod => {
+        mod.replaced.forEach(r => {
+          L.circleMarker([r.newPt[1], r.newPt[0]], {
+            radius: 5,
+            color: '#eab308',
+            fillColor: '#fde047',
+            fillOpacity: 0.9,
+            weight: 2
+          }).bindPopup(`
+            <b>Straightened Angle Point</b><br>
+            Seg ${mod.segIdx || 1}, Pt ${r.idx + 1}<br>
+            Reason: ${r.reason}<br>
+            Orig: [${r.oldPt[0].toFixed(6)}, ${r.oldPt[1].toFixed(6)}]<br>
+            Proj: [${r.newPt[0].toFixed(6)}, ${r.newPt[1].toFixed(6)}]
+          `).addTo(markersLayerGroup);
+        });
+
+        mod.dropped.forEach(dIdx => {
+          const pt = mod.orig[dIdx];
+          L.circleMarker([pt[1], pt[0]], {
+            radius: 4,
+            color: '#ef4444',
+            fillColor: '#f87171',
+            fillOpacity: 0.8,
+            weight: 1
+          }).bindPopup(`
+            <b>Removed Bus Bay Vertex</b><br>
+            Seg ${mod.segIdx || 1}, Pt ${dIdx + 1}<br>
+            Coord: [${pt[0].toFixed(6)}, ${pt[1].toFixed(6)}]
+          `).addTo(markersLayerGroup);
+        });
+      });
+
+      map.fitBounds(cleanLayer.getBounds(), { padding: [40, 40] });
+    }
+
+    function updateUI(fc) {
+      originalGeoJson = fc;
+      const props = fc.features[0]?.properties || {};
+      const routeName = props.ROUTE_NAMEE ? `${props.ROUTE_NAMEE} (${props.ST_STOP_NAMEC || ''} → ${props.ED_STOP_NAMEC || ''})` : `Route ${document.getElementById('routeId').value}`;
+      document.getElementById('statRouteName').textContent = routeName;
+
+      const result = processFullGeometry(fc);
+      cleanedGeoJson = result.cleanedGeoJson;
+
+      document.getElementById('statOrigCount').textContent = result.stats.totalOrig;
+      document.getElementById('statCleanCount').textContent = `${result.stats.totalClean} (-${result.stats.totalOrig - result.stats.totalClean})`;
+      document.getElementById('statProjectedCount').textContent = result.stats.totalProjected;
+      document.getElementById('statRemovedCount').textContent = result.stats.totalRemoved;
+      document.getElementById('exportBtn').disabled = false;
+
+      renderMap(originalGeoJson, cleanedGeoJson, result.modifications);
+    }
+
+    async function fetchFromCSDI(routeId, routeSeq) {
+      const status = document.getElementById('status-msg');
+      status.className = 'status-loading';
+      status.textContent = `Fetching ROUTE_ID=${routeId}, ROUTE_SEQ=${routeSeq} from CSDI API...`;
+
+      const filterXml = `<Filter><And><PropertyIsEqualTo><PropertyName>ROUTE_ID</PropertyName><Literal>${routeId}</Literal></PropertyIsEqualTo><PropertyIsEqualTo><PropertyName>ROUTE_SEQ</PropertyName><Literal>${routeSeq}</Literal></PropertyIsEqualTo></And></Filter>`;
+      const url = `https://portal.csdi.gov.hk/server/services/common/td_rcd_1638844988873_41214/MapServer/WFSServer?service=wfs&request=GetFeature&typenames=FB_ROUTE_LINE&outputFormat=geojson&count=1&filter=${encodeURIComponent(filterXml)}`;
+
+      try {
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const data = await resp.json();
+        if (!data.features || data.features.length === 0) {
+          throw new Error('No features returned for this Route ID / Seq.');
+        }
+        status.className = 'status-success';
+        status.textContent = `Successfully loaded ${data.features.length} feature(s) from CSDI.`;
+        updateUI(data);
+      } catch (err) {
+        status.className = 'status-error';
+        status.innerHTML = `Fetch failed (${err.message}). If blocked by CORS in browser, click <b>Load Preloaded 1001</b> or upload a local GeoJSON file.`;
+      }
+    }
+
+    document.getElementById('fetchBtn').addEventListener('click', () => {
+      const rId = document.getElementById('routeId').value.trim();
+      const rSeq = document.getElementById('routeSeq').value.trim();
+      if (rId && rSeq) fetchFromCSDI(rId, rSeq);
+    });
+
+    document.getElementById('reprocessBtn').addEventListener('click', () => {
+      if (originalGeoJson) {
+        updateUI(originalGeoJson);
+        const status = document.getElementById('status-msg');
+        status.className = 'status-success';
+        status.textContent = 'Algorithm re-applied with updated parameters!';
+      }
+    });
+
+    document.getElementById('fileInput').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        try {
+          const parsed = JSON.parse(evt.target.result);
+          document.getElementById('status-msg').className = 'status-success';
+          document.getElementById('status-msg').textContent = `Loaded file: ${file.name}`;
+          updateUI(parsed);
+        } catch (err) {
+          document.getElementById('status-msg').className = 'status-error';
+          document.getElementById('status-msg').textContent = 'Invalid GeoJSON file.';
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    document.getElementById('loadSampleBtn').addEventListener('click', () => {
+      const sample = {"type": "FeatureCollection", "crs": {"type": "name", "properties": {"name": "EPSG:4326"}}, "features": [{"type": "Feature", "geometry": {"type": "MultiLineString", "coordinates": [[[114.19244251, 22.34552342], [114.19257672, 22.3455293], [114.19263798, 22.34549282], [114.19272482, 22.34541878], [114.19275931, 22.34539047], [114.19290599, 22.34523104], [114.19283296, 22.34515055], [114.19216474, 22.34514002], [114.19129919, 22.34512935], [114.19125531, 22.34516094], [114.1911681, 22.34515901], [114.19109847, 22.34515792], [114.19106852, 22.34511957], [114.19000827, 22.34510371]], [[114.19000827, 22.34510371], [114.18900503, 22.3450887], [114.18876074, 22.34508065], [114.18865643, 22.34507012], [114.18852077, 22.34504819], [114.18787698, 22.34492846], [114.18774578, 22.34494013], [114.18768617, 22.34492904], [114.18767606, 22.34474405], [114.18768293, 22.34443505], [114.18769576, 22.34422063]], [[114.18769576, 22.34422063], [114.18769693, 22.3442011], [114.18772502, 22.3440311], [114.18776713, 22.34391503], [114.18784489, 22.343764], [114.18796909, 22.34362606], [114.18805301, 22.34356499], [114.18814381, 22.34350562], [114.18822797, 22.34347061], [114.18830436, 22.34344419], [114.18836086, 22.34342412], [114.18849625, 22.34339289], [114.18861885, 22.34340522], [114.18901465, 22.34338297], [114.1891836, 22.34337238], [114.18919581, 22.34337995], [114.18920448, 22.34338543], [114.18922968, 22.34339481], [114.18925655, 22.34339793], [114.18927672, 22.34339636], [114.18930359, 22.34339011], [114.18932207, 22.3433776], [114.1893355, 22.34336511], [114.18934726, 22.34335104], [114.18935902, 22.34333385], [114.18936742, 22.34330885], [114.1893704, 22.34328836], [114.18936405, 22.34324947], [114.18938834, 22.34320271], [114.18940325, 22.34317054], [114.18942833, 22.34312891], [114.18947918, 22.34308287], [114.1895538, 22.34298204], [114.18959879, 22.34289198], [114.18961378, 22.34283997], [114.18962332, 22.34278162], [114.18962877, 22.34271312], [114.1896233, 22.34256598], [114.18961247, 22.34247803], [114.18960284, 22.34239982], [114.18959564, 22.34235049], [114.18959378, 22.34233773], [114.18957806, 22.34222993], [114.18955607, 22.34207913], [114.18948129, 22.34156629], [114.18942274, 22.34115548], [114.18939839, 22.34090917], [114.18942458, 22.34085425], [114.18941405, 22.34068651], [114.18936047, 22.34063996], [114.18935596, 22.34056981], [114.18935532, 22.34056014], [114.18935523, 22.34050503], [114.18940954, 22.34045107], [114.18939478, 22.34030706], [114.18937873, 22.34012104], [114.18936375, 22.33971918]], [[114.18936375, 22.33971918], [114.18935407, 22.33945951], [114.18934871, 22.33924165], [114.18934655, 22.33907851], [114.18936544, 22.3388879], [114.18938849, 22.33876488], [114.18942124, 22.33863291], [114.18945942, 22.33851494], [114.18948658, 22.33843885], [114.18953362, 22.33832842], [114.18961019, 22.3381809], [114.18970254, 22.33802102], [114.18981909, 22.3378708], [114.18988595, 22.33779243]], [[114.18988595, 22.33779243], [114.18993028, 22.33774047], [114.19003032, 22.33764884], [114.19021351, 22.33749679], [114.19030192, 22.33743164], [114.1903126, 22.33737255], [114.19036942, 22.33733146], [114.19046464, 22.33728136], [114.19053243, 22.33728817], [114.19077331, 22.33715948], [114.19094697, 22.33707981], [114.19118384, 22.33700076], [114.19133765, 22.33695916], [114.19147148, 22.33693437], [114.19180823, 22.33687788], [114.19184502, 22.3368025], [114.19188121, 22.3367851], [114.19176726, 22.33656782], [114.191709, 22.3364501], [114.19154859, 22.33605048], [114.1913449, 22.3353428]], [[114.1913449, 22.3353428], [114.19132885, 22.33528705], [114.19114497, 22.33460251], [114.19099294, 22.33405769]], [[114.19099294, 22.33405769], [114.190971, 22.33397906], [114.19095348, 22.33392], [114.19096039, 22.33385072], [114.19093219, 22.33375256], [114.19087928, 22.33360525], [114.19081552, 22.33347657], [114.19075751, 22.33344821], [114.19073462, 22.33340525], [114.19072981, 22.3333948], [114.19069614, 22.33334343], [114.19069337, 22.33327853], [114.19058171, 22.33318028], [114.19039206, 22.33303434], [114.19016676, 22.33286213], [114.18995293, 22.33269206], [114.18987907, 22.33264446], [114.18976357, 22.33257904], [114.18960471, 22.33251827], [114.189463, 22.33247517], [114.18919807, 22.33239893], [114.18897116, 22.33234259], [114.18878108, 22.33231276], [114.18864803, 22.33230614], [114.1885126, 22.33230946], [114.18830312, 22.33233005], [114.18814831, 22.3323471]], [[114.18814831, 22.3323471], [114.18728165, 22.33244254], [114.18724231, 22.33248167], [114.18716273, 22.33248964], [114.18715672, 22.33240413], [114.18719018, 22.33237125], [114.18717039, 22.33219263], [114.18714564, 22.33184688], [114.18711666, 22.3318173], [114.18711723, 22.33176175], [114.18711513, 22.33169023], [114.18715057, 22.33163989], [114.18710229, 22.33080417], [114.18706635, 22.33076697], [114.18706851, 22.33069466], [114.18706952, 22.33064276], [114.18709689, 22.33062058], [114.18708221, 22.33026474]], [[114.18708221, 22.33026474], [114.18703337, 22.32908167], [114.18699472, 22.32905665], [114.18699353, 22.32899847], [114.18696712, 22.32799828]], [[114.18696712, 22.32799828], [114.18694859, 22.3272962], [114.18694842, 22.32728978], [114.18688832, 22.32728074], [114.18687232, 22.32724158], [114.18684606, 22.32717731], [114.18627693, 22.3270921], [114.18581629, 22.32701776], [114.18538509, 22.32695704], [114.18530417, 22.32699597], [114.18523628, 22.32698299], [114.18517221, 22.32697059], [114.18513403, 22.32692155], [114.18429649, 22.32674877], [114.18321218, 22.32656951]], [[114.18321218, 22.32656951], [114.18314232, 22.32655796], [114.18295154, 22.32653812], [114.18206631, 22.32637634], [114.18200593, 22.32643151], [114.18195182, 22.32642261], [114.18192718, 22.32641933], [114.18188064, 22.3263505], [114.18053121, 22.32610436]], [[114.18053121, 22.32610436], [114.18026724, 22.32605621], [114.18023731, 22.32605075], [114.18009415, 22.32602493], [114.1798794, 22.32598552], [114.17960769, 22.32593796], [114.17932287, 22.32588629], [114.17907472, 22.32584075], [114.17868477, 22.32577322], [114.17862569, 22.32576537], [114.17858026, 22.32575731], [114.17847273, 22.32573581], [114.17846348, 22.32573396], [114.17841424, 22.32572539], [114.17840936, 22.32572453], [114.17838772, 22.3257207], [114.17832463, 22.32570954], [114.17773685, 22.3256357], [114.17691539, 22.3254886]], [[114.17691539, 22.3254886], [114.17503664, 22.32515215], [114.17496173, 22.32513979], [114.17477303, 22.32510204], [114.17471831, 22.32514047], [114.17454007, 22.3251105], [114.17447129, 22.32504722]], [[114.17447129, 22.32504722], [114.1732448, 22.32482297], [114.17292217, 22.32476622]], [[114.17292217, 22.32476622], [114.17213241, 22.32462729], [114.17208505, 22.32459656], [114.17201886, 22.32458242], [114.17068846, 22.32436844], [114.17050806, 22.32433378], [114.16997762, 22.32423824], [114.16985494, 22.32421732]], [[114.16985494, 22.32421732], [114.16968764, 22.3241888], [114.16955616, 22.32416449], [114.16904283, 22.32407481], [114.16880663, 22.32403516], [114.16861956, 22.3240019], [114.16840875, 22.32394381], [114.16841307, 22.32391969], [114.1684766, 22.32384522], [114.16848269, 22.32382761], [114.16852888, 22.3236261]], [[114.16852888, 22.3236261], [114.16862557, 22.32320438], [114.16868474, 22.32287933], [114.16875296, 22.32250245], [114.16885041, 22.32205073], [114.16906173, 22.32097615], [114.16903252, 22.3209293], [114.16905311, 22.32083606], [114.16906671, 22.32076855], [114.16913269, 22.32066477], [114.16922788, 22.32026369], [114.16940344, 22.31941679], [114.16936376, 22.31933819], [114.1693701, 22.31930618], [114.16937701, 22.31927121], [114.16944065, 22.31921893], [114.16946652, 22.3191089], [114.16967792, 22.31809176]], [[114.16967792, 22.31809176], [114.16979448, 22.31753091], [114.17010475, 22.3160148]], [[114.17010475, 22.3160148], [114.17022261, 22.31543889], [114.17016525, 22.31540346], [114.17017907, 22.31534988], [114.17018825, 22.31530688], [114.17025592, 22.31527778], [114.17037, 22.31469889], [114.17034243, 22.31457338], [114.17034744, 22.31454777], [114.17035432, 22.31451284], [114.17042402, 22.31445011], [114.17051597, 22.31397872], [114.17068778, 22.31313862], [114.17064025, 22.3130555], [114.17065395, 22.31299176], [114.17066594, 22.31292166], [114.17073911, 22.31284902], [114.17091664, 22.31192029], [114.17098647, 22.31156124], [114.17104877, 22.3112457]], [[114.17104877, 22.3112457], [114.17105508, 22.31121376], [114.17111246, 22.3109231], [114.17121062, 22.31041491], [114.17121954, 22.31030071], [114.17125118, 22.30999824], [114.17123844, 22.30987092], [114.17124898, 22.30971509], [114.17131179, 22.3091233], [114.17131911, 22.30905432], [114.17132057, 22.30904061], [114.17136483, 22.30856876], [114.17131889, 22.30848907], [114.17132601, 22.30839908], [114.17133249, 22.30834757], [114.17139085, 22.30830321], [114.17143749, 22.30783173], [114.17145298, 22.30768924], [114.17151909, 22.30702575], [114.17155167, 22.30672602]], [[114.17155167, 22.30672602], [114.1715725, 22.3065343], [114.17160846, 22.30613027], [114.1716365, 22.30589479], [114.17166658, 22.30553861], [114.17163255, 22.30545788], [114.17164241, 22.3053509], [114.17165062, 22.30526379], [114.17169437, 22.3051937], [114.17174753, 22.30440342], [114.171749, 22.30437949]], [[114.171749, 22.30437949], [114.1717691, 22.30405168], [114.17180445, 22.30335757], [114.17176401, 22.30330027], [114.17176718, 22.30325862], [114.1717708, 22.30322286], [114.17181586, 22.30318043], [114.1718496, 22.30266168], [114.17194321, 22.30127403], [114.17198783, 22.30057499], [114.17200396, 22.30039892], [114.17205866, 22.29961544], [114.1720266, 22.29958451], [114.17202871, 22.29951558], [114.17203482, 22.29946932], [114.17208442, 22.29942705], [114.17211348, 22.29906629], [114.17212103, 22.29895207]], [[114.17212103, 22.29895207], [114.1721384, 22.29868927], [114.17217266, 22.2982262], [114.17212459, 22.29817055], [114.17212629, 22.29814369], [114.17212799, 22.29810261], [114.1721845, 22.29806771], [114.17221315, 22.29767779], [114.17225676, 22.29695587], [114.17228043, 22.29663026], [114.172247, 22.29654834], [114.17225098, 22.29649924], [114.17225318, 22.29644134], [114.17228801, 22.29637372], [114.17232655, 22.29585373]], [[114.17232655, 22.29585373], [114.17233909, 22.29568464], [114.17235555, 22.2955993], [114.17241419, 22.29492396], [114.17237294, 22.2948411], [114.17238231, 22.29474249], [114.1723062, 22.29473704], [114.17227969, 22.29469648], [114.17224235, 22.29464357], [114.17197333, 22.29462108], [114.17177153, 22.29460963], [114.17129102, 22.2945997]], [[114.17129102, 22.2945997], [114.17115666, 22.29459693], [114.17112771, 22.2945659], [114.17079367, 22.29452138], [114.17041135, 22.29450016], [114.17036256, 22.29451029], [114.16975197, 22.29442104], [114.16968224, 22.29439941], [114.16956907, 22.2943534], [114.1694875, 22.29430469], [114.16942558, 22.29423788], [114.16937039, 22.29417021], [114.16930025, 22.29415045], [114.16924864, 22.29398656], [114.16921889, 22.29389839], [114.16920553, 22.29387013], [114.16918427, 22.2938447], [114.16916423, 22.29383057], [114.16914055, 22.29381813], [114.16911261, 22.29381304], [114.16909378, 22.29381304], [114.16906949, 22.293817], [114.16905127, 22.29382943], [114.16903791, 22.2938413], [114.16902394, 22.29385712], [114.16901605, 22.29387182], [114.16901179, 22.2938899], [114.16901475, 22.29390436], [114.16902561, 22.29392379], [114.16904315, 22.29394944], [114.16913381, 22.29406624]]]}, "properties": {"GmlID": "FB_ROUTE_LINE.1", "OBJECTID": 1, "ROUTE_ID": 1001, "ROUTE_SEQ": 1, "COMPANY_CODE": "KMB", "ROUTE_NAMEE": "1", "ST_STOP_ID": 4001, "ST_STOP_NAMEE": "CHUK YUEN ESTATE BUS TERMINUS", "ST_STOP_NAMEC": "\u7af9\u5712\u90a8\u7e3d\u7ad9", "ST_STOP_NAMES": "\u7af9\u56ed\u90a8\u603b\u7ad9", "ED_STOP_ID": 4025, "ED_STOP_NAMEE": "STAR FERRY, HARBOUR CITY", "ED_STOP_NAMEC": "\u5c16\u6c99\u5480\u78bc\u982d,\u6d77\u6e2f\u57ce", "ED_STOP_NAMES": "\u5c16\u6c99\u5480\u7801\u5934,\u6d77\u6e2f\u57ce", "Shape_Length": 8888.25397145}}]};
+      document.getElementById('status-msg').className = 'status-success';
+      document.getElementById('status-msg').textContent = 'Loaded preloaded Route 1001 sample!';
+      updateUI(sample);
+    });
+
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      if (!cleanedGeoJson) return;
+      const str = JSON.stringify(cleanedGeoJson, null, 2);
+      const blob = new Blob([str], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `route_${document.getElementById('routeId').value}_cleaned.geojson`;
+      a.click();
+    });
+
+    // Auto-load on startup
+    document.getElementById('loadSampleBtn').click();
+  </script>
+</body>
+</html>

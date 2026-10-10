@@ -6,6 +6,8 @@
   },
   "type": "module",
   "scripts": {
+    "add-highway-data": "tsx src/addHighwayData.ts",
+    "add-interchange-data": "tsx src/addInterchangeData.ts",
     "dev": "npx wrangler pages dev ./public --port 8788 --binding ENVIRONMENT=DEV --compatibility-date=2026-08-04",
     "format": "prettier --write \"{functions,src}/**/*.{js,ts}\"",
     "generate-sitemap": "tsx src/generateSiteMap.ts",
@@ -14,6 +16,7 @@
     "test": "concurrently -n wrangler,jest --success first --kill-others \"npm:dev\" \"wait-on -t 2m http://localhost:8788 && npm run test-local\"",
     "test-local": "jest --ci --runInBand",
     "update-gtfs": "tsx src/updateGtfs.ts",
+    "update-holiday": "tsx src/updateHoliday.ts",
     "update-route": "tsx src/updateRoute.ts",
     "update-stop-name": "tsx src/updateStopName.ts",
     "update-spatial": "tsx src/updateSpatial.ts",
@@ -21,11 +24,12 @@
     "web-build": "vite build"
   },
   "dependencies": {
+    "@turf/turf": "^7.4.0",
     "bootstrap": "^5.3.8",
-    "dayjs": "^1.11.21",
-    "sass": "^1.102.0",
+    "dayjs": "^1.11.23",
+    "sass": "^1.105.1",
     "sortablejs": "^1.15.6",
-    "vite": "^8.2.1"
+    "vite": "^8.3.4"
   },
   "devDependencies": {
     "@actions/core": "^3.0.1",
@@ -34,19 +38,20 @@
     "@types/proj4": "^2.5.6",
     "@types/xml": "^1.0.11",
     "@types/xml2js": "^0.4.14",
-    "concurrently": "^10.0.5",
+    "concurrently": "^10.0.6",
     "csv-parse": "^6.2.1",
     "dice-coefficient": "^2.1.1",
     "eslint-config-prettier": "^10.1.8",
+    "fflate": "^0.8.3",
     "gdal-async": "^3.12.3",
-    "jest": "^30.4.2",
-    "prettier": "^3.9.6",
-    "proj4": "^2.21.0",
-    "ts-jest": "^29.4.12",
-    "tsx": "^4.23.12",
-    "vite-plugin-purgecss-updated-v5": "^1.2.7",
-    "wait-on": "^9.1.0",
-    "wrangler": "^4.123.0",
+    "jest": "^30.5.2",
+    "prettier": "^3.9.9",
+    "proj4": "^2.22.0",
+    "ts-jest": "^29.4.14",
+    "tsx": "^4.23.15",
+    "vite-plugin-purgecss-updated-v5": "^1.3.0",
+    "wait-on": "^9.5.1",
+    "wrangler": "^4.149.0",
     "xml": "^1.0.1",
     "xml2js": "^0.6.2"
   }

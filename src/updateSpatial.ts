@@ -263,18 +263,6 @@ const isStringOverlap = (str1: string, str2: string) => {
     return str1.includes(str2) || str2.includes(str1);
 };
 
-const removeDuplicateSubArrays = <T>(items: T[]): T[] => {
-    const seen = new Set<string>();
-    return items.filter((item) => {
-        const key = JSON.stringify(item);
-        if (seen.has(key)) {
-            return false;
-        }
-        seen.add(key);
-        return true;
-    });
-};
-
 async function getCompanyRoute(companyCode: string) {
     logger.info(`Step 1: Get data from OpenStreetMap`);
     return osmConfig[companyCode]

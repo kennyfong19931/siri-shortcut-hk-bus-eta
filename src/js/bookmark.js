@@ -95,6 +95,9 @@ const addBookmark = (groupName, json, fromWebpageClick = false) => {
 
     if (fromWebpageClick) {
         saveBookmark();
+        document.getElementById('bookmarkPopupIcon').classList.add('bi-bookmark-fill');
+        document.getElementById('bookmarkPopupIcon').classList.remove('bi-bookmark-plus');
+        document.getElementById('bookmarkPopupIcon').parentElement.removeAttribute('onclick');
     }
     reloadRouter();
 };

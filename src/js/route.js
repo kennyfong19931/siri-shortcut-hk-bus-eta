@@ -1,3 +1,5 @@
+import { Collapse } from 'bootstrap';
+
 const router = new Navigo('/');
 window.addEventListener('load', () => {
     router
@@ -125,6 +127,7 @@ function handleRoute(inputData) {
             if (inputData.stop) {
                 triggerStopClick(inputData.company === 'gmb' ? parseInt(inputData.stop) : inputData.stop);
             }
+            Collapse.getOrCreateInstance('#collapseOne').hide();
         })
         .catch(function (error) {
             console.log(error);

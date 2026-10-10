@@ -1,10 +1,13 @@
 name: Build Web
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 0 10 1 *'
   push:
     paths:
       - 'src/index.html'
       - 'src/js/*.js'
+      - 'src/js/*.json'
       - 'src/scss/*.scss'
       - 'update.json'
       - 'vite.config.js'
@@ -24,6 +27,9 @@ jobs:
       - name: Install dependencies
         run: |
           npm install
+
+      - name: Update Public Holiday
+        run: npm run update-holiday
 
       - name: Generate website
         run: |
