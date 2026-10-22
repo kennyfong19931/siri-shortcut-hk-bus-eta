@@ -256,7 +256,7 @@ const renderFare = async (route) => {
             name: '城巴',
             url: `https://mobile.citybus.com.hk/nwp3/?f=1&ds=${route.route}&dsmode=1&l=0`,
         },
-        nlb: { name: '嶼巴', url: `https://www.nlb.com.hk/route/detail/${route.routeId}` },
+        nlb: { name: '嶼巴', url: `https://www.nlb.com.hk/tc/route/${route.routeId}` },
         mtr: {
             name: '港鐵巴士',
             url: `https://www.mtr.com.hk/ch/customer/services/searchBusRouteDetails.php?routeID=${route.route}`,
