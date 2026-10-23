@@ -431,7 +431,7 @@ const renderStopList = (inputData, spatialData, company) => {
         const renderHighwayLabel = (stopIndex) => {
             const highwayNames = highwaysByStopIndex.get(stopIndex);
             return highwayNames
-                ? `<div class="stopListHighway bg-secondary text-center small border-bottom px-3 py-1">${highwayNames.join('、')}</div>`
+                ? `<div class="stopListHighway bg-secondary text-white text-center small border-bottom px-3 py-1">${highwayNames.join('、')}</div>`
                 : '';
         };
 

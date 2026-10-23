@@ -107,6 +107,9 @@ $accordion-button-active-color: var(--accordion-button-color);
 //
 html, body {
   height: 100dvh;
+}
+
+body [data-bs-theme=dark] {
   --bs-body-color: var(--bs-white);
 }
 
