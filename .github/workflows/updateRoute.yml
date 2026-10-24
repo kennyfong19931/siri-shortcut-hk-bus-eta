@@ -58,7 +58,7 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: Update Route data
-          file_pattern: 'public/api/route/**'
+          file_pattern: 'public/api/route/** public/sitemap.xml'
           #commit_author: Actions <github-actions[bot]@users.noreply.github.com>
 
       - name: Send Telegram Notification
