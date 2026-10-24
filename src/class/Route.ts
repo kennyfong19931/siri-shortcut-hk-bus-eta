@@ -25,23 +25,23 @@ export class Route {
         gtfsId?: string,
     ) {
         this.company = company;
-        this.route = route;
-        this.routeType = routeType;
-        this.dir = dir;
+        this.route = String(route);
+        this.routeType = String(routeType);
+        this.dir = String(dir);
         this.orig = orig;
         this.dest = dest;
         this.stopList = stopList;
         if (routeId === undefined) {
-            this.routeId = route;
+            this.routeId = String(route);
         } else {
-            this.routeId = routeId;
+            this.routeId = String(routeId);
         }
         if (description === undefined) {
             this.description = '正常班次';
         } else {
             this.description = description.trim();
         }
-        this.gtfsId = gtfsId;
+        this.gtfsId = String(gtfsId);
     }
 
     public getCompany(): string {

@@ -22,14 +22,14 @@ export class Stop {
         fareHoliday?: string,
         gtfsId?: string,
     ) {
-        this.id = id;
+        this.id = String(id);
         this.name = name;
         this.lat = parseFloat(lat).toFixed(COORDINATE_DP);
         this.long = parseFloat(long).toFixed(COORDINATE_DP);
         this.street = street;
         this.fare = fare;
         this.fareHoliday = fareHoliday;
-        this.gtfsId = gtfsId;
+        this.gtfsId = String(gtfsId);
     }
 
     public getId(): string {
