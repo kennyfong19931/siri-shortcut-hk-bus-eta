@@ -62,6 +62,7 @@ const RETURN_FIRST_STOP_MATCH = [
     { company: COMPANY.KMB.CODE, route: '35A', stop: '石排街石歡樓 (KW209)' },
     { company: COMPANY.KMB.CODE, route: '35X', stop: '石排街石歡樓 (KW209)' },
     { company: COMPANY.NLB.CODE, route: '37', stop: '滿東邨' },
+    { company: COMPANY.KMB.CODE, route: '40B', stop: '下葵涌分科診所 (KW300)' },
     { company: COMPANY.KMB.CODE, route: '52X', stop: '御天峰 (TW201)' },
     { company: COMPANY.KMB.CODE, route: '53', stop: '御天峰 (TW201)' },
     { company: COMPANY.CTB.CODE, route: '6', stop: '聖士提反書院, 東頭灣道' },

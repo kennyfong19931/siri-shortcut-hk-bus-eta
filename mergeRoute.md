@@ -18,16 +18,17 @@ GTFS 沒有該車站，無法配對。
 | <img src="./public/img/ctb.svg" height="16"> 城巴 | 25 | 軒尼詩道官立小學 |
 | <img src="./public/img/ctb.svg" height="16"> 城巴 | 307 | 維園正門 |
 | <img src="./public/img/ctb.svg" height="16"> 城巴 | 33X | 薄扶林道墳場 |
-| <img src="./public/img/kmb.svg" height="16"> 九巴 | 40B | 麗瑤及祖堯 [^1] |
 | <img src="./public/img/kmb.svg" height="16"> 九巴 | 6C, 6F, 11B, 61X, 75X, 85, 85A, 115 | 九龍城碼頭巴士總站(落客站) [^1] |
 | <img src="./public/img/ctb.svg" height="16"> 城巴 | 606 | 康民街 |
 | <img src="./public/img/ctb.svg" height="16"> 城巴 | 7, 91, 307 | 香港站 |
 | <img src="./public/img/ctb.svg" height="16"> 城巴 | 8H, 8X, 682, 694 | 青年廣場 |
+| <img src="./public/img/ctb.svg" height="16"> 城巴 | 81 | 香港中央圖書館, 聖保祿醫院 |
 | <img src="./public/img/kmb.svg" height="16"> 九巴 | 88K | 顯徑巴士總站 (TA930)(落客站) [^1] |
 | <img src="./public/img/ctb.svg" height="16"> 城巴 | 905 | 修頓球場 |
+| <img src="./public/img/ctb.svg" height="16"> 城巴 | 914 | 香港中央圖書館, 皇仁書院 |
+| <img src="./public/img/ctb.svg" height="16"> 城巴 | A11 | 清風街天橋, 百德新街 |
 | <img src="./public/img/ctb.svg" height="16"> 城巴 | A20 | 浪澄灣 [^1] |
 | <img src="./public/img/ctb.svg" height="16"> 城巴 | B3 | 翠寧花園 [^1] |
-| <img src="./public/img/ctb.svg" height="16"> 城巴 | E11A, E11B, E21A, E21D, E21X, E22S, E23A, N21A, S52A, S56 | 修改於東湧之行車路線 [^1] |
 | <img src="./public/img/mtr.svg" height="16"> 港鐵巴士 | N216, N290 | 基順學校 > 利明樓 [^1] |
 | <img src="./public/img/mtr.svg" height="16"> 港鐵巴士 | K17 | 怡雅苑 [^1] |
 | <img src="./public/img/ctb.svg" height="16"> 城巴 | X15 | 中環 (香港摩天輪) |
