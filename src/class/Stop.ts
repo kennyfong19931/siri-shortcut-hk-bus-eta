@@ -29,7 +29,7 @@ export class Stop {
         this.street = street;
         this.fare = fare;
         this.fareHoliday = fareHoliday;
-        this.gtfsId = String(gtfsId);
+        this.gtfsId = gtfsId === undefined ? undefined : String(gtfsId);
     }
 
     public getId(): string {

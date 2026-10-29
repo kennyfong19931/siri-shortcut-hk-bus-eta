@@ -26,8 +26,8 @@ export class Route {
     ) {
         this.company = company;
         this.route = String(route);
-        this.routeType = String(routeType);
-        this.dir = String(dir);
+        this.routeType = routeType === undefined ? undefined : String(routeType);
+        this.dir = dir === undefined ? undefined : String(dir);
         this.orig = orig;
         this.dest = dest;
         this.stopList = stopList;
@@ -41,7 +41,7 @@ export class Route {
         } else {
             this.description = description.trim();
         }
-        this.gtfsId = String(gtfsId);
+        this.gtfsId = gtfsId === undefined ? undefined : String(gtfsId);
     }
 
     public getCompany(): string {
