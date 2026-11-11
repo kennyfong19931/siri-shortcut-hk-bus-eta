@@ -1,5 +1,6 @@
 import https from 'node:https';
 import logger from './logger';
+import { TG_RICH_MESSAGE_LIMIT } from '../constant';
 
 export const doRequest = async (
     method: string,
@@ -70,7 +71,7 @@ export const doRequest = async (
 
 export const getJointJson = () => require(`../../public/api/joint.json`);
 
-export const telegramPost = (body: any) => {
+export const telegramPost = (body: string) => {
     const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
     const CHAT_ID = isNaN(parseInt(process.env.TELEGRAM_CHAT_ID)) ? undefined : parseInt(process.env.TELEGRAM_CHAT_ID);
     const TOPIC_ID = isNaN(parseInt(process.env.TELEGRAM_TOPIC_ID))
@@ -81,10 +82,12 @@ export const telegramPost = (body: any) => {
         return;
     }
 
+    const markdown = truncateUtf8(body, TG_RICH_MESSAGE_LIMIT);
+
     const data = JSON.stringify({
         chat_id: CHAT_ID,
         rich_message: {
-            markdown: body,
+            markdown,
         },
         message_thread_id: TOPIC_ID,
     });
@@ -95,7 +98,7 @@ export const telegramPost = (body: any) => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Content-Length': Buffer.byteLength(data),
+                'Content-Length': Buffer.byteLength(data, 'utf8'),
             },
         },
         (res) => {
@@ -121,3 +124,19 @@ export const telegramPost = (body: any) => {
     req.write(data);
     req.end();
 };
+
+export const truncateUtf8 = (value: string, maxBytes: number) => {
+    if (Buffer.byteLength(value, 'utf8') <= maxBytes) return value;
+
+    const characters: string[] = [];
+    let byteLength = 0;
+
+    for (const character of value) {
+        const characterBytes = Buffer.byteLength(character, 'utf8');
+        if (byteLength + characterBytes > maxBytes) break;
+        characters.push(character);
+        byteLength += characterBytes;
+    }
+
+    return characters.join('');
+}

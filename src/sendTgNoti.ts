@@ -1,16 +1,15 @@
 import { execSync } from 'node:child_process';
 import path from 'path';
 import * as core from '@actions/core';
-import { COMPANY } from './constant';
+import { COMPANY, TG_RICH_MESSAGE_LIMIT } from './constant';
 import { Route } from './class/Route';
 import { Stop } from './class/Stop';
 import logger from './utils/logger';
-import { telegramPost } from './utils/requestUtil';
+import { telegramPost, truncateUtf8 } from './utils/requestUtil';
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
-// const TG_RICH_MESSAGE_LIMIT = 32768;
-const TG_WARNING_MESSAGE_COUNT = 20000;
+const GITHUB_ACTION_SUMMARY_LIMIT = 1048576; // 1024*1024
 
 (async function () {
     if (!BOT_TOKEN || !CHAT_ID) {
@@ -90,7 +89,7 @@ const TG_WARNING_MESSAGE_COUNT = 20000;
 
         if (summaryRoutes.length > 0) {
             // write to github summary
-            await core.summary.addHeading('🚌 巴士路線更新詳情').addEOL().addRaw(buildTableString(allUpdates)).write();
+            await core.summary.addHeading('🚌 巴士路線更新詳情').addEOL().addRaw(truncateUtf8(buildTableString(allUpdates), GITHUB_ACTION_SUMMARY_LIMIT)).write();
 
             logger.info(`route updated, count: ${summaryRoutes.length}`);
             const routeMessageTitle = `**🚌 巴士路線更新通知** <code>${commitHash}</code>`;
@@ -100,7 +99,7 @@ const TG_WARNING_MESSAGE_COUNT = 20000;
 ${buildTableString(allUpdates)}
 </details>`;
             const routeMessage =
-                routeMessageTitle.length + routeMessageBody.length > TG_WARNING_MESSAGE_COUNT
+                Buffer.byteLength(routeMessageTitle + routeMessageBody, 'utf8') > TG_RICH_MESSAGE_LIMIT
                     ? `${routeMessageTitle}
 
 > ⚠️ 可能超出 Telegram 長度限制，請到 🔗[Github](https://github.com/kennyfong19931/siri-shortcut-hk-bus-eta/actions/runs/${process.env.GITHUB_RUN_ID}) 上查看完整更新
