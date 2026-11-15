@@ -30,7 +30,7 @@ const GITHUB_ACTION_SUMMARY_LIMIT = 1048576; // 1024*1024
         const jsonFiles = gitDiffOutput
             .split('\n')
             .map((file) => file.trim())
-            .filter((file) => file.endsWith('.json'));
+            .filter((file) => file.startsWith('public/api') && file.endsWith('.json'));
 
         if (jsonFiles.length === 0) {
             logger.info('No json change in last commit');
