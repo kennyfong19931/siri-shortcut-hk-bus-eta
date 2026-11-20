@@ -25,9 +25,9 @@ const stopList = document.getElementById('stopList');
 const mainMenuHeaderDiv = document.getElementById('mainMenuHeaderDiv');
 const settingStraightenLine = document.getElementById('settingStraightenLine');
 const settingStopListRow = document.getElementById('settingStopListRow');
-const topographicMapAPI = 'https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/basemap/wgs84/{z}/{x}/{y}.png';
-const imageryMapAPI = 'https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/imagery/wgs84/{z}/{x}/{y}.png';
-const labelAPI = 'https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/label/hk/tc/wgs84/{z}/{x}/{y}.png';
+const topographicMapAPI = 'https://mapapi.hkmapservice.gov.hk/gs/api/v1.0.0/xyz/basemap/wgs84/{z}/{x}/{y}.png';
+const imageryMapAPI = 'https://mapapi.hkmapservice.gov.hk/gs/api/v1.0.0/xyz/imagery/wgs84/{z}/{x}/{y}.png';
+const labelAPI = 'https://mapapi.hkmapservice.gov.hk/gs/api/v1.0.0/xyz/label/hk/tc/wgs84/{z}/{x}/{y}.png';
 const attributionInfo =
     '<a target="_blank" href="https://portal.csdi.gov.hk/">&copy; 地圖版權屬香港特區政府</a><img style="width:16px;height:16px;" src="https://api.hkmapservice.gov.hk/mapapi/landsdlogo.jpg" />';
 const antPathOption = {
